@@ -488,160 +488,55 @@
             
             search(query, codeFilter = null, sectionFilter = null) {
                 // For debugging
-                console.log("Searching for:", query);
+                console.log("Basic search for:", query);
                 console.log("Code filter:", codeFilter);
                 console.log("Section filter:", sectionFilter);
                 
-                // Extract the specified code from the query if not provided as filter
-                const specifiedCode = codeFilter || this._extractCodeFromQuery(query);
-                console.log("Determined code:", specifiedCode);
-                
-                // Extract the specified section from the query if not provided as filter
-                const specifiedSection = sectionFilter || this._extractSectionFromQuery(query);
-                console.log("Determined section:", specifiedSection);
-                
-                // Expanded list of common words to filter out
-                const commonWords = new Set([
-                    'the', 'and', 'for', 'with', 'this', 'that', 'code', 'section', 'references', 
-                    'asme', 'api', 'what', 'where', 'when', 'who', 'how', 'which', 'any', 'all',
-                    'does', 'are', 'about', 'from', 'have', 'has', 'will', 'requirements', 'should',
-                    'must', 'can', 'may', 'standard', 'related', 'based', 'used', 'applicable'
-                ]);
+                const results = [];
                 
                 // Process the query into keywords
                 const keywords = query.toLowerCase()
                     .replace(/[.,;:!?()"'-]/g, ' ')
                     .split(/\s+/)
-                    .filter(word => word.length > 2) // Only words with 3+ characters
-                    .filter(word => !commonWords.has(word)); // Filter out common words
+                    .filter(word => word.length > 2); // Only words with 3+ characters
                 
-                console.log("Extracted keywords:", keywords);
+                console.log("Simple keywords:", keywords);
                 
-                // If no meaningful keywords found, try to extract numbers which might be section numbers
-                let includeNumbers = false;
-                if (keywords.length === 0) {
-                    const numbers = query.match(/\d+(\.\d+)?/g) || [];
-                    keywords.push(...numbers);
-                    includeNumbers = true;
-                    console.log("No keywords found, using numbers instead:", keywords);
-                }
+                // Determine which codes to search
+                const codesToSearch = codeFilter ? [codeFilter] : Object.keys(this.references);
                 
-                // Filter the codes to search
-                const codesToSearch = specifiedCode ? [specifiedCode] : Object.keys(this.references);
-                console.log("Searching in codes:", codesToSearch);
-                
-                // Array to hold matched references with their relevance scores
-                const scoredResults = [];
-                
-                // Track matches for debugging
-                let totalRefs = 0;
-                
+                // Simple search algorithm - just look for exact matches
                 for (const code of codesToSearch) {
-                    if (!this.references[code]) {
-                        console.log(`Code ${code} not found in references`);
-                        continue;
-                    }
+                    if (!this.references[code]) continue;
                     
                     for (const ref of this.references[code]) {
-                        totalRefs++;
-                        
-                        // Skip if a section filter is active and doesn't match
-                        if (specifiedSection && ref.section !== specifiedSection) {
+                        // Filter by section if specified
+                        if (sectionFilter && ref.section !== sectionFilter) {
                             continue;
                         }
                         
-                        const contentLower = ref.content.toLowerCase();
-                        const sectionInfo = ref.section.toLowerCase() + (ref.subsection ? '.' + ref.subsection.toLowerCase() : '');
-                        
-                        // Count how many keywords match and where
-                        let matchCount = 0;
-                        let titleMatchCount = 0;
-                        let relevanceScore = 0;
-                        
-                        for (const keyword of keywords) {
-                            // Check if keyword is in the section number or code
-                            if (sectionInfo.includes(keyword) || code.toLowerCase().includes(keyword)) {
-                                titleMatchCount++;
-                                relevanceScore += 15; // Much higher weight for metadata matches
-                            }
-                            
-                            // Check the content
-                            if (contentLower.includes(keyword)) {
-                                matchCount++;
-                                
-                                // Score based on keyword length (longer = more specific)
-                                // Square the length to give even more weight to longer keywords
-                                relevanceScore += Math.pow(keyword.length, 2);
-                                
-                                // Bonus if keyword appears early in the content (first 50 chars)
-                                const position = contentLower.indexOf(keyword);
-                                if (position < 50) {
-                                    relevanceScore += 10;
-                                }
-                                // Lesser bonus if it appears in the first half
-                                else if (position < contentLower.length / 2) {
-                                    relevanceScore += 5;
-                                }
-                                
-                                // Additional bonus if the keyword appears multiple times
-                                const matches = contentLower.match(new RegExp(keyword, 'g')) || [];
-                                if (matches.length > 1) {
-                                    relevanceScore += Math.min(matches.length * 2, 10); // Cap at +10
-                                }
-                            }
-                        }
-                        
-                        // Special case: if searching for a specific code or section, boost those matches
-                        if (specifiedCode && !codeFilter) {
-                            relevanceScore += 25;
-                        }
-                        if (specifiedSection && !sectionFilter) {
-                            relevanceScore += 25;
-                        }
-                        
-                        // Different matching logic based on query complexity
+                        // Check if content contains ANY of the keywords
                         let isMatch = false;
-                        
                         if (keywords.length === 0) {
-                            // Empty query after filtering - only match if filters were specified
-                            isMatch = (specifiedCode || specifiedSection);
-                        } else if (includeNumbers) {
-                            // When using numbers, only match if the number appears in section/code
-                            isMatch = titleMatchCount > 0;
-                        } else if (keywords.length === 1) {
-                            // Single keyword - strict match required and must be significant
-                            isMatch = matchCount === 1 && relevanceScore > 10;
-                        } else if (keywords.length === 2) {
-                            // Two keywords - we now require both to match for high precision
-                            // or one match in metadata (title/section) and one in content
-                            isMatch = (matchCount === 2) || (matchCount >= 1 && titleMatchCount >= 1);
+                            // If no keywords but we have filters, it's a match
+                            isMatch = (codeFilter || sectionFilter);
                         } else {
-                            // Multiple keywords - require at least 60% of keywords to match (increased from 40%)
-                            // OR fewer matches but with extremely high relevance score
-                            isMatch = (matchCount / keywords.length >= 0.6) || 
-                                    (matchCount >= 2 && relevanceScore > 50);
+                            const contentLower = ref.content.toLowerCase();
+                            isMatch = keywords.some(keyword => contentLower.includes(keyword));
                         }
                         
+                        // Add to results if it matches
                         if (isMatch) {
-                            // Create a copy with the code included
-                            scoredResults.push({
+                            results.push({
                                 ...ref,
-                                code: code,
-                                score: relevanceScore
+                                code: code
                             });
                         }
                     }
                 }
                 
-                // Sort by relevance score (highest first)
-                scoredResults.sort((a, b) => b.score - a.score);
-                
-                // Return only the top results (limit to 5 to further reduce irrelevant results)
-                // and remove the score property
-                const results = scoredResults.slice(0, 5).map(({score, ...ref}) => ref);
-                
-                console.log(`Searched ${totalRefs} references, found ${results.length} highly relevant matches`);
-                return results;
+                console.log(`Found ${results.length} matches`);
+                return results.slice(0, 10); // Limit to top 10 results
             }
             
             _extractCodeFromQuery(query) {
