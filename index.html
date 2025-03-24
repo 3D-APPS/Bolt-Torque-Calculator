@@ -492,8 +492,6 @@
                 console.log("Code filter:", codeFilter);
                 console.log("Section filter:", sectionFilter);
                 
-                const results = [];
-                
                 // Extract the specified code from the query if not provided as filter
                 const specifiedCode = codeFilter || this._extractCodeFromQuery(query);
                 console.log("Determined code:", specifiedCode);
@@ -502,11 +500,15 @@
                 const specifiedSection = sectionFilter || this._extractSectionFromQuery(query);
                 console.log("Determined section:", specifiedSection);
                 
-                // Get keywords from the query - simplified approach
+                // Get keywords from the query - improved approach
+                // Filter out common words that might lead to too many matches
+                const commonWords = new Set(['the', 'and', 'for', 'with', 'this', 'that', 'code', 'section', 'references', 'asme', 'api']);
+                
                 const keywords = query.toLowerCase()
                     .replace(/[.,;:!?()"'-]/g, ' ')
                     .split(/\s+/)
-                    .filter(word => word.length > 2); // Only words with 3+ characters
+                    .filter(word => word.length > 2) // Only words with 3+ characters
+                    .filter(word => !commonWords.has(word)); // Filter out common words
                 
                 console.log("Extracted keywords:", keywords);
                 
@@ -514,9 +516,11 @@
                 const codesToSearch = specifiedCode ? [specifiedCode] : Object.keys(this.references);
                 console.log("Searching in codes:", codesToSearch);
                 
+                // Array to hold matched references with their relevance scores
+                const scoredResults = [];
+                
                 // Track matches for debugging
                 let totalRefs = 0;
-                let matchedRefs = 0;
                 
                 for (const code of codesToSearch) {
                     if (!this.references[code]) {
@@ -532,23 +536,70 @@
                             continue;
                         }
                         
-                        // More lenient matching: match if ANY keyword is found, not ALL
                         const contentLower = ref.content.toLowerCase();
                         
-                        // Match if query is empty or at least one keyword matches
-                        if (keywords.length === 0 || keywords.some(keyword => contentLower.includes(keyword))) {
+                        // Count how many keywords match
+                        let matchCount = 0;
+                        let relevanceScore = 0;
+                        
+                        for (const keyword of keywords) {
+                            if (contentLower.includes(keyword)) {
+                                matchCount++;
+                                // Score based on keyword length (longer = more specific)
+                                relevanceScore += keyword.length;
+                                
+                                // Bonus if keyword appears early in the content
+                                if (contentLower.indexOf(keyword) < 50) {
+                                    relevanceScore += 5;
+                                }
+                            }
+                        }
+                        
+                        // Special case: if searching for a specific code or section, boost those matches
+                        if (specifiedCode && !codeFilter) {
+                            relevanceScore += 20;
+                        }
+                        if (specifiedSection && !sectionFilter) {
+                            relevanceScore += 20;
+                        }
+                        
+                        // Different matching logic based on query complexity
+                        let isMatch = false;
+                        
+                        if (keywords.length === 0) {
+                            // Empty query - match everything (but this should be rare)
+                            isMatch = true;
+                        } else if (keywords.length === 1) {
+                            // Single keyword - strict match required
+                            isMatch = matchCount === 1;
+                        } else if (keywords.length === 2) {
+                            // Two keywords - at least one must match
+                            isMatch = matchCount >= 1;
+                        } else {
+                            // Multiple keywords - require at least 40% of keywords to match
+                            // This increases precision for longer queries
+                            isMatch = matchCount / keywords.length >= 0.4;
+                        }
+                        
+                        if (isMatch) {
                             // Create a copy with the code included
-                            const resultRef = {
+                            scoredResults.push({
                                 ...ref,
-                                code: code // Ensure code is included
-                            };
-                            results.push(resultRef);
-                            matchedRefs++;
+                                code: code,
+                                score: relevanceScore
+                            });
                         }
                     }
                 }
                 
-                console.log(`Searched ${totalRefs} references, found ${matchedRefs} matches`);
+                // Sort by relevance score (highest first)
+                scoredResults.sort((a, b) => b.score - a.score);
+                
+                // Return only the top results (limit to 10 to avoid information overload)
+                // and remove the score property
+                const results = scoredResults.slice(0, 10).map(({score, ...ref}) => ref);
+                
+                console.log(`Searched ${totalRefs} references, found ${results.length} relevant matches`);
                 return results;
             }
             
