@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASME/API Codes Q&A System</title>
+    <style>
+        :root {
+            --primary-color: #00796b;
+            --primary-dark: #004d40;
+            --primary-light: #48a999;
+            --accent-color: #ffd54f;
+            --dark-bg: #212121;
+            --surface-bg: #333333;
+            --card-bg: #3d3d3d;
+            --text-primary: #ffffff;
+            --text-secondary: #b0bec5;
+            --border-color: #4f4f4f;
+            --divider-color: #616161;
+            --error-color: #cf6679;
+            --success-color: #66bb6a;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-bg);
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: var(--surface-bg);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--primary-light);
+        }
+        
+        .search-bar {
+            display: flex;
+            width: 100%;
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 12px 20px;
+            background-color: var(--surface-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(72, 169, 153, 0.3);
+        }
+        
+        .search-button {
+            padding: 12px 20px;
+            margin-left: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .search-button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .main-content {
+            margin-top: 30px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: var(--surface-bg);
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            background-color: var(--surface-bg);
+            color: var(--text-secondary);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .tab:hover:not(.active) {
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 25px;
+            background-color: var(--surface-bg);
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .search-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .search-options {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-light);
+        }
+        
+        .button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: 500;
+        }
+        
+        .button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .results-container {
+            padding: 20px 0;
+        }
+        
+        .results-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--divider-color);
+            color: var(--text-primary);
+        }
+        
+        .results-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-tag {
+            display: inline-flex;
+            align-items: center;
+            background-color: var(--primary-dark);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            border: 1px solid var(--primary-color);
+        }
+        
+        .result-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .result-title {
+            font-weight: 600;
+            color: var(--primary-light);
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--divider-color);
+        }
+        
+        .result-content {
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .empty-results {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+        }
+        
+        .loading::after {
+            content: "...";
+            animation: loadingDots 1.5s infinite;
+        }
+        
+        .error-message {
+            padding: 15px;
+            background-color: rgba(207, 102, 121, 0.2);
+            border-left: 4px solid var(--error-color);
+            border-radius: 4px;
+            color: var(--error-color);
+            margin-bottom: 20px;
+        }
+        
+        .disclaimer {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: rgba(72, 169, 153, 0.1);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .status-message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 4px;
+            background-color: var(--success-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        footer {
+            margin-top: 50px;
+            padding: 20px 0;
+            background-color: var(--surface-bg);
+            border-top: 1px solid var(--divider-color);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes loadingDots {
+            0% { content: "."; }
+            33% { content: ".."; }
+            66% { content: "..."; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>ASME/API Codes Q&A System</h1>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" class="search-input" id="quickSearch" placeholder="Quick search for code references...">
+            <button class="search-button" id="quickSearchBtn">Search</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="tabs">
+                <button class="tab active" data-tab="search">Advanced Search</button>
+                <button class="tab" data-tab="results">Results</button>
+            </div>
+            
+            <div class="tab-content active" id="search-tab">
+                <form id="searchForm">
+                    <div class="form-group">
+                        <label for="questionInput">Enter your question or keywords:</label>
+                        <input type="text" id="questionInput" class="form-control" placeholder="What fluids are covered by ASME B31.3?">
+                    </div>
+                    
+                    <div class="search-options">
+                        <div class="form-group">
+                            <label for="codeFilter">Filter by Code:</label>
+                            <select id="codeFilter" class="form-control">
+                                <option value="">All Codes</option>
+                                <option value="ASME B31.3">ASME B31.3</option>
+                                <option value="ASME Section I">ASME Section I</option>
+                                <option value="ASME Section V">ASME Section V</option>
+                                <option value="ASME Section VIII">ASME Section VIII</option>
+                                <option value="API 510">API 510</option>
+                                <option value="API 570">API 570</option>
+                                <option value="API 653">API 653</option>
+                                <option value="API 580">API 580</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="sectionFilter">Section Number:</label>
+                            <input type="text" id="sectionFilter" class="form-control" placeholder="e.g. 300.1.1">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="button">Search References</button>
+                </form>
+            </div>
+            
+            <div class="tab-content" id="results-tab">
+                <div class="results-header">
+                    <h2>Search Results</h2>
+                </div>
+                
+                <div id="loading" class="loading">Searching references</div>
+                
+                <div class="active-filters" id="activeFilters"></div>
+                
+                <div class="results-container" id="resultsContainer">
+                    <div class="empty-results">
+                        <p>Use the search tab to find relevant code references.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="statusMessage" class="status-message"></div>
+    
+    <footer>
+        <div class="container">
+            <p>ASME/API Codes Q&A System — For engineering reference purposes only.</p>
+        </div>
+    </footer>
+    
+    <script>
+        /**
+         * Class to represent a code reference with section, subsection, and content.
+         */
+        class CodeReference {
+            constructor(code, section, content, subsection = null) {
+                this.code = code;
+                this.section = section;
+                this.subsection = subsection;
+                this.content = content;
+            }
+            
+            toString() {
+                if (this.subsection) {
+                    return `${this.code} ${this.section}.${this.subsection}: ${this.content}`;
+                }
+                return `${this.code} ${this.section}: ${this.content}`;
+            }
+        }
+        
+        /**
+         * Database for storing and retrieving code references.
+         */
+        class CodeDatabase {
+            constructor() {
+                this.references = {
+                    "ASME B31.3": [],
+                    "ASME Section I": [],
+                    "ASME Section V": [],
+                    "ASME Section VIII": [],
+                    "API 510": [],
+                    "API 570": [],
+                    "API 653": [],
+                    "API 580": []
+                };
+            }
+            
+            addReference(reference) {
+                if (reference.code in this.references) {
+                    this.references[reference.code].push(reference);
+                } else {
+                    throw new Error(`Unknown code: ${reference.code}`);
+                }
+            }
+            
+            loadFromJSON(jsonData) {
+                try {
+                    const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+                    
+                    for (const [code, references] of Object.entries(data)) {
+                        for (const ref of references) {
+                            this.addReference(new CodeReference(
+                                code,
+                                ref.section,
+                                ref.content,
+                                ref.subsection || null
+                            ));
+                        }
+                    }
+                    return { success: true, message: "Successfully loaded references" };
+                } catch (e) {
+                    return { success: false, message: `Error loading references: ${e.message}` };
+                }
+            }
+            
+            search(query, codeFilter = null, sectionFilter = null) {
+                const results = [];
+                
+                // Extract the specified code from the query if not provided as filter
+                const specifiedCode = codeFilter || this._extractCodeFromQuery(query);
+                
+                // Extract the specified section from the query if not provided as filter
+                const specifiedSection = sectionFilter || this._extractSectionFromQuery(query);
+                
+                // Get keywords from the query
+                const keywords = query.toLowerCase().split(/\s+/).filter(word => word.length > 0);
+                
+                // Filter the codes to search
+                const codesToSearch = specifiedCode ? [specifiedCode] : Object.keys(this.references);
+                
+                for (const code of codesToSearch) {
+                    for (const ref of this.references[code]) {
+                        // If a section is specified, filter by section
+                        if (specifiedSection && ref.section !== specifiedSection) {
+                            continue;
+                        }
+                        
+                        // Search for keywords in the content
+                        const contentLower = ref.content.toLowerCase();
+                        if (keywords.length === 0 || keywords.every(keyword => contentLower.includes(keyword))) {
+                            results.push(ref);
+                        }
+                    }
+                }
+                
+                return results;
+            }
+            
+            _extractCodeFromQuery(query) {
+                const codePattern = /(ASME\s+(?:B31\.3|Section\s+[IVX]+)|API\s+(?:510|570|653|580))/i;
+                const codeMatch = query.match(codePattern);
+                
+                if (!codeMatch) {
+                    return null;
+                }
+                
+                const codeText = codeMatch[1];
+                
+                // Normalize the code text
+                if (/B31\.3/i.test(codeText)) {
+                    return "ASME B31.3";
+                } else if (/Section\s+I/i.test(codeText)) {
+                    return "ASME Section I";
+                } else if (/Section\s+V/i.test(codeText)) {
+                    return "ASME Section V";
+                } else if (/Section\s+VIII/i.test(codeText)) {
+                    return "ASME Section VIII";
+                } else if (/510/i.test(codeText)) {
+                    return "API 510";
+                } else if (/570/i.test(codeText)) {
+                    return "API 570";
+                } else if (/653/i.test(codeText)) {
+                    return "API 653";
+                } else if (/580/i.test(codeText)) {
+                    return "API 580";
+                }
+                
+                return null;
+            }
+            
+            _extractSectionFromQuery(query) {
+                const sectionPattern = /(?:section|para|paragraph)\s+([0-9\.]+)/i;
+                const sectionMatch = query.match(sectionPattern);
+                
+                return sectionMatch ? sectionMatch[1] : null;
+            }
+        }
+        
+        /**
+         * System for answering questions based on code references.
+         */
+        class QuestionAnswerSystem {
+            constructor(database) {
+                this.database = database;
+            }
+            
+            answerQuestion(question, codeFilter = null, sectionFilter = null) {
+                // Search for relevant references
+                const results = this.database.search(question, codeFilter, sectionFilter);
+                
+                if (results.length === 0) {
+                    return {
+                        message: "I couldn't find a specific reference for your question. Please provide more details or specify the code section you're interested in.",
+                        results: []
+                    };
+                }
+                
+                // Return the results
+                return {
+                    message: "Based on the relevant codes, here's what I found:",
+                    results: results
+                };
+            }
+        }
+        
+        /**
+         * Initialize the system with sample data.
+         */
+        function initializeWithSampleData() {
+            const db = new CodeDatabase();
+            
+            // Add sample references
+            db.addReference(new CodeReference(
+                "ASME B31.3",
+                "300.1.1",
+                "This Code contains requirements for piping typically found in petroleum refineries; chemical, pharmaceutical, textile, paper, semiconductor, and cryogenic plants; and related processing plants and terminals."
+            ));
+            
+            db.addReference(new CodeReference(
+                "ASME B31.3",
+                "300.2",
+                "The Code is applicable to piping for all fluids including: (1) raw, intermediate, and finished chemicals; (2) petroleum products; (3) gas, steam, air and water; (4) fluidized solids; (5) refrigerants; and (6) cryogenic fluids.",
+                "2"
+            ));
+            
+            db.addReference(new CodeReference(
+                "API 510",
+                "1.1",
+                "API 510 covers the in-service inspection, repair, alteration, and rerating activities for pressure vessels and the pressure-relieving devices protecting these vessels."
+            ));
+            
+            db.addReference(new CodeReference(
+                "API 570",
+                "1.1",
+                "API 570 covers inspection, rating, repair, and alteration procedures for metallic and fiberglass-reinforced plastic (FRP) piping systems and their associated pressure-relieving devices."
+            ));
+            
+            // Add more sample data
+            db.addReference(new CodeReference(
+                "ASME Section VIII",
+                "UG-27",
+                "Thickness of Shells Under Internal Pressure: The minimum required thickness of shells shall be the greater of the thicknesses calculated by the equations in this paragraph."
+            ));
+            
+            db.addReference(new CodeReference(
+                "ASME Section VIII",
+                "UG-99",
+                "Standard Hydrostatic Test: Except as otherwise permitted in this Division, all pressure vessels shall be subjected to a hydrostatic test at a pressure at least equal to 1.3 times the maximum allowable working pressure."
+            ));
+            
+            db.addReference(new CodeReference(
+                "API 653",
+                "4.3",
+                "Inspection Intervals: The interval from initial service until the first internal inspection shall not exceed 10 years.",
+                "1"
+            ));
+            
+            db.addReference(new CodeReference(
+                "API 580",
+                "3.1",
+                "Risk-Based Inspection (RBI) is a risk assessment and management process that is focused on loss of containment of pressurized equipment in processing facilities, due to material deterioration."
+            ));
+            
+            return new QuestionAnswerSystem(db);
+        }
+        
+        // Initialize the system when the page loads
+        let qaSystem;
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("Initializing ASME/API Codes Q&A System...");
+            qaSystem = initializeWithSampleData();
+            console.log("System ready!");
+            
+            // Set up event listeners
+            document.getElementById('searchForm').addEventListener('submit', handleSearch);
+            document.getElementById('quickSearchBtn').addEventListener('click', handleQuickSearch);
+            
+            // Set up tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+                });
+            });
+        });
+        
+        /**
+         * Handle the quick search button click.
+         */
+        function handleQuickSearch() {
+            const searchInput = document.getElementById('quickSearch');
+            const question = searchInput.value.trim();
+            
+            if (!question) {
+                showStatusMessage("Please enter a question or keywords to search.", false);
+                return;
+            }
+            
+            // Copy the value to the main search field
+            document.getElementById('questionInput').value = question;
+            
+            // Perform the search
+            performSearch(question);
+            
+            // Switch to results tab
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector('.tab[data-tab="results"]').classList.add('active');
+            document.getElementById('results-tab').classList.add('active');
+        }
+        
+        /**
+         * Handle the search form submission.
+         */
+        function handleSearch(event) {
+            event.preventDefault();
+            
+            const questionInput = document.getElementById('questionInput');
+            const question = questionInput.value.trim();
+            
+            if (!question) {
+                showStatusMessage("Please enter a question or keywords to search.", false);
+                return;
+            }
+            
+            // Copy to quick search
+            document.getElementById('quickSearch').value = question;
+            
+            // Gather filters
+            const codeFilter = document.getElementById('codeFilter').value;
+            const sectionFilter = document.getElementById('sectionFilter').value;
+            
+            // Perform the search
+            performSearch(question, codeFilter, sectionFilter);
+            
+            // Switch to results tab
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector('.tab[data-tab="results"]').classList.add('active');
+            document.getElementById('results-tab').classList.add('active');
+        }
+        
+        /**
+         * Perform the search and display results.
+         */
+        function performSearch(question, codeFilter = null, sectionFilter = null) {
+            const loadingElement = document.getElementById('loading');
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            // Show loading indicator
+            loadingElement.style.display = 'block';
+            resultsContainer.innerHTML = '';
+            
+            // Use setTimeout to allow the UI to update before processing
+            setTimeout(() => {
+                const answer = qaSystem.answerQuestion(question, codeFilter, sectionFilter);
+                
+                // Hide loading indicator
+                loadingElement.style.display = 'none';
+                
+                // Display results
+                displayResults(answer, codeFilter, sectionFilter);
+            }, 300); // Short delay for better UX
+        }
+        
+        /**
+         * Display the search results.
+         */
+        function displayResults(answer, codeFilter, sectionFilter) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const activeFiltersContainer = document.getElementById('activeFilters');
+            
+            // Clear active filters
+            activeFiltersContainer.innerHTML = '';
+            
+            // Display active filters if any
+            if (codeFilter || sectionFilter) {
+                activeFiltersContainer.style.display = 'flex';
+                
+                if (codeFilter) {
+                    const filterTag = document.createElement('span');
+                    filterTag.className = 'filter-tag';
+                    filterTag.textContent = codeFilter;
+                    activeFiltersContainer.appendChild(filterTag);
+                }
+                
+                if (sectionFilter) {
+                    const filterTag = document.createElement('span');
+                    filterTag.className = 'filter-tag';
+                    filterTag.textContent = `Section: ${sectionFilter}`;
+                    activeFiltersContainer.appendChild(filterTag);
+                }
+            } else {
+                activeFiltersContainer.style.display = 'none';
+            }
+            
+            if (answer.results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="error-message">
+                        <p>${answer.message}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let resultsHTML = `<p>${answer.message}</p>`;
+            
+            answer.results.forEach((ref, index) => {
+                resultsHTML += `
+                    <div class="result-card">
+                        <div class="result-title">${index + 1}. ${ref.code} ${ref.section}${ref.subsection ? '.' + ref.subsection : ''}</div>
+                        <div class="result-content">${ref.content}</div>
+                    </div>
+                `;
+            });
+            
+            resultsHTML += `
+                <div class="disclaimer">
+                    Note: This information is provided as reference only. 
+                    Always consult the official documentation for definitive answers.
+                </div>
+            `;
+            
+            resultsContainer.innerHTML = resultsHTML;
+        }
+        
+        /**
+         * Show a status message to the user.
+         */
+        function showStatusMessage(message, isSuccess) {
+            const statusElement = document.getElementById('statusMessage');
+            statusElement.textContent = message;
+            statusElement.style.backgroundColor = isSuccess ? 'var(--success-color)' : 'var(--error-color)';
+            statusElement.style.display = 'block';
+            
+            // Hide the message after a few seconds
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
