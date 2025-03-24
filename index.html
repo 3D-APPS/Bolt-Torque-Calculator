@@ -722,6 +722,8 @@
 
         // Initialize the system when the page loads
         let qaSystem;
+        let referenceData = {}; // Global variable to store loaded references
+        
         document.addEventListener('DOMContentLoaded', async () => {
             console.log("Initializing ASME/API Codes Q&A System...");
             
@@ -731,8 +733,51 @@
             statusElement.style.backgroundColor = 'var(--primary-color)';
             statusElement.style.display = 'block';
             
-            // Initialize the system
-            qaSystem = await initializeSystem();
+            // Load the built-in sample data first to ensure we have something
+            referenceData = {
+                "ASME B31.3": [
+                    {
+                        "section": "300.1.1",
+                        "content": "This Code contains requirements for piping typically found in petroleum refineries; chemical, pharmaceutical, textile, paper, semiconductor, and cryogenic plants; and related processing plants and terminals."
+                    },
+                    {
+                        "section": "300.2",
+                        "subsection": "2",
+                        "content": "The Code is applicable to piping for all fluids including: (1) raw, intermediate, and finished chemicals; (2) petroleum products; (3) gas, steam, air and water; (4) fluidized solids; (5) refrigerants; and (6) cryogenic fluids."
+                    }
+                ],
+                "API 510": [
+                    {
+                        "section": "1.1",
+                        "content": "API 510 covers the in-service inspection, repair, alteration, and rerating activities for pressure vessels and the pressure-relieving devices protecting these vessels."
+                    }
+                ],
+                "API 570": [
+                    {
+                        "section": "1.1",
+                        "content": "API 570 covers inspection, rating, repair, and alteration procedures for metallic and fiberglass-reinforced plastic (FRP) piping systems and their associated pressure-relieving devices."
+                    }
+                ]
+            };
+            
+            // Try to load additional references from the external file
+            try {
+                const response = await fetch('code-references.json');
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("External data loaded:", data);
+                    referenceData = data; // Replace with the external data
+                    showStatusMessage("References loaded successfully", true);
+                }
+            } catch (error) {
+                console.error("Error loading external references:", error);
+                showStatusMessage("Using built-in references", false);
+            }
+            
+            console.log("Reference data available:", referenceData);
+            
+            // Initialize the system with the reference data
+            qaSystem = new SimpleQuerySystem(referenceData);
             console.log("System ready!");
             
             // Hide the loading message
@@ -757,6 +802,106 @@
                 });
             });
         });
+
+        /**
+         * Simple query system for code references.
+         */
+        class SimpleQuerySystem {
+            constructor(referenceData) {
+                this.referenceData = referenceData;
+                console.log("SimpleQuerySystem initialized with:", this.referenceData);
+            }
+            
+            searchReferences(query, codeFilter = null, sectionFilter = null) {
+                console.log("Searching for:", query);
+                console.log("Filters:", codeFilter, sectionFilter);
+                
+                // Make sure we have data to search
+                if (!this.referenceData || Object.keys(this.referenceData).length === 0) {
+                    console.error("No reference data available for search");
+                    return [];
+                }
+                
+                const results = [];
+                const searchTerms = query.toLowerCase().split(/\s+/).filter(term => term.length > 2);
+                
+                // Determine which codes to search
+                const codesToSearch = codeFilter ? [codeFilter] : Object.keys(this.referenceData);
+                
+                for (const code of codesToSearch) {
+                    // Skip if this code doesn't exist in our data
+                    if (!this.referenceData[code]) {
+                        console.log(`Code ${code} not found in data`);
+                        continue;
+                    }
+                    
+                    const references = this.referenceData[code];
+                    console.log(`Searching in ${code}, found ${references.length} references`);
+                    
+                    for (const ref of references) {
+                        // Apply section filter if provided
+                        if (sectionFilter && ref.section !== sectionFilter) {
+                            continue;
+                        }
+                        
+                        // Check if this reference matches the search terms
+                        const content = ref.content.toLowerCase();
+                        
+                        let matches = false;
+                        
+                        // If no search terms, include everything (when using filters)
+                        if (searchTerms.length === 0 && (codeFilter || sectionFilter)) {
+                            matches = true;
+                        }
+                        // Otherwise, check if ANY search term appears in the content
+                        else {
+                            for (const term of searchTerms) {
+                                if (content.includes(term)) {
+                                    matches = true;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (matches) {
+                            results.push({
+                                code: code,
+                                section: ref.section,
+                                subsection: ref.subsection,
+                                content: ref.content
+                            });
+                        }
+                    }
+                }
+                
+                console.log(`Found ${results.length} matching references`);
+                return results;
+            }
+            
+            answerQuestion(question, codeFilter = null, sectionFilter = null) {
+                try {
+                    const results = this.searchReferences(question, codeFilter, sectionFilter);
+                    
+                    if (results.length === 0) {
+                        return {
+                            message: "I couldn't find a specific reference for your question. Please try different keywords or specify the code section you're interested in.",
+                            results: []
+                        };
+                    }
+                    
+                    return {
+                        message: `Found ${results.length} references that may answer your question:`,
+                        results: results
+                    };
+                } catch (error) {
+                    console.error("Error answering question:", error);
+                    return {
+                        message: "An error occurred while searching. Please try again.",
+                        results: []
+                    };
+                }
+            }
+        }
         
         /**
          * Handle the quick search button click.
@@ -825,16 +970,40 @@
             loadingElement.style.display = 'block';
             resultsContainer.innerHTML = '';
             
-            // Use setTimeout to allow the UI to update before processing
-            setTimeout(() => {
-                const answer = qaSystem.answerQuestion(question, codeFilter, sectionFilter);
-                
-                // Hide loading indicator
+            // Check if qaSystem is initialized
+            if (!qaSystem) {
+                console.error("QA System not initialized yet");
                 loadingElement.style.display = 'none';
-                
-                // Display results
-                displayResults(answer, codeFilter, sectionFilter);
-            }, 300); // Short delay for better UX
+                resultsContainer.innerHTML = `
+                    <div class="error-message">
+                        <p>The search system is not yet initialized. Please try again in a moment.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                // Use setTimeout to allow the UI to update before processing
+                setTimeout(() => {
+                    console.log("Performing search with:", question, codeFilter, sectionFilter);
+                    const answer = qaSystem.answerQuestion(question, codeFilter, sectionFilter);
+                    console.log("Search results:", answer);
+                    
+                    // Hide loading indicator
+                    loadingElement.style.display = 'none';
+                    
+                    // Display results
+                    displayResults(answer, codeFilter, sectionFilter);
+                }, 300); // Short delay for better UX
+            } catch (error) {
+                console.error("Error during search:", error);
+                loadingElement.style.display = 'none';
+                resultsContainer.innerHTML = `
+                    <div class="error-message">
+                        <p>An error occurred while searching. Please try again with different keywords.</p>
+                    </div>
+                `;
+            }
         }
         
         /**
