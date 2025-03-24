@@ -2,18 +2,184 @@
   "ASME B31.3": [
     {
       "section": "300.1.1",
-      "content": "This Code contains requirements for piping typically found in petroleum refineries..."
+      "content": "This Code contains requirements for piping typically found in petroleum refineries; chemical, pharmaceutical, textile, paper, semiconductor, and cryogenic plants; and related processing plants and terminals."
     },
     {
       "section": "300.2",
       "subsection": "2",
-      "content": "The Code is applicable to piping for all fluids including..."
+      "content": "The Code is applicable to piping for all fluids including: (1) raw, intermediate, and finished chemicals; (2) petroleum products; (3) gas, steam, air and water; (4) fluidized solids; (5) refrigerants; and (6) cryogenic fluids."
+    },
+    {
+      "section": "301.2.2",
+      "content": "The owner is responsible for determining whether this Code applies to specific piping installations or portions thereof and for determining the proper piping Code or standard to be applied to other piping, all subject to review by the appropriate jurisdictional authorities when required."
+    },
+    {
+      "section": "302.2.4",
+      "content": "Additions to existing piping systems shall be designed and constructed in accordance with the requirements of this Code or the Code to which the existing system was built, whichever is later."
+    },
+    {
+      "section": "304.1.2",
+      "content": "The minimum required thickness for pipe under internal pressure shall be determined by eq. (3a) unless otherwise established in the applicable piping code. Component standards, specifications, or section 304.1.3."
+    }
+  ],
+  "ASME Section VIII": [
+    {
+      "section": "UG-27",
+      "content": "Thickness of Shells Under Internal Pressure: The minimum required thickness of shells shall be the greater of the thicknesses calculated by the equations in this paragraph."
+    },
+    {
+      "section": "UG-99",
+      "content": "Standard Hydrostatic Test: Except as otherwise permitted in this Division, all pressure vessels shall be subjected to a hydrostatic test at a pressure at least equal to 1.3 times the maximum allowable working pressure."
+    },
+    {
+      "section": "UW-3",
+      "content": "Welded joint categories. Welded joints are classified as follows: Category A - longitudinal or spiral welded joints within the main shell, within heads, or within the neck of communicating chambers, or connecting chambers to the main vessel."
+    },
+    {
+      "section": "UW-11",
+      "content": "Radiographic Examination of Welded Joints. Except as otherwise permitted in this Division, all Categories A and B welded joints shall be fully radiographed in accordance with the requirements of UW-51."
+    },
+    {
+      "section": "UW-12",
+      "content": "Each manufacturer or contractor shall qualify welding procedures and welders or welding operators to be employed in the construction of vessels or parts to meet the requirements of this Division and Section IX of the ASME Boiler and Pressure Vessel Code."
     }
   ],
   "API 510": [
     {
       "section": "1.1",
-      "content": "API 510 covers the in-service inspection, repair, alteration..."
+      "content": "API 510 covers the in-service inspection, repair, alteration, and rerating activities for pressure vessels and the pressure-relieving devices protecting these vessels."
+    },
+    {
+      "section": "3.16",
+      "content": "Inspection Plan: A documented strategy for scheduling and implementing the activities required for inspection, examination, or testing of a pressure vessel throughout its service life."
+    },
+    {
+      "section": "5.1.1",
+      "content": "Corrosion rate determination is used to predict inspection intervals and retirement thickness of pressure vessels. The owner-user shall determine and document the corrosion rate for each major component."
+    },
+    {
+      "section": "6.2.1",
+      "content": "Inspection intervals for each vessel shall be established on the basis of expected damage mechanisms, inspection history, comparable vessel service experience, and jurisdictional requirements."
+    },
+    {
+      "section": "7.1.2",
+      "content": "Repairs and alterations to pressure vessels shall be performed by an organization that has a valid ASME Certificate of Authorization, a National Board R stamp, or an API 510 certification or equivalent."
+    }
+  ],
+  "API 570": [
+    {
+      "section": "1.1",
+      "content": "API 570 covers inspection, rating, repair, and alteration procedures for metallic and fiberglass-reinforced plastic (FRP) piping systems and their associated pressure-relieving devices."
+    },
+    {
+      "section": "5.3",
+      "content": "The owner/user should review and document applicable inspection, CUI prevention, and corrosion/degradation control programs at least annually to ensure that they continue to meet objectives."
+    },
+    {
+      "section": "5.7",
+      "content": "The inspector should make recommendations regarding remedial actions or further inspection when the results of an inspection indicate that deterioration has occurred."
+    },
+    {
+      "section": "6.3.1",
+      "content": "Piping risk assessment, where applied, may be performed using qualitative, semi-quantitative, or quantitative methods. Repair and inspection priorities should be established through this process."
+    },
+    {
+      "section": "8.1.5",
+      "content": "When extensive repairs to a piping system are planned, the system should be reviewed prior to initiating repairs to identify any requirements for pressure testing, PMI, and NDE prior to or after the repair."
+    }
+  ],
+  "API 653": [
+    {
+      "section": "4.3",
+      "subsection": "1",
+      "content": "Inspection Intervals: The interval from initial service until the first internal inspection shall not exceed 10 years."
+    },
+    {
+      "section": "6.4.1",
+      "content": "The most probable failure mode, rate of deterioration, and time to failure shall be considered in determining the appropriate inspection method for the bottom of a tank sitting directly on a foundation."
+    },
+    {
+      "section": "8.3",
+      "content": "The minimum remaining thickness, tm, allowed at the time of the inspection is the greater of either the minimum thickness required for structural integrity or the thickness required by API 650 with a corrosion allowance adequate for the interval until the next inspection."
+    },
+    {
+      "section": "9.10",
+      "content": "All repaired areas should be examined by the inspector. This examination should be performed during the repair and after completion, as appropriate."
+    },
+    {
+      "section": "12.1",
+      "content": "When a hydrostatic test is required, the following should be reviewed and addressed as appropriate: foundation settlement, shell distortion, pressure/vacuum devices, and connected piping that could be damaged by the test."
+    }
+  ],
+  "API 580": [
+    {
+      "section": "3.1",
+      "content": "Risk-Based Inspection (RBI) is a risk assessment and management process that is focused on loss of containment of pressurized equipment in processing facilities, due to material deterioration."
+    },
+    {
+      "section": "4.2.1",
+      "content": "The level of detail and the approach to RBI can vary considerably depending on the complexity of the facility, availability of data, and the owner-user's objectives."
+    },
+    {
+      "section": "6.2",
+      "content": "An RBI assessment should identify the potential deterioration mechanisms and threats that can lead to loss of containment, and assess their likelihood and consequences throughout the equipment lifecycle."
+    },
+    {
+      "section": "7.3",
+      "content": "Consequence analysis may include the effects on: personnel safety, environmental impact, business interruption, property damage, and public impact. This may also include considerations such as contamination and product quality."
+    },
+    {
+      "section": "9.4",
+      "content": "The outputs from an RBI assessment should be used to develop inspection plans that address all identified damage mechanisms with an inspection effectiveness that is consistent with the level of risk."
+    }
+  ],
+  "ASME Section I": [
+    {
+      "section": "PG-5.1",
+      "content": "The manufacturer shall establish by qualification tests that each welding procedure to be used in construction will produce welds that have the required properties."
+    },
+    {
+      "section": "PG-16.1",
+      "content": "The permissible working pressure shall be calculated based on the nominal thickness of the material minus the minimum amount required for threaded portion and structural integrity."
+    },
+    {
+      "section": "PG-27.2.1",
+      "content": "The minimum thickness of shells and drums shall be not less than 1/4 in. (6 mm) for all diameters. For drums with a diameter greater than 60 in. (1,500 mm), the minimum thickness shall be not less than 5/16 in. (8 mm)."
+    },
+    {
+      "section": "PG-46.1",
+      "content": "Every boiler shall have at least one safety valve and if it has more than 500 sq ft (47 m²) of bare tube water-heating surface, or if an electric boiler has a power input more than 1,100 kW, it shall have two or more safety valves."
+    },
+    {
+      "section": "PG-99.1",
+      "content": "After a boiler has been completed, it shall be subjected to a hydrostatic test of 1½ times the maximum allowable working pressure. The test pressure shall be maintained for a sufficient time to permit inspection of all joints and connections."
+    }
+  ],
+  "ASME Section V": [
+    {
+      "section": "Article 1",
+      "subsection": "T-120",
+      "content": "Responsibilities: The Manufacturer, Fabricator, or Owner, as applicable, shall be responsible for the qualification of NDE procedures and personnel."
+    },
+    {
+      "section": "Article 2",
+      "subsection": "T-210",
+      "content": "Scope: This Article describes radiographic examination techniques using X-rays or gamma rays. It also includes radioscopic techniques when specifically referenced by the referencing Code Section."
+    },
+    {
+      "section": "Article 4",
+      "subsection": "T-420",
+      "content": "General Requirements: The ultrasonic examination shall be performed using the pulse-echo technique with straight, angle, or dual element search units. The examination shall be performed with equipment capable of operating at frequencies in the range of 1 MHz to 5 MHz."
+    },
+    {
+      "section": "Article 6",
+      "subsection": "T-630",
+      "content": "Equipment: The penetrant materials may be applied by any of the following techniques: dipping, brushing, or spraying. Automatic penetrant processing systems may be used, provided they meet the requirements of this Article."
+    },
+    {
+      "section": "Article 7",
+      "subsection": "T-780",
+      "content": "Evaluation: All indications shall be evaluated in terms of the acceptance standards of the referencing Code Section. Indications shall be evaluated in terms of their dimensions, spacing, and sharpness or diffuseness, as applicable."
     }
   ]
 }
