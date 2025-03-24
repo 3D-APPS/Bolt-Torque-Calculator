@@ -3,1196 +3,1173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASME/API Codes Q&A System</title>
+    <title>API Code Exemption Checker</title>
     <style>
-        :root {
-            --primary-color: #00796b;
-            --primary-dark: #004d40;
-            --primary-light: #48a999;
-            --accent-color: #ffd54f;
-            --dark-bg: #212121;
-            --surface-bg: #333333;
-            --card-bg: #3d3d3d;
-            --text-primary: #ffffff;
-            --text-secondary: #b0bec5;
-            --border-color: #4f4f4f;
-            --divider-color: #616161;
-            --error-color: #cf6679;
-            --success-color: #66bb6a;
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
         }
         
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            line-height: 1.6;
-            color: var(--text-primary);
-            margin: 0;
-            padding: 0;
-            background-color: var(--dark-bg);
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
         }
         
         .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        header {
-            background-color: var(--surface-bg);
-            padding: 20px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-        
-        header .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: 500;
-            color: var(--primary-light);
-        }
-        
-        .search-bar {
-            display: flex;
-            width: 100%;
-            max-width: 600px;
-            margin: 30px auto;
-            padding: 12px 20px;
-            background-color: var(--surface-bg);
+            background-color: #f9f9f9;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
-        .search-input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
+        .question-section {
+            margin-bottom: 10px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            background-color: var(--card-bg);
-            color: var(--text-primary);
-            font-size: 1rem;
+            box-sizing: border-box;
         }
         
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 2px rgba(72, 169, 153, 0.3);
-        }
-        
-        .search-button {
-            padding: 12px 20px;
-            margin-left: 10px;
-            background-color: var(--primary-color);
+        button {
+            background-color: #3498db;
             color: white;
             border: none;
+            padding: 10px 15px;
             border-radius: 4px;
-            font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.2s;
+            font-size: 16px;
+            display: block;
+            margin: 20px auto;
+            transition: background-color 0.3s;
         }
         
-        .search-button:hover {
-            background-color: var(--primary-dark);
+        button:hover {
+            background-color: #2980b9;
         }
         
-        .main-content {
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+        
+        .exempt {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .not-exempt {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .info-section {
             margin-top: 30px;
+            background-color: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
         }
         
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-            background-color: var(--surface-bg);
-            border-radius: 8px 8px 0 0;
-            overflow: hidden;
-        }
-        
-        .tab {
-            padding: 15px 25px;
-            background-color: var(--surface-bg);
-            color: var(--text-secondary);
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s;
-            flex: 1;
+        .disclaimer {
+            font-size: 12px;
+            margin-top: 20px;
+            color: #777;
             text-align: center;
         }
         
-        .tab.active {
-            background-color: var(--primary-color);
-            color: white;
+        /* Tab styling */
+        .tabs {
+            overflow: hidden;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
         }
         
-        .tab:hover:not(.active) {
-            background-color: var(--card-bg);
-            color: var(--text-primary);
+        .tab-button {
+            background-color: #f1f1f1;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 12px 20px;
+            transition: 0.3s;
+            font-size: 16px;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            margin-bottom: -1px;
+        }
+        
+        .tab-button:hover {
+            background-color: #ddd;
+        }
+        
+        .tab-button.active {
+            background-color: #3498db;
+            color: white;
+            border-bottom: 1px solid #3498db;
         }
         
         .tab-content {
             display: none;
-            padding: 25px;
-            background-color: var(--surface-bg);
-            border-radius: 0 0 8px 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            padding: 10px 0;
+            animation: fadeEffect 1s;
         }
         
-        .tab-content.active {
-            display: block;
+        @keyframes fadeEffect {
+            from {opacity: 0;}
+            to {opacity: 1;}
         }
         
-        .search-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
+        .dynamic-fields {
+            display: none;
         }
         
-        @media (max-width: 768px) {
-            .search-options {
-                grid-template-columns: 1fr;
-            }
+        .calculator-result {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #e8f4fd;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
         }
         
-        .form-group {
-            margin-bottom: 15px;
+        .transfer-button {
+            background-color: #27ae60;
+            margin-top: 10px;
         }
         
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
+        .transfer-button:hover {
+            background-color: #219653;
         }
         
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background-color: var(--card-bg);
-            color: var(--text-primary);
-            font-size: 1rem;
+        /* Styles for the code reference tab */
+        .reference-results {
+            margin-top: 20px;
         }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-light);
-        }
-        
-        .button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 12px 24px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            font-weight: 500;
-        }
-        
-        .button:hover {
-            background-color: var(--primary-dark);
-        }
-        
-        .results-container {
-            padding: 20px 0;
-        }
-        
-        .results-header {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--divider-color);
-            color: var(--text-primary);
-        }
-        
-        .results-stats {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .active-filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        
-        .filter-tag {
-            display: inline-flex;
-            align-items: center;
-            background-color: var(--primary-dark);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            border: 1px solid var(--primary-color);
-        }
-        
+
         .result-card {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            border-left: 4px solid var(--primary-color);
+            background-color: white;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        
+
         .result-title {
-            font-weight: 600;
-            color: var(--primary-light);
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--divider-color);
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
         }
-        
+
         .result-content {
-            color: var(--text-primary);
+            color: #333;
             line-height: 1.6;
-            white-space: normal;
-            word-wrap: break-word;
-            overflow: visible;
         }
-        
-        .empty-results {
-            text-align: center;
-            padding: 30px;
-            color: var(--text-secondary);
-        }
-        
+
         .loading {
-            display: none;
+            margin: 20px 0;
             text-align: center;
-            padding: 30px;
-            color: var(--text-secondary);
+            font-style: italic;
+            color: #777;
         }
-        
-        .loading::after {
-            content: "...";
-            animation: loadingDots 1.5s infinite;
-        }
-        
-        .error-message {
+
+        .no-results {
+            background-color: #f8d7da;
+            color: #721c24;
             padding: 15px;
-            background-color: rgba(207, 102, 121, 0.2);
-            border-left: 4px solid var(--error-color);
-            border-radius: 4px;
-            color: var(--error-color);
-            margin-bottom: 20px;
-        }
-        
-        .disclaimer {
-            margin-top: 30px;
-            padding: 15px;
-            background-color: rgba(72, 169, 153, 0.1);
-            border-left: 4px solid var(--primary-color);
-            border-radius: 4px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-        
-        .status-message {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            border-radius: 4px;
-            background-color: var(--success-color);
-            color: white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            display: none;
-            animation: slideIn 0.3s ease-out;
-        }
-        
-        footer {
-            margin-top: 50px;
-            padding: 20px 0;
-            background-color: var(--surface-bg);
-            border-top: 1px solid var(--divider-color);
+            border-radius: 5px;
+            margin-top: 20px;
             text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-        
-        @keyframes slideIn {
-            from { 
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to { 
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes loadingDots {
-            0% { content: "."; }
-            33% { content: ".."; }
-            66% { content: "..."; }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>ASME/API Codes Q&A System</h1>
-        </div>
-    </header>
+    <h1>API Code Exemption Checker</h1>
     
     <div class="container">
-        <div class="search-bar">
-            <input type="text" class="search-input" id="quickSearch" placeholder="Quick search for code references...">
-            <button class="search-button" id="quickSearchBtn">Search</button>
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab(event, 'exemption-tab')">Exemption Checker</button>
+            <button class="tab-button" onclick="openTab(event, 'calculator-tab')">Volume Calculator</button>
+            <button class="tab-button" onclick="openTab(event, 'reference-tab')">Code Reference</button>
         </div>
         
-        <div class="main-content">
-            <div class="tabs">
-                <button class="tab active" data-tab="search">Advanced Search</button>
-                <button class="tab" data-tab="results">Results</button>
+        <div class="question-section" style="margin-top: 10px;">
+            <label for="api-code">Select API Inspection Code:</label>
+            <select id="api-code" onchange="updateFormForCode()">
+                <option value="api510">API 510 - Pressure Vessel Inspection</option>
+                <option value="api570">API 570 - Piping Inspection</option>
+                <option value="api653">API 653 - Storage Tank Inspection</option>
+            </select>
+        </div>
+        
+        <div id="exemption-tab" class="tab-content" style="display: block;">
+            <div class="question-section">
+                <label for="vessel-type">Vessel Type/Service:</label>
+                <select id="vessel-type">
+                    <option value="">-- Select --</option>
+                    <option value="fired_heater">Fired Heater</option>
+                    <option value="heat_exchanger">Heat Exchanger (Shell & Tube)</option>
+                    <option value="boiler">Boiler</option>
+                    <option value="pressure_vessel">Standard Pressure Vessel</option>
+                    <option value="piping">Piping Component</option>
+                    <option value="storage_tank">Storage Tank</option>
+                    <option value="other">Other</option>
+                </select>
             </div>
             
-            <div class="tab-content active" id="search-tab">
-                <form id="searchForm">
-                    <div class="form-group">
-                        <label for="questionInput">Enter your question or keywords:</label>
-                        <input type="text" id="questionInput" class="form-control" placeholder="What fluids are covered by ASME B31.3?">
-                    </div>
-                    
-                    <div class="search-options">
-                        <div class="form-group">
-                            <label for="codeFilter">Filter by Code:</label>
-                            <select id="codeFilter" class="form-control">
-                                <option value="">All Codes</option>
-                                <option value="ASME B31.3">ASME B31.3</option>
-                                <option value="ASME Section I">ASME Section I</option>
-                                <option value="ASME Section V">ASME Section V</option>
-                                <option value="ASME Section VIII">ASME Section VIII</option>
-                                <option value="API 510">API 510</option>
-                                <option value="API 570">API 570</option>
-                                <option value="API 653">API 653</option>
-                                <option value="API 580">API 580</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="sectionFilter">Section Number:</label>
-                            <input type="text" id="sectionFilter" class="form-control" placeholder="e.g. 300.1.1">
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="button">Search References</button>
-                </form>
+            <div class="question-section">
+                <label for="design-code">Design Code:</label>
+                <select id="design-code">
+                    <option value="">-- Select --</option>
+                    <option value="asme_sec_viii_div_1">ASME Section VIII, Division 1</option>
+                    <option value="asme_sec_viii_div_2">ASME Section VIII, Division 2</option>
+                    <option value="asme_sec_i">ASME Section I (Power Boilers)</option>
+                    <option value="asme_sec_iv">ASME Section IV (Heating Boilers)</option>
+                    <option value="api_650">API 650</option>
+                    <option value="asme_b31">ASME B31 (Piping)</option>
+                    <option value="other_code">Other Code</option>
+                    <option value="no_code">No Code/Unknown</option>
+                </select>
             </div>
             
-            <div class="tab-content" id="results-tab">
-                <div class="results-header">
-                    <h2>Search Results</h2>
+            <div class="question-section">
+                <label for="internal-pressure">Maximum Allowable Working Pressure (MAWP):</label>
+                <input type="number" id="internal-pressure" placeholder="Enter pressure in psig" min="0" step="0.1">
+            </div>
+            
+            <div class="question-section">
+                <label for="volume">Internal Volume:</label>
+                <input type="number" id="volume" placeholder="Enter volume in cubic feet" min="0" step="0.1">
+            </div>
+            
+            <div class="question-section">
+                <label for="diameter">Inside Diameter:</label>
+                <input type="number" id="diameter" placeholder="Enter diameter in inches" min="0" step="0.1">
+            </div>
+            
+            <div class="question-section">
+                <label for="contents">Vessel Contents:</label>
+                <select id="contents">
+                    <option value="">-- Select --</option>
+                    <option value="air">Air or Non-flammable Gas</option>
+                    <option value="water">Water</option>
+                    <option value="steam">Steam</option>
+                    <option value="toxic">Toxic/Lethal Service</option>
+                    <option value="flammable">Flammable/Combustible</option>
+                    <option value="corrosive">Corrosive Service</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="question-section">
+                <label for="jurisdiction">Jurisdiction Type:</label>
+                <select id="jurisdiction">
+                    <option value="">-- Select --</option>
+                    <option value="federal">Federal/OSHA</option>
+                    <option value="state">State with Pressure Vessel Regulations</option>
+                    <option value="none">No Specific Jurisdiction</option>
+                    <option value="other_country">Non-US Country</option>
+                </select>
+            </div>
+            
+            <button onclick="checkExemption()">Check Exemption Status</button>
+            
+            <div id="result"></div>
+            
+            <div id="api510-info" class="info-section">
+                <h3>Common API 510 Exemptions</h3>
+                <p>The following are common exemptions from API 510 pressure vessel inspection requirements:</p>
+                <ul>
+                    <li>Vessels with design pressure less than 15 psig (1.03 bar)</li>
+                    <li>Vessels with inside diameter less than 6 inches (152 mm)</li>
+                    <li>Vessels with volume less than 5 cubic feet (0.14 m³)</li>
+                    <li>Fired heaters, boilers, and heat exchangers (which are covered by other inspection codes)</li>
+                    <li>Storage tanks built to API 620 or API 650</li>
+                    <li>Piping components governed by ASME B31 codes</li>
+                    <li>Pressure vessels covered by DOT regulations</li>
+                </ul>
+            </div>
+            
+            <div id="api570-info" class="info-section" style="display: none;">
+                <h3>Common API 570 Exemptions</h3>
+                <p>The following are common exemptions from API 570 piping inspection requirements:</p>
+                <ul>
+                    <li>Piping systems with design pressure less than 15 psig (1.03 bar)</li>
+                    <li>Piping with nominal pipe size (NPS) less than 2 inches</li>
+                    <li>Plumbing and utility piping systems</li>
+                    <li>Fire protection piping systems</li>
+                    <li>HVAC piping systems</li>
+                    <li>Tubing systems</li>
+                    <li>Piping systems covered by DOT regulations</li>
+                    <li>Underground pipelines covered by other regulations</li>
+                </ul>
+            </div>
+            
+            <div id="api653-info" class="info-section" style="display: none;">
+                <h3>Common API 653 Exemptions</h3>
+                <p>The following are common exemptions from API 653 storage tank inspection requirements:</p>
+                <ul>
+                    <li>Pressure vessels (covered by API 510)</li>
+                    <li>Tanks with design pressure greater than 2.5 psig (0.17 bar)</li>
+                    <li>Underground storage tanks</li>
+                    <li>Tanks with capacity less than 50 barrels (2,100 gallons or 7.95 m³)</li>
+                    <li>Non-metallic tanks</li>
+                    <li>Cryogenic storage tanks</li>
+                    <li>Spherical storage tanks (LPG/NGL spheres)</li>
+                    <li>Special application tanks covered by other standards</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div id="calculator-tab" class="tab-content">
+            <div class="question-section">
+                <label for="vessel-shape">Vessel Shape:</label>
+                <select id="vessel-shape" onchange="showDimensionFields()">
+                    <option value="">-- Select Shape --</option>
+                    <option value="cylindrical">Cylindrical</option>
+                    <option value="rectangular">Rectangular</option>
+                    <option value="spherical">Spherical</option>
+                    <option value="horizontal-cap">Horizontal Cylindrical with Hemispherical Caps</option>
+                    <option value="vertical-cap">Vertical Cylindrical with Hemispherical Caps</option>
+                </select>
+            </div>
+            
+            <!-- Cylindrical vessel fields -->
+            <div id="cylindrical-fields" class="dynamic-fields">
+                <div class="question-section">
+                    <label for="cylinder-diameter">Inside Diameter:</label>
+                    <input type="number" id="cylinder-diameter" placeholder="Enter diameter" min="0" step="0.1">
+                    <select id="cylinder-diameter-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
                 </div>
                 
-                <div id="loading" class="loading">Searching references</div>
-                
-                <div class="active-filters" id="activeFilters"></div>
-                
-                <div class="results-container" id="resultsContainer">
-                    <div class="empty-results">
-                        <p>Use the search tab to find relevant code references.</p>
-                    </div>
+                <div class="question-section">
+                    <label for="cylinder-length">Length/Height:</label>
+                    <input type="number" id="cylinder-length" placeholder="Enter length" min="0" step="0.1">
+                    <select id="cylinder-length-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
                 </div>
             </div>
+            
+            <!-- Rectangular vessel fields -->
+            <div id="rectangular-fields" class="dynamic-fields">
+                <div class="question-section">
+                    <label for="rect-length">Length:</label>
+                    <input type="number" id="rect-length" placeholder="Enter length" min="0" step="0.1">
+                    <select id="rect-length-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+                
+                <div class="question-section">
+                    <label for="rect-width">Width:</label>
+                    <input type="number" id="rect-width" placeholder="Enter width" min="0" step="0.1">
+                    <select id="rect-width-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+                
+                <div class="question-section">
+                    <label for="rect-height">Height:</label>
+                    <input type="number" id="rect-height" placeholder="Enter height" min="0" step="0.1">
+                    <select id="rect-height-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Spherical vessel fields -->
+            <div id="spherical-fields" class="dynamic-fields">
+                <div class="question-section">
+                    <label for="sphere-diameter">Inside Diameter:</label>
+                    <input type="number" id="sphere-diameter" placeholder="Enter diameter" min="0" step="0.1">
+                    <select id="sphere-diameter-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Horizontal cylindrical with caps fields -->
+            <div id="horizontal-cap-fields" class="dynamic-fields">
+                <div class="question-section">
+                    <label for="hcap-diameter">Inside Diameter:</label>
+                    <input type="number" id="hcap-diameter" placeholder="Enter diameter" min="0" step="0.1">
+                    <select id="hcap-diameter-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+                
+                <div class="question-section">
+                    <label for="hcap-length">Cylindrical Section Length:</label>
+                    <input type="number" id="hcap-length" placeholder="Enter cylindrical section length" min="0" step="0.1">
+                    <select id="hcap-length-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Vertical cylindrical with caps fields -->
+            <div id="vertical-cap-fields" class="dynamic-fields">
+                <div class="question-section">
+                    <label for="vcap-diameter">Inside Diameter:</label>
+                    <input type="number" id="vcap-diameter" placeholder="Enter diameter" min="0" step="0.1">
+                    <select id="vcap-diameter-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+                
+                <div class="question-section">
+                    <label for="vcap-height">Cylindrical Section Height:</label>
+                    <input type="number" id="vcap-height" placeholder="Enter cylindrical section height" min="0" step="0.1">
+                    <select id="vcap-height-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button onclick="calculateVolume()">Calculate Volume</button>
+            
+            <div id="calculator-result" class="calculator-result"></div>
+            
+            <button id="transfer-button" class="transfer-button" onclick="transferVolume()" style="display: none;">Use in Exemption Checker</button>
+            
+            <div class="info-section">
+                <h3>Volume Calculator Information</h3>
+                <p>This calculator helps determine the internal volume of vessels with common shapes. The result is in cubic feet, which can be used directly in the exemption checker.</p>
+                <p>For pressure vessel exemption purposes, the internal volume of 5 cubic feet (0.14 m³) is an important threshold in API 510.</p>
+            </div>
+        </div>
+        
+        <div id="reference-tab" class="tab-content">
+            <div class="question-section">
+                <label for="codeFilter">Filter by Code:</label>
+                <select id="codeFilter">
+                    <option value="">All Codes</option>
+                    <option value="ASME B31.3">ASME B31.3</option>
+                    <option value="ASME Section I">ASME Section I</option>
+                    <option value="ASME Section V">ASME Section V</option>
+                    <option value="ASME Section VIII">ASME Section VIII</option>
+                    <option value="API 510">API 510</option>
+                    <option value="API 570">API 570</option>
+                    <option value="API 653">API 653</option>
+                    <option value="API 580">API 580</option>
+                </select>
+            </div>
+            
+            <div class="question-section">
+                <label for="sectionFilter">Section Number (Optional):</label>
+                <input type="text" id="sectionFilter" placeholder="e.g. 300.1.1">
+            </div>
+            
+            <div class="question-section">
+                <label for="questionInput">Enter your question or keywords:</label>
+                <input type="text" id="questionInput" placeholder="e.g. What fluids are covered by ASME B31.3?">
+            </div>
+            
+            <button onclick="searchReferences()">Search References</button>
+            
+            <div id="loading-references" class="loading" style="display: none;">Searching references...</div>
+            
+            <div id="resultsContainer" class="reference-results"></div>
+            
+            <div class="info-section">
+                <h3>ASME/API Code Reference System</h3>
+                <p>This system allows you to search and reference engineering codes and standards from ASME and API. You can:</p>
+                <ul>
+                    <li>Search using natural language questions</li>
+                    <li>Filter by specific code and section</li>
+                    <li>Find relevant technical requirements and specifications</li>
+                </ul>
+                <p>The system includes references from ASME B31.3, ASME Section I, V, and VIII, as well as API 510, 570, 653, and 580.</p>
+            </div>
+        </div>
+        
+        <div class="disclaimer">
+            <p>Disclaimer: This tool provides general guidance and should not replace professional engineering judgment or consultation with qualified inspectors. Always verify exemption status with the relevant jurisdiction and authorities.</p>
         </div>
     </div>
     
-    <div id="statusMessage" class="status-message"></div>
-    
-    <footer>
-        <div class="container">
-            <p>ASME/API Codes Q&A System — For engineering reference purposes only.</p>
-        </div>
-    </footer>
-    
     <script>
-        /**
-         * Class to represent a code reference with section, subsection, and content.
-         */
-        class CodeReference {
-            constructor(code, section, content, subsection = null) {
-                this.code = code;
-                this.section = section;
-                this.subsection = subsection;
-                this.content = content;
+        // Initialize the form when the page loads
+        window.onload = function() {
+            updateFormForCode();
+        };
+        
+        // Tab functionality
+        function openTab(evt, tabName) {
+            var i, tabContent, tabButtons;
+            
+            // Hide all tab content
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].style.display = "none";
             }
             
-            toString() {
-                if (this.subsection) {
-                    return `${this.code} ${this.section}.${this.subsection}: ${this.content}`;
-                }
-                return `${this.code} ${this.section}: ${this.content}`;
+            // Remove "active" class from all tab buttons
+            tabButtons = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].className = tabButtons[i].className.replace(" active", "");
             }
+            
+            // Show the current tab and add "active" class to the button
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
         }
         
-        /**
-         * Database for storing and retrieving code references.
-         */
-        class CodeDatabase {
-            constructor() {
-                this.references = {
-                    "ASME B31.3": [],
-                    "ASME Section I": [],
-                    "ASME Section V": [],
-                    "ASME Section VIII": [],
-                    "API 510": [],
-                    "API 570": [],
-                    "API 653": [],
-                    "API 580": []
-                };
-            }
+        // Show appropriate dimension fields based on vessel shape
+        function showDimensionFields() {
+            const vesselShape = document.getElementById("vessel-shape").value;
+            const fields = ["cylindrical-fields", "rectangular-fields", "spherical-fields", "horizontal-cap-fields", "vertical-cap-fields"];
             
-            addReference(reference) {
-                if (reference.code in this.references) {
-                    this.references[reference.code].push(reference);
-                } else {
-                    throw new Error(`Unknown code: ${reference.code}`);
-                }
-            }
-            
-            loadFromJSON(jsonData) {
-                try {
-                    const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
-                    
-                    for (const [code, references] of Object.entries(data)) {
-                        for (const ref of references) {
-                            this.addReference(new CodeReference(
-                                code,
-                                ref.section,
-                                ref.content,
-                                ref.subsection || null
-                            ));
-                        }
-                    }
-                    return { success: true, message: "Successfully loaded references" };
-                } catch (e) {
-                    return { success: false, message: `Error loading references: ${e.message}` };
-                }
-            }
-            
-            search(query, codeFilter = null, sectionFilter = null) {
-                // For debugging
-                console.log("Basic search for:", query);
-                console.log("Code filter:", codeFilter);
-                console.log("Section filter:", sectionFilter);
-                
-                const results = [];
-                
-                // Process the query into keywords
-                const keywords = query.toLowerCase()
-                    .replace(/[.,;:!?()"'-]/g, ' ')
-                    .split(/\s+/)
-                    .filter(word => word.length > 2); // Only words with 3+ characters
-                
-                console.log("Simple keywords:", keywords);
-                
-                // Determine which codes to search
-                const codesToSearch = codeFilter ? [codeFilter] : Object.keys(this.references);
-                
-                // Simple search algorithm - just look for exact matches
-                for (const code of codesToSearch) {
-                    if (!this.references[code]) continue;
-                    
-                    for (const ref of this.references[code]) {
-                        // Filter by section if specified
-                        if (sectionFilter && ref.section !== sectionFilter) {
-                            continue;
-                        }
-                        
-                        // Check if content contains ANY of the keywords
-                        let isMatch = false;
-                        if (keywords.length === 0) {
-                            // If no keywords but we have filters, it's a match
-                            isMatch = (codeFilter || sectionFilter);
-                        } else {
-                            const contentLower = ref.content.toLowerCase();
-                            isMatch = keywords.some(keyword => contentLower.includes(keyword));
-                        }
-                        
-                        // Add to results if it matches
-                        if (isMatch) {
-                            results.push({
-                                ...ref,
-                                code: code
-                            });
-                        }
-                    }
-                }
-                
-                console.log(`Found ${results.length} matches`);
-                return results.slice(0, 10); // Limit to top 10 results
-            }
-            
-            _extractCodeFromQuery(query) {
-                const codePattern = /(ASME\s+(?:B31\.3|Section\s+[IVX]+)|API\s+(?:510|570|653|580))/i;
-                const codeMatch = query.match(codePattern);
-                
-                if (!codeMatch) {
-                    return null;
-                }
-                
-                const codeText = codeMatch[1];
-                
-                // Normalize the code text
-                if (/B31\.3/i.test(codeText)) {
-                    return "ASME B31.3";
-                } else if (/Section\s+I/i.test(codeText)) {
-                    return "ASME Section I";
-                } else if (/Section\s+V/i.test(codeText)) {
-                    return "ASME Section V";
-                } else if (/Section\s+VIII/i.test(codeText)) {
-                    return "ASME Section VIII";
-                } else if (/510/i.test(codeText)) {
-                    return "API 510";
-                } else if (/570/i.test(codeText)) {
-                    return "API 570";
-                } else if (/653/i.test(codeText)) {
-                    return "API 653";
-                } else if (/580/i.test(codeText)) {
-                    return "API 580";
-                }
-                
-                return null;
-            }
-            
-            _extractSectionFromQuery(query) {
-                const sectionPattern = /(?:section|para|paragraph)\s+([0-9\.]+)/i;
-                const sectionMatch = query.match(sectionPattern);
-                
-                return sectionMatch ? sectionMatch[1] : null;
-            }
-        }
-        
-        /**
-         * System for answering questions based on code references.
-         */
-        class QuestionAnswerSystem {
-            constructor(database) {
-                this.database = database;
-            }
-            
-            answerQuestion(question, codeFilter = null, sectionFilter = null) {
-                try {
-                    console.log("Question received:", question);
-                    
-                    // Search for relevant references
-                    const results = this.database.search(question, codeFilter, sectionFilter);
-                    console.log("Search results:", results);
-                    
-                    if (!results || results.length === 0) {
-                        console.log("No results found");
-                        return {
-                            message: "I couldn't find a specific reference for your question. Please try different keywords or specify the code section you're interested in.",
-                            results: []
-                        };
-                    }
-                    
-                    // Return the results
-                    return {
-                        message: `Based on the relevant codes, here's what I found (${results.length} results):`,
-                        results: results
-                    };
-                } catch (error) {
-                    console.error("Error in answerQuestion:", error);
-                    return {
-                        message: "An error occurred while searching. Please try again with different keywords.",
-                        results: []
-                    };
-                }
-            }
-        }
-        
-        /**
-         * Initialize the system with sample data.
-         */
-        function initializeWithSampleData() {
-            const db = new CodeDatabase();
-            
-            // Add sample references
-            db.addReference(new CodeReference(
-                "ASME B31.3",
-                "300.1.1",
-                "This Code contains requirements for piping typically found in petroleum refineries; chemical, pharmaceutical, textile, paper, semiconductor, and cryogenic plants; and related processing plants and terminals."
-            ));
-            
-            db.addReference(new CodeReference(
-                "ASME B31.3",
-                "300.2",
-                "The Code is applicable to piping for all fluids including: (1) raw, intermediate, and finished chemicals; (2) petroleum products; (3) gas, steam, air and water; (4) fluidized solids; (5) refrigerants; and (6) cryogenic fluids.",
-                "2"
-            ));
-            
-            db.addReference(new CodeReference(
-                "API 510",
-                "1.1",
-                "API 510 covers the in-service inspection, repair, alteration, and rerating activities for pressure vessels and the pressure-relieving devices protecting these vessels."
-            ));
-            
-            db.addReference(new CodeReference(
-                "API 570",
-                "1.1",
-                "API 570 covers inspection, rating, repair, and alteration procedures for metallic and fiberglass-reinforced plastic (FRP) piping systems and their associated pressure-relieving devices."
-            ));
-            
-            // Add more sample data
-            db.addReference(new CodeReference(
-                "ASME Section VIII",
-                "UG-27",
-                "Thickness of Shells Under Internal Pressure: The minimum required thickness of shells shall be the greater of the thicknesses calculated by the equations in this paragraph."
-            ));
-            
-            db.addReference(new CodeReference(
-                "ASME Section VIII",
-                "UG-99",
-                "Standard Hydrostatic Test: Except as otherwise permitted in this Division, all pressure vessels shall be subjected to a hydrostatic test at a pressure at least equal to 1.3 times the maximum allowable working pressure."
-            ));
-            
-            db.addReference(new CodeReference(
-                "API 653",
-                "4.3",
-                "Inspection Intervals: The interval from initial service until the first internal inspection shall not exceed 10 years.",
-                "1"
-            ));
-            
-            db.addReference(new CodeReference(
-                "API 580",
-                "3.1",
-                "Risk-Based Inspection (RBI) is a risk assessment and management process that is focused on loss of containment of pressurized equipment in processing facilities, due to material deterioration."
-            ));
-            
-            return new QuestionAnswerSystem(db);
-        }
-        
-        /**
-         * Initialize the system by loading code references from external JSON file.
-         * Falls back to sample data if the JSON file cannot be loaded.
-         */
-        async function initializeSystem() {
-            const db = new CodeDatabase();
-            
-            try {
-                // Attempt to load data from external JSON file
-                const response = await fetch('code-references.json');
-                
-                // Check if the response is OK
-                if (!response.ok) {
-                    throw new Error(`Failed to load code references: ${response.status} ${response.statusText}`);
-                }
-                
-                // Parse the JSON data
-                const data = await response.json();
-                
-                // Load the data into the database
-                const result = db.loadFromJSON(data);
-                
-                if (result.success) {
-                    console.log(result.message);
-                    showStatusMessage("Successfully loaded code references from external file", true);
-                    return new QuestionAnswerSystem(db);
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                // Log the error
-                console.error("Error loading external references:", error);
-                
-                // Show a message to the user
-                showStatusMessage("Using built-in reference data", false);
-                
-                // Fall back to sample data
-                return initializeWithSampleData();
-            }
-        }
-
-        // Initialize the system when the page loads
-        let qaSystem;
-        let referenceData = {}; // Global variable to store loaded references
-        
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log("Initializing ASME/API Codes Q&A System...");
-            
-            // Set the loading message
-            const statusElement = document.getElementById('statusMessage');
-            statusElement.textContent = "Loading code references...";
-            statusElement.style.backgroundColor = 'var(--primary-color)';
-            statusElement.style.display = 'block';
-            
-            // Load the built-in sample data first to ensure we have something
-            referenceData = {
-                "ASME B31.3": [
-                    {
-                        "section": "300.1.1",
-                        "content": "This Code contains requirements for piping typically found in petroleum refineries; chemical, pharmaceutical, textile, paper, semiconductor, and cryogenic plants; and related processing plants and terminals."
-                    },
-                    {
-                        "section": "300.2",
-                        "subsection": "2",
-                        "content": "The Code is applicable to piping for all fluids including: (1) raw, intermediate, and finished chemicals; (2) petroleum products; (3) gas, steam, air and water; (4) fluidized solids; (5) refrigerants; and (6) cryogenic fluids."
-                    }
-                ],
-                "API 510": [
-                    {
-                        "section": "1.1",
-                        "content": "API 510 covers the in-service inspection, repair, alteration, and rerating activities for pressure vessels and the pressure-relieving devices protecting these vessels."
-                    }
-                ],
-                "API 570": [
-                    {
-                        "section": "1.1",
-                        "content": "API 570 covers inspection, rating, repair, and alteration procedures for metallic and fiberglass-reinforced plastic (FRP) piping systems and their associated pressure-relieving devices."
-                    }
-                ]
-            };
-            
-            // Try to load additional references from the external file
-            try {
-                const response = await fetch('code-references.json');
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log("External data loaded:", data);
-                    referenceData = data; // Replace with the external data
-                    showStatusMessage("References loaded successfully", true);
-                }
-            } catch (error) {
-                console.error("Error loading external references:", error);
-                showStatusMessage("Using built-in references", false);
-            }
-            
-            console.log("Reference data available:", referenceData);
-            
-            // Initialize the system with the reference data
-            qaSystem = new SimpleQuerySystem(referenceData);
-            console.log("System ready!");
-            
-            // Hide the loading message
-            setTimeout(() => {
-                statusElement.style.display = 'none';
-            }, 2000);
-            
-            // Set up event listeners
-            document.getElementById('searchForm').addEventListener('submit', handleSearch);
-            document.getElementById('quickSearchBtn').addEventListener('click', handleQuickSearch);
-            
-            // Set up tab switching
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // Remove active class from all tabs
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    
-                    // Add active class to clicked tab
-                    tab.classList.add('active');
-                    document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
-                });
+            // Hide all fields first
+            fields.forEach(field => {
+                document.getElementById(field).style.display = "none";
             });
+            
+            // Show the appropriate fields based on selection
+            if (vesselShape === "cylindrical") {
+                document.getElementById("cylindrical-fields").style.display = "block";
+            } else if (vesselShape === "rectangular") {
+                document.getElementById("rectangular-fields").style.display = "block";
+            } else if (vesselShape === "spherical") {
+                document.getElementById("spherical-fields").style.display = "block";
+            } else if (vesselShape === "horizontal-cap") {
+                document.getElementById("horizontal-cap-fields").style.display = "block";
+            } else if (vesselShape === "vertical-cap") {
+                document.getElementById("vertical-cap-fields").style.display = "block";
+            }
+        }
+        
+        // Convert dimensions to feet for calculation
+        function convertToFeet(value, unit) {
+            if (unit === "inches") {
+                return value / 12;
+            } else if (unit === "mm") {
+                return value / 304.8;
+            } else if (unit === "cm") {
+                return value / 30.48;
+            } else if (unit === "m") {
+                return value * 3.28084;
+            } else {
+                return value; // Already in feet
+            }
+        }
+        
+        // Calculate vessel volume
+        function calculateVolume() {
+            const vesselShape = document.getElementById("vessel-shape").value;
+            let volume = 0;
+            
+            if (vesselShape === "cylindrical") {
+                const diameter = document.getElementById("cylinder-diameter").value;
+                const diameterUnit = document.getElementById("cylinder-diameter-unit").value;
+                const length = document.getElementById("cylinder-length").value;
+                const lengthUnit = document.getElementById("cylinder-length-unit").value;
+                
+                if (!diameter || !length) {
+                    alert("Please enter all dimensions");
+                    return;
+                }
+                
+                const diameterFeet = convertToFeet(parseFloat(diameter), diameterUnit);
+                const lengthFeet = convertToFeet(parseFloat(length), lengthUnit);
+                
+                // Volume = π * (d/2)² * length
+                volume = Math.PI * Math.pow(diameterFeet / 2, 2) * lengthFeet;
+            } 
+            else if (vesselShape === "rectangular") {
+                const length = document.getElementById("rect-length").value;
+                const lengthUnit = document.getElementById("rect-length-unit").value;
+                const width = document.getElementById("rect-width").value;
+                const widthUnit = document.getElementById("rect-width-unit").value;
+                const height = document.getElementById("rect-height").value;
+                const heightUnit = document.getElementById("rect-height-unit").value;
+                
+                if (!length || !width || !height) {
+                    alert("Please enter all dimensions");
+                    return;
+                }
+                
+                const lengthFeet = convertToFeet(parseFloat(length), lengthUnit);
+                const widthFeet = convertToFeet(parseFloat(width), widthUnit);
+                const heightFeet = convertToFeet(parseFloat(height), heightUnit);
+                
+                // Volume = length * width * height
+                volume = lengthFeet * widthFeet * heightFeet;
+            } 
+            else if (vesselShape === "spherical") {
+                const diameter = document.getElementById("sphere-diameter").value;
+                const diameterUnit = document.getElementById("sphere-diameter-unit").value;
+                
+                if (!diameter) {
+                    alert("Please enter the diameter");
+                    return;
+                }
+                
+                const diameterFeet = convertToFeet(parseFloat(diameter), diameterUnit);
+                
+                // Volume = (4/3) * π * (d/2)³
+                volume = (4/3) * Math.PI * Math.pow(diameterFeet / 2, 3);
+            } 
+            else if (vesselShape === "horizontal-cap" || vesselShape === "vertical-cap") {
+                const fieldPrefix = vesselShape === "horizontal-cap" ? "hcap" : "vcap";
+                const diameter = document.getElementById(`${fieldPrefix}-diameter`).value;
+                const diameterUnit = document.getElementById(`${fieldPrefix}-diameter-unit`).value;
+                const lengthOrHeight = document.getElementById(
+                    vesselShape === "horizontal-cap" ? "hcap-length" : "vcap-height"
+                ).value;
+                const lengthOrHeightUnit = document.getElementById(
+                    vesselShape === "horizontal-cap" ? "hcap-length-unit" : "vcap-height-unit"
+                ).value;
+                
+                if (!diameter || !lengthOrHeight) {
+                    alert("Please enter all dimensions");
+                    return;
+                }
+                
+                const diameterFeet = convertToFeet(parseFloat(diameter), diameterUnit);
+                const lengthOrHeightFeet = convertToFeet(parseFloat(lengthOrHeight), lengthOrHeightUnit);
+                
+                // Volume of cylinder = π * (d/2)² * length
+                const cylinderVolume = Math.PI * Math.pow(diameterFeet / 2, 2) * lengthOrHeightFeet;
+                
+                // Volume of two hemispheres = (4/3) * π * (d/2)³
+                const hemisphereVolume = (4/3) * Math.PI * Math.pow(diameterFeet / 2, 3) / 2 * 2;
+                
+                // Total volume
+                volume = cylinderVolume + hemisphereVolume;
+            }
+            else {
+                alert("Please select a vessel shape");
+                return;
+            }
+            
+            // Display the result
+            const resultDiv = document.getElementById("calculator-result");
+            resultDiv.style.display = "block";
+            resultDiv.innerHTML = `Internal Volume: ${volume.toFixed(2)} cubic feet (${(volume * 0.0283168).toFixed(4)} m³)`;
+            
+            // Show the transfer button
+            document.getElementById("transfer-button").style.display = "block";
+            
+            // Store the volume for transfer
+            window.calculatedVolume = volume.toFixed(2);
+        }
+        
+        // Transfer volume to exemption checker
+        function transferVolume() {
+            if (window.calculatedVolume) {
+                document.getElementById("volume").value = window.calculatedVolume;
+                
+                // Switch to exemption checker tab
+                const event = new Event('click');
+                document.querySelector('.tab-button[onclick*="exemption-tab"]').dispatchEvent(event);
+                
+                // Highlight the volume field
+                const volumeField = document.getElementById("volume");
+                volumeField.style.backgroundColor = "#e8f4fd";
+                setTimeout(() => {
+                    volumeField.style.backgroundColor = "";
+                }, 2000);
+            }
+        }
+        
+        // Set the default API code on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFormForCode();
         });
+        
+        // Update form fields based on selected API code
+        function updateFormForCode() {
+            const apiCode = document.getElementById("api-code").value;
+            
+            // Show/hide specific information sections
+            document.getElementById("api510-info").style.display = apiCode === "api510" ? "block" : "none";
+            document.getElementById("api570-info").style.display = apiCode === "api570" ? "block" : "none";
+            document.getElementById("api653-info").style.display = apiCode === "api653" ? "block" : "none";
+            
+            // Update vessel type options based on selected code
+            const vesselTypeSelect = document.getElementById("vessel-type");
+            vesselTypeSelect.innerHTML = ""; // Clear existing options
+            
+            if (apiCode === "api510") {
+                // Options for API 510
+                addOption(vesselTypeSelect, "", "-- Select --");
+                addOption(vesselTypeSelect, "fired_heater", "Fired Heater");
+                addOption(vesselTypeSelect, "heat_exchanger", "Heat Exchanger (Shell & Tube)");
+                addOption(vesselTypeSelect, "boiler", "Boiler");
+                addOption(vesselTypeSelect, "pressure_vessel", "Standard Pressure Vessel");
+                addOption(vesselTypeSelect, "piping", "Piping Component");
+                addOption(vesselTypeSelect, "storage_tank", "Storage Tank");
+                addOption(vesselTypeSelect, "other", "Other");
+            } 
+            else if (apiCode === "api570") {
+                // Options for API 570
+                addOption(vesselTypeSelect, "", "-- Select --");
+                addOption(vesselTypeSelect, "process_piping", "Process Piping");
+                addOption(vesselTypeSelect, "utility_piping", "Utility Piping");
+                addOption(vesselTypeSelect, "plumbing", "Plumbing Systems");
+                addOption(vesselTypeSelect, "fire_protection", "Fire Protection Piping");
+                addOption(vesselTypeSelect, "hvac", "HVAC Piping");
+                addOption(vesselTypeSelect, "underground", "Underground Piping");
+                addOption(vesselTypeSelect, "tubing", "Tubing Systems");
+                addOption(vesselTypeSelect, "other_piping", "Other Piping");
+            } 
+            else if (apiCode === "api653") {
+                // Options for API 653
+                addOption(vesselTypeSelect, "", "-- Select --");
+                addOption(vesselTypeSelect, "api650_tank", "API 650 Storage Tank");
+                addOption(vesselTypeSelect, "api620_tank", "API 620 Low-Pressure Tank");
+                addOption(vesselTypeSelect, "underground_tank", "Underground Storage Tank");
+                addOption(vesselTypeSelect, "sphere", "Spherical Storage Tank");
+                addOption(vesselTypeSelect, "nonmetallic", "Non-Metallic Tank");
+                addOption(vesselTypeSelect, "cryogenic", "Cryogenic Storage Tank");
+                addOption(vesselTypeSelect, "small_tank", "Small Capacity Tank");
+                addOption(vesselTypeSelect, "other_tank", "Other Tank Type");
+            }
+            
+            // Also update design code options
+            const designCodeSelect = document.getElementById("design-code");
+            designCodeSelect.innerHTML = ""; // Clear existing options
+            
+            addOption(designCodeSelect, "", "-- Select --");
+            
+            if (apiCode === "api510") {
+                addOption(designCodeSelect, "asme_sec_viii_div_1", "ASME Section VIII, Division 1");
+                addOption(designCodeSelect, "asme_sec_viii_div_2", "ASME Section VIII, Division 2");
+                addOption(designCodeSelect, "asme_sec_i", "ASME Section I (Power Boilers)");
+                addOption(designCodeSelect, "asme_sec_iv", "ASME Section IV (Heating Boilers)");
+                addOption(designCodeSelect, "api_650", "API 650");
+                addOption(designCodeSelect, "asme_b31", "ASME B31 (Piping)");
+                addOption(designCodeSelect, "other_code", "Other Code");
+                addOption(designCodeSelect, "no_code", "No Code/Unknown");
+            } 
+            else if (apiCode === "api570") {
+                addOption(designCodeSelect, "asme_b31_1", "ASME B31.1 (Power Piping)");
+                addOption(designCodeSelect, "asme_b31_3", "ASME B31.3 (Process Piping)");
+                addOption(designCodeSelect, "asme_b31_4", "ASME B31.4 (Pipeline Transportation)");
+                addOption(designCodeSelect, "asme_b31_5", "ASME B31.5 (Refrigeration Piping)");
+                addOption(designCodeSelect, "asme_b31_8", "ASME B31.8 (Gas Transmission)");
+                addOption(designCodeSelect, "asme_b31_9", "ASME B31.9 (Building Services)");
+                addOption(designCodeSelect, "other_pipe_code", "Other Piping Code");
+                addOption(designCodeSelect, "no_code", "No Code/Unknown");
+            } 
+            else if (apiCode === "api653") {
+                addOption(designCodeSelect, "api_650", "API 650");
+                addOption(designCodeSelect, "api_620", "API 620");
+                addOption(designCodeSelect, "ul_142", "UL 142");
+                addOption(designCodeSelect, "ul_58", "UL 58 (Underground)");
+                addOption(designCodeSelect, "awwa_d100", "AWWA D100");
+                addOption(designCodeSelect, "nfpa_30", "NFPA 30");
+                addOption(designCodeSelect, "other_tank_code", "Other Tank Code");
+                addOption(designCodeSelect, "no_code", "No Code/Unknown");
+            }
+            
+            // Update field labels if needed
+            if (apiCode === "api570") {
+                document.querySelector('label[for="diameter"]').textContent = "Nominal Pipe Size (NPS):";
+                document.querySelector('label[for="volume"]').textContent = "System Volume (if known):";
+            } else if (apiCode === "api653") {
+                document.querySelector('label[for="diameter"]').textContent = "Tank Diameter:";
+                document.querySelector('label[for="volume"]').textContent = "Tank Capacity (barrels):";
+            } else {
+                document.querySelector('label[for="diameter"]').textContent = "Inside Diameter:";
+                document.querySelector('label[for="volume"]').textContent = "Internal Volume:";
+            }
+        }
+        
+        // Helper function to add options to select element
+        function addOption(selectElement, value, text) {
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = text;
+            selectElement.appendChild(option);
+        }
+        
+        function checkExemption() {
+            const apiCode = document.getElementById("api-code").value;
+            const vesselType = document.getElementById("vessel-type").value;
+            const designCode = document.getElementById("design-code").value;
+            const internalPressure = parseFloat(document.getElementById("internal-pressure").value) || 0;
+            const volume = parseFloat(document.getElementById("volume").value) || 0;
+            const diameter = parseFloat(document.getElementById("diameter").value) || 0;
+            const contents = document.getElementById("contents").value;
+            const jurisdiction = document.getElementById("jurisdiction").value;
+            
+            const resultDiv = document.getElementById("result");
+            let isExempt = false;
+            let exemptReason = "";
+            let codeDisplayName = apiCode.toUpperCase();
+            
+            // Check based on the selected API code
+            if (apiCode === "api510") {
+                // API 510 PRESSURE VESSEL CHECKS
+                
+                // Check based on vessel type first
+                if (vesselType === "fired_heater") {
+                    isExempt = true;
+                    exemptReason = "Fired heaters are typically covered by API 573, not API 510.";
+                } else if (vesselType === "boiler") {
+                    isExempt = true;
+                    exemptReason = "Boilers are typically covered by ASME BPVC Section I and NB-23, not API 510.";
+                } else if (vesselType === "heat_exchanger") {
+                    isExempt = false;
+                    exemptReason = "Heat exchangers can be covered by API 510 if they meet the definition of a pressure vessel.";
+                } else if (vesselType === "piping") {
+                    isExempt = true;
+                    exemptReason = "Piping components are typically covered by API 570, not API 510.";
+                } else if (vesselType === "storage_tank") {
+                    isExempt = true;
+                    exemptReason = "Storage tanks are typically covered by API 653, not API 510.";
+                }
+                
+                // Check based on pressure
+                if (internalPressure < 15 && vesselType !== "piping" && vesselType !== "storage_tank") {
+                    isExempt = true;
+                    exemptReason = "Vessels with internal pressure less than 15 psig are typically exempt from API 510.";
+                }
+                
+                // Check based on diameter
+                if (diameter < 6 && vesselType !== "piping" && vesselType !== "storage_tank") {
+                    isExempt = true;
+                    exemptReason = "Vessels with inside diameter less than 6 inches are typically exempt from API 510.";
+                }
+                
+                // Check based on volume
+                if (volume < 5 && vesselType !== "piping" && vesselType !== "storage_tank") {
+                    isExempt = true;
+                    exemptReason = "Vessels with volume less than 5 cubic feet are typically exempt from API 510.";
+                }
+                
+                // Check based on design code
+                if (designCode === "asme_sec_i" || designCode === "asme_sec_iv") {
+                    isExempt = true;
+                    exemptReason = "Vessels built to ASME Section I or IV (boilers) are typically not covered by API 510.";
+                } else if (designCode === "api_650") {
+                    isExempt = true;
+                    exemptReason = "Tanks built to API 650 are typically covered by API 653, not API 510.";
+                } else if (designCode === "asme_b31") {
+                    isExempt = true;
+                    exemptReason = "Piping components built to ASME B31 are typically covered by API 570, not API 510.";
+                }
+            } 
+            else if (apiCode === "api570") {
+                // API 570 PIPING CHECKS
+                
+                // Check based on piping type first
+                if (vesselType === "plumbing") {
+                    isExempt = true;
+                    exemptReason = "Plumbing systems are typically exempt from API 570.";
+                } else if (vesselType === "fire_protection") {
+                    isExempt = true;
+                    exemptReason = "Fire protection piping systems are typically exempt from API 570.";
+                } else if (vesselType === "hvac") {
+                    isExempt = true;
+                    exemptReason = "HVAC piping systems are typically exempt from API 570.";
+                } else if (vesselType === "tubing") {
+                    isExempt = true;
+                    exemptReason = "Tubing systems are typically exempt from API 570.";
+                } else if (vesselType === "underground") {
+                    // Underground pipelines are complex - depends on jurisdiction and other factors
+                    isExempt = false;
+                    exemptReason = "Underground piping may be covered by API 570 or other regulations. Consult with a qualified inspector.";
+                }
+                
+                // Check based on pressure
+                if (internalPressure < 15) {
+                    isExempt = true;
+                    exemptReason = "Piping systems with design pressure less than 15 psig are typically exempt from API 570.";
+                }
+                
+                // Check based on size (NPS)
+                if (diameter < 2) {
+                    isExempt = true;
+                    exemptReason = "Piping with nominal pipe size (NPS) less than 2 inches is typically exempt from API 570.";
+                }
+                
+                // Check based on design code
+                if (designCode === "asme_b31_9") {
+                    isExempt = true;
+                    exemptReason = "Building services piping (B31.9) is typically exempt from API 570.";
+                }
+            } 
+            else if (apiCode === "api653") {
+                // API 653 STORAGE TANK CHECKS
+                
+                // Check based on tank type first
+                if (vesselType === "underground_tank") {
+                    isExempt = true;
+                    exemptReason = "Underground storage tanks are typically exempt from API 653.";
+                } else if (vesselType === "nonmetallic") {
+                    isExempt = true;
+                    exemptReason = "Non-metallic tanks are typically exempt from API 653.";
+                } else if (vesselType === "cryogenic") {
+                    isExempt = true;
+                    exemptReason = "Cryogenic storage tanks are typically exempt from API 653.";
+                } else if (vesselType === "sphere") {
+                    isExempt = true;
+                    exemptReason = "Spherical storage tanks (LPG/NGL spheres) are typically exempt from API 653.";
+                } else if (vesselType === "small_tank") {
+                    if (volume < 50) {
+                        isExempt = true;
+                        exemptReason = "Tanks with capacity less than 50 barrels (2,100 gallons) are typically exempt from API 653.";
+                    }
+                }
+                
+                // Check based on pressure
+                if (internalPressure > 2.5) {
+                    isExempt = true;
+                    exemptReason = "Tanks with design pressure greater than 2.5 psig are typically covered by API 510, not API 653.";
+                }
+                
+                // Check based on design code
+                if (designCode === "ul_142" || designCode === "ul_58") {
+                    // UL tanks are complex - depends on jurisdiction and service
+                    isExempt = false;
+                    exemptReason = "Some UL tanks may be exempt from API 653 depending on jurisdiction and service.";
+                }
+            }
+            
+            // Display the result
+            resultDiv.style.display = "block";
+            
+            if (isExempt) {
+                resultDiv.className = "exempt";
+                resultDiv.innerHTML = `LIKELY EXEMPT FROM ${codeDisplayName}<br><span style='font-weight:normal'>${exemptReason}</span>`;
+            } else {
+                resultDiv.className = "not-exempt";
+                resultDiv.innerHTML = `LIKELY SUBJECT TO ${codeDisplayName}<br><span style='font-weight:normal'>Based on the information provided, this ${apiCode === "api510" ? "vessel" : apiCode === "api570" ? "piping system" : "tank"} appears to be subject to ${codeDisplayName} inspection requirements.</span>`;
+            }
+            
+            // Add caution for toxic or lethal service
+            if (contents === "toxic" && isExempt) {
+                resultDiv.innerHTML += `<br><br><span style='font-weight:normal; color:#856404; background-color:#fff3cd; padding:5px; display:block; margin-top:10px; border-radius:3px; border:1px solid #ffeeba;'>CAUTION: While this ${apiCode === "api510" ? "vessel" : apiCode === "api570" ? "piping system" : "tank"} may be technically exempt from ${codeDisplayName}, systems in toxic or lethal service often require special consideration. Consult with a qualified inspector.</span>`;
+            }
+            
+            // Add jurisdiction notes
+            if (jurisdiction === "state" && isExempt) {
+                resultDiv.innerHTML += `<br><span style='font-weight:normal; font-style:italic; display:block; margin-top:10px;'>Note: State jurisdictions may have additional requirements even for ${apiCode === "api510" ? "vessels" : apiCode === "api570" ? "piping systems" : "tanks"} exempt from ${codeDisplayName}.</span>`;
+            } else if (jurisdiction === "other_country") {
+                resultDiv.innerHTML += `<br><span style='font-weight:normal; font-style:italic; display:block; margin-top:10px;'>Note: Non-US jurisdictions may have different requirements and may not follow ${codeDisplayName} directly.</span>`;
+            }
+        }
 
-        /**
-         * Simple query system for code references.
-         */
-        class SimpleQuerySystem {
-            constructor(referenceData) {
-                this.referenceData = referenceData;
-                console.log("SimpleQuerySystem initialized with:", this.referenceData);
-                
-                // Code-specific keywords to identify subject matter
-                this.codeKeywords = {
-                    "ASME B31.3": ["piping", "pipe", "fluid", "chemical", "refinery", "petroleum", "process", "pressure", "temperature", "b31.3", "b31", "steam", "water", "gas", "cryogenic"],
-                    "ASME Section I": ["boiler", "power", "steam", "pressure", "vessel", "section i", "section 1", "heat", "tube", "drum"],
-                    "ASME Section V": ["ndt", "nondestructive", "examination", "testing", "radiographic", "ultrasonic", "magnetic", "section v", "section 5", "inspection", "test"],
-                    "ASME Section VIII": ["pressure", "vessel", "tank", "section viii", "section 8", "division", "thickness", "weld", "fabrication", "hydrostatic"],
-                    "API 510": ["pressure", "vessel", "inspection", "repair", "alteration", "rerating", "510", "integrity", "corrosion", "thickness"],
-                    "API 570": ["piping", "inspection", "repair", "alteration", "rating", "570", "fiberglass", "frp", "metallurgical", "plastic"],
-                    "API 653": ["tank", "storage", "inspection", "repair", "alteration", "653", "bottom", "shell", "foundation", "settlement"],
-                    "API 580": ["risk", "rbi", "inspection", "assessment", "management", "580", "likelihood", "consequence", "failure", "probability"]
-                };
-                
-                // Common question patterns to extract keywords from
-                this.questionPatterns = [
-                    { pattern: /what\s+(?:is|are)\s+(?:the)?\s*(.+?)\??$/i, group: 1 },
-                    { pattern: /how\s+(?:to|do|does|can|should)\s+(?:you|i|we)?\s*(.+?)\??$/i, group: 1 },
-                    { pattern: /(?:tell|explain|describe)\s+(?:me|us)?\s+(?:about)?\s*(.+?)\??$/i, group: 1 },
-                    { pattern: /(?:requirements|regulations|rules)\s+(?:for|about|related\s+to)\s*(.+?)\??$/i, group: 1 }
-                ];
+        // Sample reference data
+        const referenceData = {
+            "ASME B31.3": [
+                {
+                    "section": "300.1.1",
+                    "content": "This Code contains requirements for piping typically found in petroleum refineries; chemical, pharmaceutical, textile, paper, semiconductor, and cryogenic plants; and related processing plants and terminals."
+                },
+                {
+                    "section": "300.2",
+                    "subsection": "2",
+                    "content": "The Code is applicable to piping for all fluids including: (1) raw, intermediate, and finished chemicals; (2) petroleum products; (3) gas, steam, air and water; (4) fluidized solids; (5) refrigerants; and (6) cryogenic fluids."
+                }
+            ],
+            "API 510": [
+                {
+                    "section": "1.1",
+                    "content": "API 510 covers the in-service inspection, repair, alteration, and rerating activities for pressure vessels and the pressure-relieving devices protecting these vessels."
+                }
+            ],
+            "API 570": [
+                {
+                    "section": "1.1",
+                    "content": "API 570 covers inspection, rating, repair, and alteration procedures for metallic and fiberglass-reinforced plastic (FRP) piping systems and their associated pressure-relieving devices."
+                }
+            ],
+            "API 653": [
+                {
+                    "section": "4.3",
+                    "subsection": "1",
+                    "content": "Inspection Intervals: The interval from initial service until the first internal inspection shall not exceed 10 years."
+                }
+            ],
+            "ASME Section VIII": [
+                {
+                    "section": "UG-27",
+                    "content": "Thickness of Shells Under Internal Pressure: The minimum required thickness of shells shall be the greater of the thicknesses calculated by the equations in this paragraph."
+                }
+            ]
+        };
+
+        // Code-specific keywords to identify subject matter
+        const codeKeywords = {
+            "ASME B31.3": ["piping", "pipe", "fluid", "chemical", "refinery", "petroleum", "process"],
+            "ASME Section VIII": ["pressure", "vessel", "tank", "thickness", "shell"],
+            "API 510": ["pressure", "vessel", "inspection", "repair", "alteration"],
+            "API 570": ["piping", "inspection", "repair", "alteration"],
+            "API 653": ["tank", "storage", "inspection", "repair"],
+            "API 580": ["risk", "inspection", "assessment"]
+        };
+
+        // Search for code references
+        function searchReferences() {
+            const question = document.getElementById("questionInput").value.trim();
+            const codeFilter = document.getElementById("codeFilter").value;
+            const sectionFilter = document.getElementById("sectionFilter").value;
+            
+            if (!question && !codeFilter && !sectionFilter) {
+                alert("Please enter a question or select a code/section to search");
+                return;
             }
             
-            extractKeywordsFromQuestion(query) {
-                console.log("Extracting keywords from question:", query);
-                
-                // Start with basic keyword extraction
-                const baseKeywords = query.toLowerCase()
-                    .replace(/[.,;:!?()"'-]/g, ' ')
-                    .split(/\s+/)
-                    .filter(term => term.length > 2);
-                
-                let extractedKeywords = [...baseKeywords];
-                
-                // Try to extract code references
-                const codePatterns = [
-                    { regex: /asme\s+b31\.3/i, code: "ASME B31.3" },
-                    { regex: /asme\s+section\s+i/i, code: "ASME Section I" },
-                    { regex: /asme\s+section\s+1/i, code: "ASME Section I" },
-                    { regex: /asme\s+section\s+v/i, code: "ASME Section V" },
-                    { regex: /asme\s+section\s+5/i, code: "ASME Section V" },
-                    { regex: /asme\s+section\s+viii/i, code: "ASME Section VIII" },
-                    { regex: /asme\s+section\s+8/i, code: "ASME Section VIII" },
-                    { regex: /api\s+510/i, code: "API 510" },
-                    { regex: /api\s+570/i, code: "API 570" },
-                    { regex: /api\s+653/i, code: "API 653" },
-                    { regex: /api\s+580/i, code: "API 580" }
-                ];
-                
-                let detectedCodes = [];
-                for (const pattern of codePatterns) {
-                    if (pattern.regex.test(query)) {
-                        detectedCodes.push(pattern.code);
-                    }
-                }
-                
-                // Add code-specific keywords for detected codes
-                for (const code of detectedCodes) {
-                    if (this.codeKeywords[code]) {
-                        extractedKeywords = [...extractedKeywords, ...this.codeKeywords[code]];
-                    }
-                }
-                
-                // Try to extract subject from question patterns
-                for (const patternInfo of this.questionPatterns) {
-                    const match = query.match(patternInfo.pattern);
-                    if (match) {
-                        const subject = match[patternInfo.group].trim().toLowerCase();
-                        console.log("Extracted subject from question:", subject);
-                        
-                        // Add the subject terms
-                        const subjectTerms = subject
-                            .replace(/[.,;:!?()"'-]/g, ' ')
-                            .split(/\s+/)
-                            .filter(term => term.length > 2);
-                        
-                        extractedKeywords = [...extractedKeywords, ...subjectTerms];
-                        
-                        // For each detected subject term, add related code-specific keywords
-                        for (const term of subjectTerms) {
-                            for (const [code, keywords] of Object.entries(this.codeKeywords)) {
-                                if (keywords.includes(term)) {
-                                    console.log(`Term '${term}' matched code ${code}`);
-                                    if (!detectedCodes.includes(code)) {
-                                        detectedCodes.push(code);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // Extract section numbers
-                const sectionMatches = query.match(/(?:section|paragraph|para)\s+([0-9]+(?:\.[0-9]+)*)/gi);
-                if (sectionMatches) {
-                    for (const match of sectionMatches) {
-                        const section = match.replace(/(?:section|paragraph|para)\s+/i, '').trim();
-                        extractedKeywords.push(section);
-                    }
-                }
-                
-                // Remove duplicates
-                extractedKeywords = [...new Set(extractedKeywords)];
-                
-                console.log("Extracted keywords:", extractedKeywords);
-                console.log("Detected codes:", detectedCodes);
-                
-                return {
-                    keywords: extractedKeywords,
-                    detectedCodes: detectedCodes
-                };
-            }
+            // Show loading indicator
+            document.getElementById("loading-references").style.display = "block";
+            document.getElementById("resultsContainer").innerHTML = "";
             
-            searchReferences(query, codeFilter = null, sectionFilter = null) {
-                console.log("Searching for:", query);
-                console.log("Filters:", codeFilter, sectionFilter);
+            // Simulate search delay (would be replaced with actual fetch in production)
+            setTimeout(() => {
+                const results = performSearch(question, codeFilter, sectionFilter);
+                displayResults(results);
                 
-                // Make sure we have data to search
-                if (!this.referenceData || Object.keys(this.referenceData).length === 0) {
-                    console.error("No reference data available for search");
-                    return [];
+                // Hide loading indicator
+                document.getElementById("loading-references").style.display = "none";
+            }, 500);
+        }
+
+        // Perform the search against reference data
+        function performSearch(query, codeFilter, sectionFilter) {
+            const results = [];
+            const searchTerms = query.toLowerCase().split(/\s+/).filter(term => term.length > 2);
+            
+            // Determine which codes to search
+            const codesToSearch = codeFilter ? [codeFilter] : Object.keys(referenceData);
+            
+            for (const code of codesToSearch) {
+                // Skip if this code doesn't exist in our data
+                if (!referenceData[code]) {
+                    continue;
                 }
                 
-                // Extract keywords and detected codes from the question
-                const { keywords, detectedCodes } = this.extractKeywordsFromQuestion(query);
+                const references = referenceData[code];
                 
-                const results = [];
-                
-                // Determine which codes to search
-                let codesToSearch = [];
-                if (codeFilter) {
-                    // If explicit filter is provided, use it
-                    codesToSearch = [codeFilter];
-                } else if (detectedCodes.length > 0) {
-                    // If codes were detected in the question, use them
-                    codesToSearch = detectedCodes;
-                } else {
-                    // Otherwise search all codes
-                    codesToSearch = Object.keys(this.referenceData);
-                }
-                
-                console.log("Searching in codes:", codesToSearch);
-                
-                for (const code of codesToSearch) {
-                    // Skip if this code doesn't exist in our data
-                    if (!this.referenceData[code]) {
-                        console.log(`Code ${code} not found in data`);
+                for (const ref of references) {
+                    // Apply section filter if provided
+                    if (sectionFilter && ref.section !== sectionFilter) {
                         continue;
                     }
                     
-                    const references = this.referenceData[code];
-                    console.log(`Searching in ${code}, found ${references.length} references`);
+                    // Check if this reference matches the search terms
+                    const content = ref.content.toLowerCase();
                     
-                    for (const ref of references) {
-                        // Apply section filter if provided
-                        if (sectionFilter && ref.section !== sectionFilter) {
-                            continue;
-                        }
-                        
-                        // Check if this reference matches the keywords
-                        const content = ref.content.toLowerCase();
-                        
-                        let matchCount = 0;
-                        let importantMatchCount = 0;
-                        
-                        for (const term of keywords) {
-                            // Section number exact match is very important
-                            if (ref.section === term || (ref.subsection && ref.section + '.' + ref.subsection === term)) {
-                                importantMatchCount += 3;
-                                continue;
-                            }
-                            
-                            // Content match
+                    let matches = false;
+                    
+                    // If no search terms, include everything (when using filters)
+                    if (searchTerms.length === 0 && (codeFilter || sectionFilter)) {
+                        matches = true;
+                    }
+                    // Otherwise, check if ANY search term appears in the content
+                    else {
+                        for (const term of searchTerms) {
                             if (content.includes(term)) {
-                                matchCount++;
-                                
-                                // If the term is a code-specific keyword, it's more important
-                                if (this.codeKeywords[code] && this.codeKeywords[code].includes(term)) {
-                                    importantMatchCount++;
-                                }
+                                matches = true;
+                                break;
                             }
                         }
-                        
-                        // Determine if this reference is a match
-                        const isMatch = (matchCount > 0 || importantMatchCount > 0) || 
-                                       (keywords.length === 0 && (codeFilter || sectionFilter));
-                        
-                        if (isMatch) {
-                            // Calculate a relevance score
-                            const relevanceScore = matchCount + (importantMatchCount * 3);
-                            
-                            results.push({
-                                code: code,
-                                section: ref.section,
-                                subsection: ref.subsection,
-                                content: ref.content,
-                                score: relevanceScore
-                            });
-                        }
-                    }
-                }
-                
-                // Sort results by relevance score
-                results.sort((a, b) => b.score - a.score);
-                
-                // Remove the score property before returning
-                const cleanResults = results.map(({score, ...rest}) => rest);
-                
-                console.log(`Found ${cleanResults.length} matching references`);
-                return cleanResults;
-            }
-            
-            answerQuestion(question, codeFilter = null, sectionFilter = null) {
-                try {
-                    const results = this.searchReferences(question, codeFilter, sectionFilter);
-                    
-                    if (results.length === 0) {
-                        return {
-                            message: "I couldn't find a specific reference for your question. Please try different keywords or specify the code section you're interested in.",
-                            results: []
-                        };
                     }
                     
-                    return {
-                        message: `Found ${results.length} references that may answer your question:`,
-                        results: results
-                    };
-                } catch (error) {
-                    console.error("Error answering question:", error);
-                    return {
-                        message: "An error occurred while searching. Please try again.",
-                        results: []
-                    };
+                    if (matches) {
+                        results.push({
+                            code: code,
+                            section: ref.section,
+                            subsection: ref.subsection,
+                            content: ref.content
+                        });
+                    }
                 }
             }
+            
+            return results;
         }
-        
-        /**
-         * Handle the quick search button click.
-         */
-        function handleQuickSearch() {
-            const searchInput = document.getElementById('quickSearch');
-            const question = searchInput.value.trim();
+
+        // Display search results
+        function displayResults(results) {
+            const resultsContainer = document.getElementById("resultsContainer");
             
-            if (!question) {
-                showStatusMessage("Please enter a question or keywords to search.", false);
-                return;
-            }
-            
-            // Copy the value to the main search field
-            document.getElementById('questionInput').value = question;
-            
-            // Perform the search
-            performSearch(question);
-            
-            // Switch to results tab
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelector('.tab[data-tab="results"]').classList.add('active');
-            document.getElementById('results-tab').classList.add('active');
-        }
-        
-        /**
-         * Handle the search form submission.
-         */
-        function handleSearch(event) {
-            event.preventDefault();
-            
-            const questionInput = document.getElementById('questionInput');
-            const question = questionInput.value.trim();
-            
-            if (!question) {
-                showStatusMessage("Please enter a question or keywords to search.", false);
-                return;
-            }
-            
-            // Copy to quick search
-            document.getElementById('quickSearch').value = question;
-            
-            // Gather filters
-            const codeFilter = document.getElementById('codeFilter').value;
-            const sectionFilter = document.getElementById('sectionFilter').value;
-            
-            // Perform the search
-            performSearch(question, codeFilter, sectionFilter);
-            
-            // Switch to results tab
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelector('.tab[data-tab="results"]').classList.add('active');
-            document.getElementById('results-tab').classList.add('active');
-        }
-        
-        /**
-         * Perform the search and display results.
-         */
-        function performSearch(question, codeFilter = null, sectionFilter = null) {
-            const loadingElement = document.getElementById('loading');
-            const resultsContainer = document.getElementById('resultsContainer');
-            
-            // Show loading indicator
-            loadingElement.style.display = 'block';
-            resultsContainer.innerHTML = '';
-            
-            // Check if qaSystem is initialized
-            if (!qaSystem) {
-                console.error("QA System not initialized yet");
-                loadingElement.style.display = 'none';
+            if (results.length === 0) {
                 resultsContainer.innerHTML = `
-                    <div class="error-message">
-                        <p>The search system is not yet initialized. Please try again in a moment.</p>
+                    <div class="no-results">
+                        <p>No matching references found. Please try different keywords or select a different code.</p>
                     </div>
                 `;
                 return;
             }
             
-            try {
-                // Use setTimeout to allow the UI to update before processing
-                setTimeout(() => {
-                    console.log("Performing search with:", question, codeFilter, sectionFilter);
-                    const answer = qaSystem.answerQuestion(question, codeFilter, sectionFilter);
-                    console.log("Search results:", answer);
-                    
-                    // Hide loading indicator
-                    loadingElement.style.display = 'none';
-                    
-                    // Display results
-                    displayResults(answer, codeFilter, sectionFilter);
-                }, 300); // Short delay for better UX
-            } catch (error) {
-                console.error("Error during search:", error);
-                loadingElement.style.display = 'none';
-                resultsContainer.innerHTML = `
-                    <div class="error-message">
-                        <p>An error occurred while searching. Please try again with different keywords.</p>
-                    </div>
-                `;
-            }
-        }
-        
-        /**
-         * Display the search results.
-         */
-        function displayResults(answer, codeFilter, sectionFilter) {
-            const resultsContainer = document.getElementById('resultsContainer');
-            const activeFiltersContainer = document.getElementById('activeFilters');
+            let resultsHTML = `<p>Found ${results.length} references:</p>`;
             
-            // Clear active filters
-            activeFiltersContainer.innerHTML = '';
-            
-            // Display active filters if any
-            if (codeFilter || sectionFilter) {
-                activeFiltersContainer.style.display = 'flex';
-                
-                if (codeFilter) {
-                    const filterTag = document.createElement('span');
-                    filterTag.className = 'filter-tag';
-                    filterTag.textContent = codeFilter;
-                    activeFiltersContainer.appendChild(filterTag);
-                }
-                
-                if (sectionFilter) {
-                    const filterTag = document.createElement('span');
-                    filterTag.className = 'filter-tag';
-                    filterTag.textContent = `Section: ${sectionFilter}`;
-                    activeFiltersContainer.appendChild(filterTag);
-                }
-            } else {
-                activeFiltersContainer.style.display = 'none';
-            }
-            
-            if (answer.results.length === 0) {
-                resultsContainer.innerHTML = `
-                    <div class="error-message">
-                        <p>${answer.message}</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            let resultsHTML = `<p>${answer.message}</p>`;
-            
-            answer.results.forEach((ref, index) => {
-                // Ensure full content display by using the complete reference content
+            results.forEach((ref, index) => {
                 resultsHTML += `
                     <div class="result-card">
                         <div class="result-title">${index + 1}. ${ref.code} ${ref.section}${ref.subsection ? '.' + ref.subsection : ''}</div>
@@ -1202,28 +1179,13 @@
             });
             
             resultsHTML += `
-                <div class="disclaimer">
+                <div class="disclaimer" style="margin-top: 20px; font-size: 12px;">
                     Note: This information is provided as reference only. 
                     Always consult the official documentation for definitive answers.
                 </div>
             `;
             
             resultsContainer.innerHTML = resultsHTML;
-        }
-        
-        /**
-         * Show a status message to the user.
-         */
-        function showStatusMessage(message, isSuccess) {
-            const statusElement = document.getElementById('statusMessage');
-            statusElement.textContent = message;
-            statusElement.style.backgroundColor = isSuccess ? 'var(--success-color)' : 'var(--error-color)';
-            statusElement.style.display = 'block';
-            
-            // Hide the message after a few seconds
-            setTimeout(() => {
-                statusElement.style.display = 'none';
-            }, 3000);
         }
     </script>
 </body>
