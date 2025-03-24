@@ -644,12 +644,66 @@
             return new QuestionAnswerSystem(db);
         }
         
+        /**
+         * Initialize the system by loading code references from external JSON file.
+         * Falls back to sample data if the JSON file cannot be loaded.
+         */
+        async function initializeSystem() {
+            const db = new CodeDatabase();
+            
+            try {
+                // Attempt to load data from external JSON file
+                const response = await fetch('code-references.json');
+                
+                // Check if the response is OK
+                if (!response.ok) {
+                    throw new Error(`Failed to load code references: ${response.status} ${response.statusText}`);
+                }
+                
+                // Parse the JSON data
+                const data = await response.json();
+                
+                // Load the data into the database
+                const result = db.loadFromJSON(data);
+                
+                if (result.success) {
+                    console.log(result.message);
+                    showStatusMessage("Successfully loaded code references from external file", true);
+                    return new QuestionAnswerSystem(db);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                // Log the error
+                console.error("Error loading external references:", error);
+                
+                // Show a message to the user
+                showStatusMessage("Using built-in reference data", false);
+                
+                // Fall back to sample data
+                return initializeWithSampleData();
+            }
+        }
+
         // Initialize the system when the page loads
         let qaSystem;
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             console.log("Initializing ASME/API Codes Q&A System...");
-            qaSystem = initializeWithSampleData();
+            
+            // Set the loading message
+            const statusElement = document.getElementById('statusMessage');
+            statusElement.textContent = "Loading code references...";
+            statusElement.style.backgroundColor = 'var(--primary-color)';
+            statusElement.style.display = 'block';
+            
+            // Initialize the system
+            qaSystem = await initializeSystem();
             console.log("System ready!");
+            
+            // Hide the loading message
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 2000);
             
             // Set up event listeners
             document.getElementById('searchForm').addEventListener('submit', handleSearch);
