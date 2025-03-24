@@ -810,6 +810,116 @@
             constructor(referenceData) {
                 this.referenceData = referenceData;
                 console.log("SimpleQuerySystem initialized with:", this.referenceData);
+                
+                // Code-specific keywords to identify subject matter
+                this.codeKeywords = {
+                    "ASME B31.3": ["piping", "pipe", "fluid", "chemical", "refinery", "petroleum", "process", "pressure", "temperature", "b31.3", "b31", "steam", "water", "gas", "cryogenic"],
+                    "ASME Section I": ["boiler", "power", "steam", "pressure", "vessel", "section i", "section 1", "heat", "tube", "drum"],
+                    "ASME Section V": ["ndt", "nondestructive", "examination", "testing", "radiographic", "ultrasonic", "magnetic", "section v", "section 5", "inspection", "test"],
+                    "ASME Section VIII": ["pressure", "vessel", "tank", "section viii", "section 8", "division", "thickness", "weld", "fabrication", "hydrostatic"],
+                    "API 510": ["pressure", "vessel", "inspection", "repair", "alteration", "rerating", "510", "integrity", "corrosion", "thickness"],
+                    "API 570": ["piping", "inspection", "repair", "alteration", "rating", "570", "fiberglass", "frp", "metallurgical", "plastic"],
+                    "API 653": ["tank", "storage", "inspection", "repair", "alteration", "653", "bottom", "shell", "foundation", "settlement"],
+                    "API 580": ["risk", "rbi", "inspection", "assessment", "management", "580", "likelihood", "consequence", "failure", "probability"]
+                };
+                
+                // Common question patterns to extract keywords from
+                this.questionPatterns = [
+                    { pattern: /what\s+(?:is|are)\s+(?:the)?\s*(.+?)\??$/i, group: 1 },
+                    { pattern: /how\s+(?:to|do|does|can|should)\s+(?:you|i|we)?\s*(.+?)\??$/i, group: 1 },
+                    { pattern: /(?:tell|explain|describe)\s+(?:me|us)?\s+(?:about)?\s*(.+?)\??$/i, group: 1 },
+                    { pattern: /(?:requirements|regulations|rules)\s+(?:for|about|related\s+to)\s*(.+?)\??$/i, group: 1 }
+                ];
+            }
+            
+            extractKeywordsFromQuestion(query) {
+                console.log("Extracting keywords from question:", query);
+                
+                // Start with basic keyword extraction
+                const baseKeywords = query.toLowerCase()
+                    .replace(/[.,;:!?()"'-]/g, ' ')
+                    .split(/\s+/)
+                    .filter(term => term.length > 2);
+                
+                let extractedKeywords = [...baseKeywords];
+                
+                // Try to extract code references
+                const codePatterns = [
+                    { regex: /asme\s+b31\.3/i, code: "ASME B31.3" },
+                    { regex: /asme\s+section\s+i/i, code: "ASME Section I" },
+                    { regex: /asme\s+section\s+1/i, code: "ASME Section I" },
+                    { regex: /asme\s+section\s+v/i, code: "ASME Section V" },
+                    { regex: /asme\s+section\s+5/i, code: "ASME Section V" },
+                    { regex: /asme\s+section\s+viii/i, code: "ASME Section VIII" },
+                    { regex: /asme\s+section\s+8/i, code: "ASME Section VIII" },
+                    { regex: /api\s+510/i, code: "API 510" },
+                    { regex: /api\s+570/i, code: "API 570" },
+                    { regex: /api\s+653/i, code: "API 653" },
+                    { regex: /api\s+580/i, code: "API 580" }
+                ];
+                
+                let detectedCodes = [];
+                for (const pattern of codePatterns) {
+                    if (pattern.regex.test(query)) {
+                        detectedCodes.push(pattern.code);
+                    }
+                }
+                
+                // Add code-specific keywords for detected codes
+                for (const code of detectedCodes) {
+                    if (this.codeKeywords[code]) {
+                        extractedKeywords = [...extractedKeywords, ...this.codeKeywords[code]];
+                    }
+                }
+                
+                // Try to extract subject from question patterns
+                for (const patternInfo of this.questionPatterns) {
+                    const match = query.match(patternInfo.pattern);
+                    if (match) {
+                        const subject = match[patternInfo.group].trim().toLowerCase();
+                        console.log("Extracted subject from question:", subject);
+                        
+                        // Add the subject terms
+                        const subjectTerms = subject
+                            .replace(/[.,;:!?()"'-]/g, ' ')
+                            .split(/\s+/)
+                            .filter(term => term.length > 2);
+                        
+                        extractedKeywords = [...extractedKeywords, ...subjectTerms];
+                        
+                        // For each detected subject term, add related code-specific keywords
+                        for (const term of subjectTerms) {
+                            for (const [code, keywords] of Object.entries(this.codeKeywords)) {
+                                if (keywords.includes(term)) {
+                                    console.log(`Term '${term}' matched code ${code}`);
+                                    if (!detectedCodes.includes(code)) {
+                                        detectedCodes.push(code);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Extract section numbers
+                const sectionMatches = query.match(/(?:section|paragraph|para)\s+([0-9]+(?:\.[0-9]+)*)/gi);
+                if (sectionMatches) {
+                    for (const match of sectionMatches) {
+                        const section = match.replace(/(?:section|paragraph|para)\s+/i, '').trim();
+                        extractedKeywords.push(section);
+                    }
+                }
+                
+                // Remove duplicates
+                extractedKeywords = [...new Set(extractedKeywords)];
+                
+                console.log("Extracted keywords:", extractedKeywords);
+                console.log("Detected codes:", detectedCodes);
+                
+                return {
+                    keywords: extractedKeywords,
+                    detectedCodes: detectedCodes
+                };
             }
             
             searchReferences(query, codeFilter = null, sectionFilter = null) {
@@ -822,11 +932,25 @@
                     return [];
                 }
                 
+                // Extract keywords and detected codes from the question
+                const { keywords, detectedCodes } = this.extractKeywordsFromQuestion(query);
+                
                 const results = [];
-                const searchTerms = query.toLowerCase().split(/\s+/).filter(term => term.length > 2);
                 
                 // Determine which codes to search
-                const codesToSearch = codeFilter ? [codeFilter] : Object.keys(this.referenceData);
+                let codesToSearch = [];
+                if (codeFilter) {
+                    // If explicit filter is provided, use it
+                    codesToSearch = [codeFilter];
+                } else if (detectedCodes.length > 0) {
+                    // If codes were detected in the question, use them
+                    codesToSearch = detectedCodes;
+                } else {
+                    // Otherwise search all codes
+                    codesToSearch = Object.keys(this.referenceData);
+                }
+                
+                console.log("Searching in codes:", codesToSearch);
                 
                 for (const code of codesToSearch) {
                     // Skip if this code doesn't exist in our data
@@ -844,38 +968,57 @@
                             continue;
                         }
                         
-                        // Check if this reference matches the search terms
+                        // Check if this reference matches the keywords
                         const content = ref.content.toLowerCase();
                         
-                        let matches = false;
+                        let matchCount = 0;
+                        let importantMatchCount = 0;
                         
-                        // If no search terms, include everything (when using filters)
-                        if (searchTerms.length === 0 && (codeFilter || sectionFilter)) {
-                            matches = true;
-                        }
-                        // Otherwise, check if ANY search term appears in the content
-                        else {
-                            for (const term of searchTerms) {
-                                if (content.includes(term)) {
-                                    matches = true;
-                                    break;
+                        for (const term of keywords) {
+                            // Section number exact match is very important
+                            if (ref.section === term || (ref.subsection && ref.section + '.' + ref.subsection === term)) {
+                                importantMatchCount += 3;
+                                continue;
+                            }
+                            
+                            // Content match
+                            if (content.includes(term)) {
+                                matchCount++;
+                                
+                                // If the term is a code-specific keyword, it's more important
+                                if (this.codeKeywords[code] && this.codeKeywords[code].includes(term)) {
+                                    importantMatchCount++;
                                 }
                             }
                         }
                         
-                        if (matches) {
+                        // Determine if this reference is a match
+                        const isMatch = (matchCount > 0 || importantMatchCount > 0) || 
+                                       (keywords.length === 0 && (codeFilter || sectionFilter));
+                        
+                        if (isMatch) {
+                            // Calculate a relevance score
+                            const relevanceScore = matchCount + (importantMatchCount * 3);
+                            
                             results.push({
                                 code: code,
                                 section: ref.section,
                                 subsection: ref.subsection,
-                                content: ref.content
+                                content: ref.content,
+                                score: relevanceScore
                             });
                         }
                     }
                 }
                 
-                console.log(`Found ${results.length} matching references`);
-                return results;
+                // Sort results by relevance score
+                results.sort((a, b) => b.score - a.score);
+                
+                // Remove the score property before returning
+                const cleanResults = results.map(({score, ...rest}) => rest);
+                
+                console.log(`Found ${cleanResults.length} matching references`);
+                return cleanResults;
             }
             
             answerQuestion(question, codeFilter = null, sectionFilter = null) {
