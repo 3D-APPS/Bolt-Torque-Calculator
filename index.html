@@ -500,10 +500,15 @@
                 const specifiedSection = sectionFilter || this._extractSectionFromQuery(query);
                 console.log("Determined section:", specifiedSection);
                 
-                // Get keywords from the query - improved approach
-                // Filter out common words that might lead to too many matches
-                const commonWords = new Set(['the', 'and', 'for', 'with', 'this', 'that', 'code', 'section', 'references', 'asme', 'api']);
+                // Expanded list of common words to filter out
+                const commonWords = new Set([
+                    'the', 'and', 'for', 'with', 'this', 'that', 'code', 'section', 'references', 
+                    'asme', 'api', 'what', 'where', 'when', 'who', 'how', 'which', 'any', 'all',
+                    'does', 'are', 'about', 'from', 'have', 'has', 'will', 'requirements', 'should',
+                    'must', 'can', 'may', 'standard', 'related', 'based', 'used', 'applicable'
+                ]);
                 
+                // Process the query into keywords
                 const keywords = query.toLowerCase()
                     .replace(/[.,;:!?()"'-]/g, ' ')
                     .split(/\s+/)
@@ -511,6 +516,15 @@
                     .filter(word => !commonWords.has(word)); // Filter out common words
                 
                 console.log("Extracted keywords:", keywords);
+                
+                // If no meaningful keywords found, try to extract numbers which might be section numbers
+                let includeNumbers = false;
+                if (keywords.length === 0) {
+                    const numbers = query.match(/\d+(\.\d+)?/g) || [];
+                    keywords.push(...numbers);
+                    includeNumbers = true;
+                    console.log("No keywords found, using numbers instead:", keywords);
+                }
                 
                 // Filter the codes to search
                 const codesToSearch = specifiedCode ? [specifiedCode] : Object.keys(this.references);
@@ -537,48 +551,75 @@
                         }
                         
                         const contentLower = ref.content.toLowerCase();
+                        const sectionInfo = ref.section.toLowerCase() + (ref.subsection ? '.' + ref.subsection.toLowerCase() : '');
                         
-                        // Count how many keywords match
+                        // Count how many keywords match and where
                         let matchCount = 0;
+                        let titleMatchCount = 0;
                         let relevanceScore = 0;
                         
                         for (const keyword of keywords) {
+                            // Check if keyword is in the section number or code
+                            if (sectionInfo.includes(keyword) || code.toLowerCase().includes(keyword)) {
+                                titleMatchCount++;
+                                relevanceScore += 15; // Much higher weight for metadata matches
+                            }
+                            
+                            // Check the content
                             if (contentLower.includes(keyword)) {
                                 matchCount++;
-                                // Score based on keyword length (longer = more specific)
-                                relevanceScore += keyword.length;
                                 
-                                // Bonus if keyword appears early in the content
-                                if (contentLower.indexOf(keyword) < 50) {
+                                // Score based on keyword length (longer = more specific)
+                                // Square the length to give even more weight to longer keywords
+                                relevanceScore += Math.pow(keyword.length, 2);
+                                
+                                // Bonus if keyword appears early in the content (first 50 chars)
+                                const position = contentLower.indexOf(keyword);
+                                if (position < 50) {
+                                    relevanceScore += 10;
+                                }
+                                // Lesser bonus if it appears in the first half
+                                else if (position < contentLower.length / 2) {
                                     relevanceScore += 5;
+                                }
+                                
+                                // Additional bonus if the keyword appears multiple times
+                                const matches = contentLower.match(new RegExp(keyword, 'g')) || [];
+                                if (matches.length > 1) {
+                                    relevanceScore += Math.min(matches.length * 2, 10); // Cap at +10
                                 }
                             }
                         }
                         
                         // Special case: if searching for a specific code or section, boost those matches
                         if (specifiedCode && !codeFilter) {
-                            relevanceScore += 20;
+                            relevanceScore += 25;
                         }
                         if (specifiedSection && !sectionFilter) {
-                            relevanceScore += 20;
+                            relevanceScore += 25;
                         }
                         
                         // Different matching logic based on query complexity
                         let isMatch = false;
                         
                         if (keywords.length === 0) {
-                            // Empty query - match everything (but this should be rare)
-                            isMatch = true;
+                            // Empty query after filtering - only match if filters were specified
+                            isMatch = (specifiedCode || specifiedSection);
+                        } else if (includeNumbers) {
+                            // When using numbers, only match if the number appears in section/code
+                            isMatch = titleMatchCount > 0;
                         } else if (keywords.length === 1) {
-                            // Single keyword - strict match required
-                            isMatch = matchCount === 1;
+                            // Single keyword - strict match required and must be significant
+                            isMatch = matchCount === 1 && relevanceScore > 10;
                         } else if (keywords.length === 2) {
-                            // Two keywords - at least one must match
-                            isMatch = matchCount >= 1;
+                            // Two keywords - we now require both to match for high precision
+                            // or one match in metadata (title/section) and one in content
+                            isMatch = (matchCount === 2) || (matchCount >= 1 && titleMatchCount >= 1);
                         } else {
-                            // Multiple keywords - require at least 40% of keywords to match
-                            // This increases precision for longer queries
-                            isMatch = matchCount / keywords.length >= 0.4;
+                            // Multiple keywords - require at least 60% of keywords to match (increased from 40%)
+                            // OR fewer matches but with extremely high relevance score
+                            isMatch = (matchCount / keywords.length >= 0.6) || 
+                                    (matchCount >= 2 && relevanceScore > 50);
                         }
                         
                         if (isMatch) {
@@ -595,11 +636,11 @@
                 // Sort by relevance score (highest first)
                 scoredResults.sort((a, b) => b.score - a.score);
                 
-                // Return only the top results (limit to 10 to avoid information overload)
+                // Return only the top results (limit to 5 to further reduce irrelevant results)
                 // and remove the score property
-                const results = scoredResults.slice(0, 10).map(({score, ...ref}) => ref);
+                const results = scoredResults.slice(0, 5).map(({score, ...ref}) => ref);
                 
-                console.log(`Searched ${totalRefs} references, found ${results.length} relevant matches`);
+                console.log(`Searched ${totalRefs} references, found ${results.length} highly relevant matches`);
                 return results;
             }
             
