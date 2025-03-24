@@ -259,6 +259,9 @@
         .result-content {
             color: var(--text-primary);
             line-height: 1.6;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow: visible;
         }
         
         .empty-results {
@@ -845,6 +848,7 @@
             let resultsHTML = `<p>${answer.message}</p>`;
             
             answer.results.forEach((ref, index) => {
+                // Ensure full content display by using the complete reference content
                 resultsHTML += `
                     <div class="result-card">
                         <div class="result-title">${index + 1}. ${ref.code} ${ref.section}${ref.subsection ? '.' + ref.subsection : ''}</div>
