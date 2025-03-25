@@ -3,1228 +3,1027 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASME/API Codes Q&A System</title>
+    <title>Pressure Equipment Thickness Calculator</title>
     <style>
-        :root {
-            --primary-color: #00796b;
-            --primary-dark: #004d40;
-            --primary-light: #48a999;
-            --accent-color: #ffd54f;
-            --dark-bg: #212121;
-            --surface-bg: #333333;
-            --card-bg: #3d3d3d;
-            --text-primary: #ffffff;
-            --text-secondary: #b0bec5;
-            --border-color: #4f4f4f;
-            --divider-color: #616161;
-            --error-color: #cf6679;
-            --success-color: #66bb6a;
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
         }
         
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            line-height: 1.6;
-            color: var(--text-primary);
-            margin: 0;
-            padding: 0;
-            background-color: var(--dark-bg);
+        h1, h2, h3 {
+            color: #2c3e50;
         }
         
         .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        header {
-            background-color: var(--surface-bg);
-            padding: 20px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-        
-        header .container {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 20px;
         }
         
-        header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: 500;
-            color: var(--primary-light);
-        }
-        
-        .search-bar {
-            display: flex;
-            width: 100%;
-            max-width: 600px;
-            margin: 30px auto;
-            padding: 12px 20px;
-            background-color: var(--surface-bg);
+        .calculator {
+            background-color: white;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
-        .search-input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background-color: var(--card-bg);
-            color: var(--text-primary);
-            font-size: 1rem;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 2px rgba(72, 169, 153, 0.3);
-        }
-        
-        .search-button {
-            padding: 12px 20px;
-            margin-left: 10px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .search-button:hover {
-            background-color: var(--primary-dark);
-        }
-        
-        .main-content {
-            margin-top: 30px;
-        }
-        
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-            background-color: var(--surface-bg);
-            border-radius: 8px 8px 0 0;
-            overflow: hidden;
-        }
-        
-        .tab {
-            padding: 15px 25px;
-            background-color: var(--surface-bg);
-            color: var(--text-secondary);
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s;
-            flex: 1;
-            text-align: center;
-        }
-        
-        .tab.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .tab:hover:not(.active) {
-            background-color: var(--card-bg);
-            color: var(--text-primary);
-        }
-        
-        .tab-content {
-            display: none;
-            padding: 25px;
-            background-color: var(--surface-bg);
-            border-radius: 0 0 8px 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .search-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        @media (max-width: 768px) {
-            .search-options {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .form-group {
+        .input-group {
             margin-bottom: 15px;
         }
         
-        .form-group label {
+        label {
             display: block;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
         
-        .form-control {
+        input, select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
+            padding: 8px;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            background-color: var(--card-bg);
-            color: var(--text-primary);
-            font-size: 1rem;
+            box-sizing: border-box;
         }
         
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-light);
-        }
-        
-        .button {
-            background-color: var(--primary-color);
+        button {
+            background-color: #3498db;
             color: white;
             border: none;
+            padding: 10px 15px;
             border-radius: 4px;
-            padding: 12px 24px;
-            font-size: 1rem;
             cursor: pointer;
-            transition: background-color 0.2s;
-            font-weight: 500;
+            font-size: 16px;
         }
         
-        .button:hover {
-            background-color: var(--primary-dark);
+        button:hover {
+            background-color: #2980b9;
         }
         
-        .results-container {
-            padding: 20px 0;
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
         }
         
-        .results-header {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--divider-color);
-            color: var(--text-primary);
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            border-radius: 8px 8px 0 0;
         }
         
-        .results-stats {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            color: #333;
         }
         
-        .active-filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 20px;
+        .tab button:hover {
+            background-color: #ddd;
         }
         
-        .filter-tag {
-            display: inline-flex;
-            align-items: center;
-            background-color: var(--primary-dark);
+        .tab button.active {
+            background-color: #3498db;
             color: white;
-            padding: 6px 12px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            border: 1px solid var(--primary-color);
         }
         
-        .result-card {
-            background-color: var(--card-bg);
-            border-radius: 8px;
+        .tabcontent {
+            display: none;
             padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            border-left: 4px solid var(--primary-color);
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            background-color: white;
         }
         
-        .result-title {
-            font-weight: 600;
-            color: var(--primary-light);
+        .show {
+            display: block;
+        }
+        
+        .formula {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
             margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--divider-color);
+            font-family: monospace;
         }
         
-        .result-content {
-            color: var(--text-primary);
-            line-height: 1.6;
-            white-space: normal;
-            word-wrap: break-word;
-            overflow: visible;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
         }
         
-        .empty-results {
-            text-align: center;
-            padding: 30px;
-            color: var(--text-secondary);
+        table, th, td {
+            border: 1px solid #ddd;
         }
         
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 30px;
-            color: var(--text-secondary);
+        th, td {
+            padding: 8px;
+            text-align: left;
         }
         
-        .loading::after {
-            content: "...";
-            animation: loadingDots 1.5s infinite;
+        th {
+            background-color: #f2f2f2;
         }
         
-        .error-message {
-            padding: 15px;
-            background-color: rgba(207, 102, 121, 0.2);
-            border-left: 4px solid var(--error-color);
-            border-radius: 4px;
-            color: var(--error-color);
-            margin-bottom: 20px;
-        }
-        
-        .disclaimer {
-            margin-top: 30px;
-            padding: 15px;
-            background-color: rgba(72, 169, 153, 0.1);
-            border-left: 4px solid var(--primary-color);
-            border-radius: 4px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-        
-        .status-message {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            border-radius: 4px;
-            background-color: var(--success-color);
+        .info-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-color: #3498db;
             color: white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            display: none;
-            animation: slideIn 0.3s ease-out;
-        }
-        
-        footer {
-            margin-top: 50px;
-            padding: 20px 0;
-            background-color: var(--surface-bg);
-            border-top: 1px solid var(--divider-color);
+            border-radius: 50%;
             text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
+            line-height: 16px;
+            font-size: 12px;
+            margin-left: 5px;
+            cursor: help;
         }
         
-        @keyframes slideIn {
-            from { 
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to { 
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .tooltip {
+            position: relative;
+            display: inline-block;
         }
         
-        @keyframes loadingDots {
-            0% { content: "."; }
-            33% { content: ".."; }
-            66% { content: "..."; }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>ASME/API Codes Q&A System</h1>
-        </div>
-    </header>
+    <h1>Pressure Equipment Thickness Calculator</h1>
     
     <div class="container">
-        <div class="search-bar">
-            <input type="text" class="search-input" id="quickSearch" placeholder="Quick search for code references...">
-            <button class="search-button" id="quickSearchBtn">Search</button>
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'ASME-VIII')">ASME Section VIII</button>
+            <button class="tablinks" onclick="openTab(event, 'ASME-B31.3')">ASME B31.3</button>
+            <button class="tablinks" onclick="openTab(event, 'API-653')">API 653</button>
+            <button class="tablinks" onclick="openTab(event, 'Allowable-Stress')">Allowable Stress Values</button>
         </div>
         
-        <div class="main-content">
-            <div class="tabs">
-                <button class="tab active" data-tab="search">Advanced Search</button>
-                <button class="tab" data-tab="results">Results</button>
-            </div>
+        <!-- ASME Section VIII Calculator -->
+        <div id="ASME-VIII" class="tabcontent show">
+            <h2>ASME Section VIII Minimum Thickness Calculator</h2>
             
-            <div class="tab-content active" id="search-tab">
-                <form id="searchForm">
-                    <div class="form-group">
-                        <label for="questionInput">Enter your question or keywords:</label>
-                        <input type="text" id="questionInput" class="form-control" placeholder="What fluids are covered by ASME B31.3?">
-                    </div>
-                    
-                    <div class="search-options">
-                        <div class="form-group">
-                            <label for="codeFilter">Filter by Code:</label>
-                            <select id="codeFilter" class="form-control">
-                                <option value="">All Codes</option>
-                                <option value="ASME B31.3">ASME B31.3</option>
-                                <option value="ASME Section I">ASME Section I</option>
-                                <option value="ASME Section V">ASME Section V</option>
-                                <option value="ASME Section VIII">ASME Section VIII</option>
-                                <option value="API 510">API 510</option>
-                                <option value="API 570">API 570</option>
-                                <option value="API 653">API 653</option>
-                                <option value="API 580">API 580</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="sectionFilter">Section Number:</label>
-                            <input type="text" id="sectionFilter" class="form-control" placeholder="e.g. 300.1.1">
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="button">Search References</button>
-                </form>
-            </div>
-            
-            <div class="tab-content" id="results-tab">
-                <div class="results-header">
-                    <h2>Search Results</h2>
+            <div class="calculator">
+                <h3>Component Type</h3>
+                <div class="input-group">
+                    <select id="asmeviii-component">
+                        <option value="cylindrical-shell">Cylindrical Shell</option>
+                        <option value="spherical-shell">Spherical Shell</option>
+                        <option value="elliptical-head">Elliptical Head (2:1)</option>
+                        <option value="hemispherical-head">Hemispherical Head</option>
+                        <option value="torispherical-head">Torispherical Head (ASME Flanged & Dished)</option>
+                        <option value="nozzle">Nozzle/Opening</option>
+                    </select>
                 </div>
                 
-                <div id="loading" class="loading">Searching references</div>
-                
-                <div class="active-filters" id="activeFilters"></div>
-                
-                <div class="results-container" id="resultsContainer">
-                    <div class="empty-results">
-                        <p>Use the search tab to find relevant code references.</p>
-                    </div>
+                <h3>Design Parameters</h3>
+                <div class="input-group">
+                    <label for="asmeviii-pressure">Design Pressure (P) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Internal pressure in psi or MPa</span></span></label>
+                    <input type="number" id="asmeviii-pressure" step="0.001" min="0">
                 </div>
+                
+                <div class="input-group">
+                    <label for="asmeviii-diameter" id="asmeviii-diameter-label">Inside Diameter (D) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" id="asmeviii-diameter-tooltip">Inside diameter in inches or mm</span></span></label>
+                    <input type="number" id="asmeviii-diameter" step="0.001" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="asmeviii-allowable-stress">Allowable Stress (S) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Material allowable stress at design temperature</span></span></label>
+                    <input type="number" id="asmeviii-allowable-stress" step="0.001" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="asmeviii-joint-efficiency">Joint Efficiency (E) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Weld joint efficiency factor (0.7-1.0)</span></span></label>
+                    <input type="number" id="asmeviii-joint-efficiency" value="1.0" step="0.01" min="0.7" max="1.0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="asmeviii-corrosion-allowance">Corrosion Allowance <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Additional thickness for corrosion</span></span></label>
+                    <input type="number" id="asmeviii-corrosion-allowance" value="0.125" step="0.001" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="asmeviii-units">Units</label>
+                    <select id="asmeviii-units">
+                        <option value="imperial">US Customary (psi, inches)</option>
+                        <option value="metric">Metric (MPa, mm)</option>
+                    </select>
+                </div>
+                
+                <button onclick="calculateASMEVIII()">Calculate Minimum Thickness</button>
+                
+                <div id="asmeviii-result" class="result" style="display: none;"></div>
+            </div>
+            
+            <div class="calculator">
+                <h3>Applicable Formulas</h3>
+                <h4>Cylindrical Shell (Internal Pressure)</h4>
+                <div class="formula">
+                    t = (P × R) / (S × E - 0.6 × P) + CA<br>
+                    <small>Where R = inside radius</small>
+                </div>
+                
+                <h4>Spherical Shell (Internal Pressure)</h4>
+                <div class="formula">
+                    t = (P × R) / (2 × S × E - 0.2 × P) + CA
+                </div>
+                
+                <h4>Elliptical Head (2:1 Semi-Elliptical)</h4>
+                <div class="formula">
+                    t = (P × D × K) / (2 × S × E - 0.2 × P) + CA<br>
+                    <small>Where K = factor based on D/2h ratio (K = 1 for 2:1 ratio)</small>
+                </div>
+                
+                <h4>Hemispherical Head</h4>
+                <div class="formula">
+                    t = (P × R) / (2 × S × E - 0.2 × P) + CA
+                </div>
+                
+                <h4>Torispherical (F&D) Head</h4>
+                <div class="formula">
+                    t = (0.855 × P × L) / (S × E - 0.1 × P) + CA<br>
+                    <small>Where L = crown radius (inside diameter for standard ASME F&D heads)</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ASME B31.3 Calculator -->
+        <div id="ASME-B31.3" class="tabcontent">
+            <h2>ASME B31.3 Minimum Thickness Calculator</h2>
+            
+            <div class="calculator">
+                <h3>Design Parameters</h3>
+                <div class="input-group">
+                    <label for="asmeb31-pressure">Design Pressure (P) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Internal pressure in psi or MPa</span></span></label>
+                    <input type="number" id="asmeb31-pressure" step="0.001" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="asmeb31-diameter">Outside Diameter (D) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Outside diameter in inches or mm</span></span></label>
+                    <input type="number" id="asmeb31-diameter" step="0.001" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="asmeb31-allowable-stress">Allowable Stress (S) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Material allowable stress at design temperature</span></span></label>
+                    <input type="number" id="asmeb31-allowable-stress" step="0.001" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="asmeb31-joint-efficiency">Weld Joint Factor (E) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Longitudinal weld joint factor</span></span></label>
+                    <input type="number" id="asmeb31-joint-efficiency" value="1.0" step="0.01" min="0.4" max="1.0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="asmeb31-y-coefficient">Y Coefficient <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Temperature coefficient (0.4 for ≤ 900°F, 0.7 for > 900°F)</span></span></label>
+                    <input type="number" id="asmeb31-y-coefficient" value="0.4" step="0.1" min="0.4" max="0.7">
+                </div>
+                
+                <div class="input-group">
+                    <label for="asmeb31-corrosion-allowance">Corrosion Allowance <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Additional thickness for corrosion</span></span></label>
+                    <input type="number" id="asmeb31-corrosion-allowance" value="0.125" step="0.001" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="asmeb31-mill-tolerance">Mill Tolerance (%) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Negative thickness tolerance (typically 12.5%)</span></span></label>
+                    <input type="number" id="asmeb31-mill-tolerance" value="12.5" step="0.1" min="0" max="20">
+                </div>
+                
+                <div class="input-group">
+                    <label for="asmeb31-units">Units</label>
+                    <select id="asmeb31-units">
+                        <option value="imperial">US Customary (psi, inches)</option>
+                        <option value="metric">Metric (MPa, mm)</option>
+                    </select>
+                </div>
+                
+                <button onclick="calculateASMEB31()">Calculate Minimum Thickness</button>
+                
+                <div id="asmeb31-result" class="result" style="display: none;"></div>
+            </div>
+            
+            <div class="calculator">
+                <h3>Applicable Formula</h3>
+                <div class="formula">
+                    t = (P × D) / (2 × (S × E + P × Y)) + CA<br>
+                    <small>Where:<br>
+                    t = minimum required thickness<br>
+                    P = internal design pressure<br>
+                    D = outside diameter<br>
+                    S = allowable stress<br>
+                    E = longitudinal weld joint factor<br>
+                    Y = temperature coefficient<br>
+                    CA = corrosion allowance</small>
+                </div>
+                
+                <h4>Notes:</h4>
+                <ul>
+                    <li>For straight pipe under internal pressure.</li>
+                    <li>For bends, elbows, and other fittings, additional factors apply.</li>
+                    <li>Mill tolerance is applied as an additional factor to account for manufacturing variation.</li>
+                </ul>
+                
+                <table>
+                    <tr>
+                        <th>Temperature</th>
+                        <th>Y Coefficient</th>
+                    </tr>
+                    <tr>
+                        <td>≤ 900°F (482°C)</td>
+                        <td>0.4</td>
+                    </tr>
+                    <tr>
+                        <td>> 900°F (482°C)</td>
+                        <td>0.7</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- API 653 Calculator -->
+        <div id="API-653" class="tabcontent">
+            <h2>API 653 Minimum Thickness Calculator</h2>
+            
+            <div class="calculator">
+                <h3>Design Parameters</h3>
+                <div class="input-group">
+                    <label for="api653-calculation-type">Calculation Type</label>
+                    <select id="api653-calculation-type">
+                        <option value="shell">Shell Course</option>
+                        <option value="bottom">Tank Bottom</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="api653-diameter">Tank Diameter (D) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Nominal tank diameter in feet or meters</span></span></label>
+                    <input type="number" id="api653-diameter" step="0.001" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="api653-height">Product Height (H) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Maximum product height in feet or meters</span></span></label>
+                    <input type="number" id="api653-height" step="0.001" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="api653-sg">Specific Gravity (G) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Specific gravity of stored product</span></span></label>
+                    <input type="number" id="api653-sg" value="1.0" step="0.01" min="0.5" max="2.0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="api653-course-height">Course Height (h) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">For shell calculations: height of the shell course in feet or meters</span></span></label>
+                    <input type="number" id="api653-course-height" step="0.001" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="api653-allowable-stress">Allowable Stress (S) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Material allowable stress</span></span></label>
+                    <input type="number" id="api653-allowable-stress" step="0.001" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="api653-joint-efficiency">Joint Efficiency (E) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Weld joint efficiency factor</span></span></label>
+                    <input type="number" id="api653-joint-efficiency" value="0.85" step="0.01" min="0.7" max="1.0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="api653-ca">Corrosion Allowance <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Additional thickness for corrosion in inches or mm</span></span></label>
+                    <input type="number" id="api653-ca" value="0.125" step="0.001" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="api653-units">Units</label>
+                    <select id="api653-units">
+                        <option value="imperial">US Customary (ft, inches, psi)</option>
+                        <option value="metric">Metric (m, mm, MPa)</option>
+                    </select>
+                </div>
+                
+                <button onclick="calculateAPI653()">Calculate Minimum Thickness</button>
+                
+                <div id="api653-result" class="result" style="display: none;"></div>
+            </div>
+            
+            <div class="calculator">
+                <h3>Applicable Formulas</h3>
+                <h4>Shell Course (1-Foot Method)</h4>
+                <div class="formula">
+                    t = (2.6 × H × D × G × (H - h + 1)) / (S × E) + CA<br>
+                    <small>Where:<br>
+                    t = minimum required thickness (inches)<br>
+                    H = height from bottom of tank to maximum fluid height (feet)<br>
+                    D = nominal tank diameter (feet)<br>
+                    G = specific gravity of fluid<br>
+                    h = height from bottom of tank to center of shell course (feet)<br>
+                    S = allowable stress (psi)<br>
+                    E = joint efficiency<br>
+                    CA = corrosion allowance</small>
+                </div>
+                
+                <h4>Tank Bottom (Minimum Thickness)</h4>
+                <div class="formula">
+                    t = 0.039 × D × √G + CA<br>
+                    <small>Where:<br>
+                    t = minimum required thickness (inches)<br>
+                    D = nominal tank diameter (feet)<br>
+                    G = specific gravity of fluid<br>
+                    CA = corrosion allowance</small>
+                </div>
+                
+                <h4>Notes:</h4>
+                <ul>
+                    <li>For variable design point method, additional calculations are required.</li>
+                    <li>The 1-foot method is a simplified approach for standard atmospheric storage tanks.</li>
+                    <li>For large diameter tanks or special designs, consult API 653 standard for detailed requirements.</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Allowable Stress Values Table -->
+        <div id="Allowable-Stress" class="tabcontent">
+            <h2>ASME Section II Part D Allowable Stress Values (ksi)</h2>
+            
+            <div class="calculator">
+                <div class="input-group">
+                    <label for="stress-material-filter">Filter by Material:</label>
+                    <select id="stress-material-filter" onchange="filterStressTables()">
+                        <option value="all">All Materials</option>
+                        <option value="carbon">Carbon Steels</option>
+                        <option value="stainless">Stainless Steels</option>
+                        <option value="alloy">Alloy Steels</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="stress-search">Search:</label>
+                    <input type="text" id="stress-search" onkeyup="filterStressTables()" placeholder="Type to search...">
+                </div>
+            </div>
+            
+            <div class="section">CARBON STEELS</div>
+            <div id="carbon-steels-table">
+                <table>
+                    <tr><th>Material</th><th>Specification</th><th>Grade/Type</th><th>UNS</th><th>Form</th><th>100°F</th><th>200°F</th><th>300°F</th><th>400°F</th><th>500°F</th><th>600°F</th><th>700°F</th><th>800°F</th><th>900°F</th><th>1000°F</th></tr>
+                    <tr><td>Carbon Steel</td><td>SA-36</td><td>--</td><td>K02600</td><td>Plate</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">19.4</td><td class="numeric">18.3</td><td class="numeric">17.1</td><td class="numeric">15.2</td><td class="numeric">13.0</td><td class="numeric">10.8</td><td class="numeric">8.5</td><td class="numeric">6.4</td></tr>
+                    <tr><td>Carbon Steel</td><td>SA-53</td><td>A</td><td>K03005</td><td>Pipe</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">18.8</td><td class="numeric">16.6</td><td class="numeric">13.7</td><td class="numeric">10.7</td><td class="numeric">8.4</td><td class="numeric">6.4</td></tr>
+                    <tr><td>Carbon Steel</td><td>SA-53</td><td>B</td><td>K03006</td><td>Pipe</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">18.8</td><td class="numeric">16.6</td><td class="numeric">13.7</td><td class="numeric">10.7</td><td class="numeric">8.4</td><td class="numeric">6.4</td></tr>
+                    <tr><td>Carbon Steel</td><td>SA-106</td><td>B</td><td>K03006</td><td>Pipe</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">18.8</td><td class="numeric">16.6</td><td class="numeric">13.7</td><td class="numeric">10.7</td><td class="numeric">8.4</td><td class="numeric">6.4</td></tr>
+                    <tr><td>Carbon Steel</td><td>SA-106</td><td>C</td><td>K03501</td><td>Pipe</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">19.5</td><td class="numeric">18.6</td><td class="numeric">16.6</td><td class="numeric">13.6</td><td class="numeric">10.4</td><td class="numeric">7.4</td></tr>
+                    <tr><td>Carbon Steel</td><td>SA-105</td><td>--</td><td>K03504</td><td>Forging</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">18.8</td><td class="numeric">16.6</td><td class="numeric">13.7</td><td class="numeric">10.7</td><td class="numeric">8.4</td><td class="numeric">6.4</td></tr>
+                    <tr><td>Carbon Steel</td><td>SA-181</td><td>60</td><td>K03502</td><td>Forging</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">18.8</td><td class="numeric">16.6</td><td class="numeric">13.7</td><td class="numeric">10.7</td><td class="numeric">8.4</td><td class="numeric">6.4</td></tr>
+                    <tr><td>Carbon Steel</td><td>SA-181</td><td>70</td><td>K03506</td><td>Forging</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">19.5</td><td class="numeric">18.6</td><td class="numeric">16.6</td><td class="numeric">13.6</td><td class="numeric">10.4</td><td class="numeric">7.4</td></tr>
+                    <tr><td>Carbon Steel</td><td>SA-234</td><td>WPB</td><td>K03006</td><td>Fitting</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">18.8</td><td class="numeric">16.6</td><td class="numeric">13.7</td><td class="numeric">10.7</td><td class="numeric">8.4</td><td class="numeric">6.4</td></tr>
+                    <tr><td>Carbon Steel</td><td>SA-234</td><td>WPC</td><td>K03501</td><td>Fitting</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">19.5</td><td class="numeric">18.6</td><td class="numeric">16.6</td><td class="numeric">13.6</td><td class="numeric">10.4</td><td class="numeric">7.4</td></tr>
+                    <tr><td>Carbon Steel</td><td>SA-285</td><td>A</td><td>K01700</td><td>Plate</td><td class="numeric">16.3</td><td class="numeric">16.3</td><td class="numeric">16.3</td><td class="numeric">16.3</td><td class="numeric">16.3</td><td class="numeric">14.8</td><td class="numeric">12.4</td><td class="numeric">10.1</td><td class="numeric">8.1</td><td class="numeric">6.3</td></tr>
+                    <tr><td>Carbon Steel</td><td>SA-285</td><td>C</td><td>K01801</td><td>Plate</td><td class="numeric">18.8</td><td class="numeric">18.8</td><td class="numeric">18.8</td><td class="numeric">18.8</td><td class="numeric">18.8</td><td class="numeric">16.6</td><td class="numeric">13.7</td><td class="numeric">10.7</td><td class="numeric">8.4</td><td class="numeric">6.4</td></tr>
+                    <tr><td>Carbon Steel</td><td>SA-516</td><td>60</td><td>K02100</td><td>Plate</td><td class="numeric">17.5</td><td class="numeric">17.5</td><td class="numeric">17.5</td><td class="numeric">17.5</td><td class="numeric">17.5</td><td class="numeric">15.8</td><td class="numeric">13.2</td><td class="numeric">10.5</td><td class="numeric">8.3</td><td class="numeric">6.3</td></tr>
+                    <tr><td>Carbon Steel</td><td>SA-516</td><td>70</td><td>K02700</td><td>Plate</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">18.8</td><td class="numeric">16.6</td><td class="numeric">13.7</td><td class="numeric">10.7</td><td class="numeric">8.4</td><td class="numeric">6.4</td></tr>
+                </table>
+            </div>
+            
+            <div class="section">STAINLESS STEELS</div>
+            <div id="stainless-steels-table">
+                <table>
+                    <tr><th>Material</th><th>Specification</th><th>Grade/Type</th><th>UNS</th><th>Form</th><th>100°F</th><th>200°F</th><th>300°F</th><th>400°F</th><th>500°F</th><th>600°F</th><th>700°F</th><th>800°F</th><th>900°F</th><th>1000°F</th></tr>
+                    <tr><td>Stainless Steel</td><td>SA-213</td><td>TP304</td><td>S30400</td><td>Tube</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">16.7</td><td class="numeric">15.0</td><td class="numeric">13.7</td><td class="numeric">12.9</td><td class="numeric">12.4</td><td class="numeric">11.7</td><td class="numeric">10.8</td><td class="numeric">9.8</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-213</td><td>TP304L</td><td>S30403</td><td>Tube</td><td class="numeric">16.7</td><td class="numeric">16.7</td><td class="numeric">14.0</td><td class="numeric">12.5</td><td class="numeric">11.6</td><td class="numeric">10.8</td><td class="numeric">10.2</td><td class="numeric">9.9</td><td class="numeric">9.4</td><td class="numeric">8.8</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-240</td><td>316</td><td>S31600</td><td>Plate</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">16.7</td><td class="numeric">15.0</td><td class="numeric">13.7</td><td class="numeric">12.9</td><td class="numeric">12.3</td><td class="numeric">11.9</td><td class="numeric">11.4</td><td class="numeric">10.8</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-240</td><td>316L</td><td>S31603</td><td>Plate</td><td class="numeric">16.7</td><td class="numeric">16.7</td><td class="numeric">14.0</td><td class="numeric">12.5</td><td class="numeric">11.6</td><td class="numeric">10.8</td><td class="numeric">10.5</td><td class="numeric">10.1</td><td class="numeric">9.8</td><td class="numeric">9.4</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-240</td><td>321</td><td>S32100</td><td>Plate</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">17.7</td><td class="numeric">16.0</td><td class="numeric">14.5</td><td class="numeric">13.5</td><td class="numeric">12.7</td><td class="numeric">11.9</td><td class="numeric">11.1</td><td class="numeric">10.4</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-240</td><td>347</td><td>S34700</td><td>Plate</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">17.7</td><td class="numeric">16.0</td><td class="numeric">14.5</td><td class="numeric">13.5</td><td class="numeric">12.7</td><td class="numeric">11.9</td><td class="numeric">11.1</td><td class="numeric">10.4</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-240</td><td>310</td><td>S31000</td><td>Plate</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">18.6</td><td class="numeric">17.5</td><td class="numeric">16.6</td><td class="numeric">15.8</td><td class="numeric">14.9</td><td class="numeric">13.9</td><td class="numeric">13.1</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-312</td><td>TP304</td><td>S30400</td><td>Pipe</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">16.7</td><td class="numeric">15.0</td><td class="numeric">13.7</td><td class="numeric">12.9</td><td class="numeric">12.4</td><td class="numeric">11.7</td><td class="numeric">10.8</td><td class="numeric">9.8</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-312</td><td>TP304L</td><td>S30403</td><td>Pipe</td><td class="numeric">16.7</td><td class="numeric">16.7</td><td class="numeric">14.0</td><td class="numeric">12.5</td><td class="numeric">11.6</td><td class="numeric">10.8</td><td class="numeric">10.2</td><td class="numeric">9.9</td><td class="numeric">9.4</td><td class="numeric">8.8</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-312</td><td>TP316</td><td>S31600</td><td>Pipe</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">16.7</td><td class="numeric">15.0</td><td class="numeric">13.7</td><td class="numeric">12.9</td><td class="numeric">12.3</td><td class="numeric">11.9</td><td class="numeric">11.4</td><td class="numeric">10.8</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-312</td><td>TP316L</td><td>S31603</td><td>Pipe</td><td class="numeric">16.7</td><td class="numeric">16.7</td><td class="numeric">14.0</td><td class="numeric">12.5</td><td class="numeric">11.6</td><td class="numeric">10.8</td><td class="numeric">10.5</td><td class="numeric">10.1</td><td class="numeric">9.8</td><td class="numeric">9.4</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-312</td><td>TP321</td><td>S32100</td><td>Pipe</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">17.7</td><td class="numeric">16.0</td><td class="numeric">14.5</td><td class="numeric">13.5</td><td class="numeric">12.7</td><td class="numeric">11.9</td><td class="numeric">11.1</td><td class="numeric">10.4</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-312</td><td>TP347</td><td>S34700</td><td>Pipe</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">17.7</td><td class="numeric">16.0</td><td class="numeric">14.5</td><td class="numeric">13.5</td><td class="numeric">12.7</td><td class="numeric">11.9</td><td class="numeric">11.1</td><td class="numeric">10.4</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-312</td><td>TP310</td><td>S31000</td><td>Pipe</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">18.6</td><td class="numeric">17.5</td><td class="numeric">16.6</td><td class="numeric">15.8</td><td class="numeric">14.9</td><td class="numeric">13.9</td><td class="numeric">13.1</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-182</td><td>F304</td><td>S30400</td><td>Forging</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">16.7</td><td class="numeric">15.0</td><td class="numeric">13.7</td><td class="numeric">12.9</td><td class="numeric">12.4</td><td class="numeric">11.7</td><td class="numeric">10.8</td><td class="numeric">9.8</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-182</td><td>F316</td><td>S31600</td><td>Forging</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">16.7</td><td class="numeric">15.0</td><td class="numeric">13.7</td><td class="numeric">12.9</td><td class="numeric">12.3</td><td class="numeric">11.9</td><td class="numeric">11.4</td><td class="numeric">10.8</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-403</td><td>WP304</td><td>S30400</td><td>Fitting</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">16.7</td><td class="numeric">15.0</td><td class="numeric">13.7</td><td class="numeric">12.9</td><td class="numeric">12.4</td><td class="numeric">11.7</td><td class="numeric">10.8</td><td class="numeric">9.8</td></tr>
+                    <tr><td>Stainless Steel</td><td>SA-403</td><td>WP316</td><td>S31600</td><td>Fitting</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">16.7</td><td class="numeric">15.0</td><td class="numeric">13.7</td><td class="numeric">12.9</td><td class="numeric">12.3</td><td class="numeric">11.9</td><td class="numeric">11.4</td><td class="numeric">10.8</td></tr>
+                </table>
+            </div>
+            
+            <div class="section">ALLOY STEELS</div>
+            <div id="alloy-steels-table">
+                <table>
+                    <tr><th>Material</th><th>Specification</th><th>Grade/Type</th><th>UNS</th><th>Form</th><th>100°F</th><th>200°F</th><th>300°F</th><th>400°F</th><th>500°F</th><th>600°F</th><th>700°F</th><th>800°F</th><th>900°F</th><th>1000°F</th></tr>
+                    <tr><td>Nickel Alloy</td><td>SB-167</td><td>Inconel 600</td><td>N06600</td><td>Tube/Pipe</td><td class="numeric">23.3</td><td class="numeric">22.5</td><td class="numeric">21.8</td><td class="numeric">21.2</td><td class="numeric">20.6</td><td class="numeric">20.0</td><td class="numeric">19.4</td><td class="numeric">13.8</td><td class="numeric">7.8</td><td class="numeric">4.3</td></tr>
+                    <tr><td>Nickel Alloy</td><td>SB-163</td><td>Inconel 600</td><td>N06600</td><td>Tube</td><td class="numeric">23.3</td><td class="numeric">22.5</td><td class="numeric">21.8</td><td class="numeric">21.2</td><td class="numeric">20.6</td><td class="numeric">20.0</td><td class="numeric">19.4</td><td class="numeric">13.8</td><td class="numeric">7.8</td><td class="numeric">4.3</td></tr>
+                    <tr><td>Nickel Alloy</td><td>SB-168</td><td>Inconel 600</td><td>N06600</td><td>Plate</td><td class="numeric">23.3</td><td class="numeric">22.5</td><td class="numeric">21.8</td><td class="numeric">21.2</td><td class="numeric">20.6</td><td class="numeric">20.0</td><td class="numeric">19.4</td><td class="numeric">13.8</td><td class="numeric">7.8</td><td class="numeric">4.3</td></tr>
+                    <tr><td>Nickel Alloy</td><td>SB-564</td><td>Inconel 600</td><td>N06600</td><td>Forging</td><td class="numeric">23.3</td><td class="numeric">22.5</td><td class="numeric">21.8</td><td class="numeric">21.2</td><td class="numeric">20.6</td><td class="numeric">20.0</td><td class="numeric">19.4</td><td class="numeric">13.8</td><td class="numeric">7.8</td><td class="numeric">4.3</td></tr>
+                    <tr><td>Iron-Nickel Alloy</td><td>SB-407</td><td>Incoloy 800</td><td>N08800</td><td>Tube/Pipe</td><td class="numeric">18.8</td><td class="numeric">17.9</td><td class="numeric">17.4</td><td class="numeric">17.0</td><td class="numeric">16.6</td><td class="numeric">16.3</td><td class="numeric">16.1</td><td class="numeric">15.9</td><td class="numeric">15.6</td><td class="numeric">10.8</td></tr>
+                    <tr><td>Iron-Nickel Alloy</td><td>SB-163</td><td>Incoloy 800</td><td>N08800</td><td>Tube</td><td class="numeric">18.8</td><td class="numeric">17.9</td><td class="numeric">17.4</td><td class="numeric">17.0</td><td class="numeric">16.6</td><td class="numeric">16.3</td><td class="numeric">16.1</td><td class="numeric">15.9</td><td class="numeric">15.6</td><td class="numeric">10.8</td></tr>
+                    <tr><td>Iron-Nickel Alloy</td><td>SB-409</td><td>Incoloy 800</td><td>N08800</td><td>Plate</td><td class="numeric">18.8</td><td class="numeric">17.9</td><td class="numeric">17.4</td><td class="numeric">17.0</td><td class="numeric">16.6</td><td class="numeric">16.3</td><td class="numeric">16.1</td><td class="numeric">15.9</td><td class="numeric">15.6</td><td class="numeric">10.8</td></tr>
+                    <tr><td>Iron-Nickel Alloy</td><td>SB-564</td><td>Incoloy 800</td><td>N08800</td><td>Forging</td><td class="numeric">18.8</td><td class="numeric">17.9</td><td class="numeric">17.4</td><td class="numeric">17.0</td><td class="numeric">16.6</td><td class="numeric">16.3</td><td class="numeric">16.1</td><td class="numeric">15.9</td><td class="numeric">15.6</td><td class="numeric">10.8</td></tr>
+                    <tr><td>Nickel Alloy</td><td>SB-464</td><td>Alloy 20</td><td>N08020</td><td>Plate</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">17.3</td><td class="numeric">16.0</td><td class="numeric">15.3</td><td class="numeric">14.8</td><td class="numeric">14.3</td><td class="numeric">14.0</td><td class="numeric">13.7</td><td class="numeric">12.7</td></tr>
+                    <tr><td>Nickel Alloy</td><td>SB-729</td><td>Alloy 20</td><td>N08020</td><td>Tube/Pipe</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">17.3</td><td class="numeric">16.0</td><td class="numeric">15.3</td><td class="numeric">14.8</td><td class="numeric">14.3</td><td class="numeric">14.0</td><td class="numeric">13.7</td><td class="numeric">12.7</td></tr>
+                    <tr><td>Nickel Alloy</td><td>SB-463</td><td>Alloy 20</td><td>N08020</td><td>Plate</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">17.3</td><td class="numeric">16.0</td><td class="numeric">15.3</td><td class="numeric">14.8</td><td class="numeric">14.3</td><td class="numeric">14.0</td><td class="numeric">13.7</td><td class="numeric">12.7</td></tr>
+                    <tr><td>Nickel Alloy</td><td>SB-462</td><td>Alloy 20</td><td>N08020</td><td>Forging</td><td class="numeric">20.0</td><td class="numeric">20.0</td><td class="numeric">17.3</td><td class="numeric">16.0</td><td class="numeric">15.3</td><td class="numeric">14.8</td><td class="numeric">14.3</td><td class="numeric">14.0</td><td class="numeric">13.7</td><td class="numeric">12.7</td></tr>
+                </table>
+            </div>
+            
+            <div class="section">MATERIAL FORM KEY</div>
+            <div id="material-form-key">
+                <table>
+                    <tr><td>Plate</td><td>Flat rolled product (SA-36, SA-285, SA-516, SA-240)</td></tr>
+                    <tr><td>Pipe</td><td>Hollow cylindrical product for fluid transport (SA-53, SA-106, SA-312)</td></tr>
+                    <tr><td>Tube</td><td>Similar to pipe but typically with tighter tolerances (SA-213)</td></tr>
+                    <tr><td>Forging</td><td>Component formed by pressing/hammering (SA-105, SA-181, SA-182)</td></tr>
+                    <tr><td>Fitting</td><td>Components like elbows, tees, reducers (SA-234, SA-403)</td></tr>
+                </table>
+            </div>
+            
+            <div class="calculator">
+                <h3>Temperature Interpolation Tool</h3>
+                <p>Use this tool to interpolate allowable stress values between temperature points.</p>
+                
+                <div class="input-group">
+                    <label for="stress-temp">Temperature (°F):</label>
+                    <input type="number" id="stress-temp" step="1" min="100" max="1000">
+                </div>
+                
+                <div class="input-group">
+                    <label for="stress-t1">Lower Temperature Point (°F):</label>
+                    <input type="number" id="stress-t1" readonly>
+                </div>
+                
+                <div class="input-group">
+                    <label for="stress-s1">Stress at Lower Temperature (ksi):</label>
+                    <input type="number" id="stress-s1" step="0.1" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="stress-t2">Upper Temperature Point (°F):</label>
+                    <input type="number" id="stress-t2" readonly>
+                </div>
+                
+                <div class="input-group">
+                    <label for="stress-s2">Stress at Upper Temperature (ksi):</label>
+                    <input type="number" id="stress-s2" step="0.1" min="0">
+                </div>
+                
+                <button onclick="interpolateStress()">Interpolate</button>
+                
+                <div id="interpolation-result" class="result" style="display: none;"></div>
+            </div>
+            
+            <div class="calculator">
+                <h3>How to Use These Values</h3>
+                <p>These allowable stress values (S) are used in the thickness calculations for various pressure components:</p>
+                <ul>
+                    <li>For ASME Section VIII pressure vessels, use the value at the design temperature.</li>
+                    <li>For ASME B31.3 piping, use the value at the design temperature.</li>
+                    <li>For API 653 tanks, use the value applicable to the material and temperature.</li>
+                </ul>
+                <p>For temperatures between those listed in the table, use the interpolation tool above or linear interpolation.</p>
+                <p>Note: All values shown are in ksi (1000 psi). For MPa, multiply by 6.895.</p>
             </div>
         </div>
     </div>
     
-    <div id="statusMessage" class="status-message"></div>
-    
-    <footer>
-        <div class="container">
-            <p>ASME/API Codes Q&A System — For engineering reference purposes only.</p>
-        </div>
-    </footer>
-    
     <script>
-        /**
-         * Class to represent a code reference with section, subsection, and content.
-         */
-        class CodeReference {
-            constructor(code, section, content, subsection = null) {
-                this.code = code;
-                this.section = section;
-                this.subsection = subsection;
-                this.content = content;
-            }
+        // Update diameter/radius label based on component selection
+        document.getElementById("asmeviii-component").addEventListener("change", function() {
+            const component = this.value;
+            const diameterLabel = document.getElementById("asmeviii-diameter-label");
+            const diameterTooltip = document.getElementById("asmeviii-diameter-tooltip");
             
-            toString() {
-                if (this.subsection) {
-                    return `${this.code} ${this.section}.${this.subsection}: ${this.content}`;
-                }
-                return `${this.code} ${this.section}: ${this.content}`;
-            }
-        }
-        
-        /**
-         * Database for storing and retrieving code references.
-         */
-        class CodeDatabase {
-            constructor() {
-                this.references = {
-                    "ASME B31.3": [],
-                    "ASME Section I": [],
-                    "ASME Section V": [],
-                    "ASME Section VIII": [],
-                    "API 510": [],
-                    "API 570": [],
-                    "API 653": [],
-                    "API 580": []
-                };
-            }
-            
-            addReference(reference) {
-                if (reference.code in this.references) {
-                    this.references[reference.code].push(reference);
-                } else {
-                    throw new Error(`Unknown code: ${reference.code}`);
-                }
-            }
-            
-            loadFromJSON(jsonData) {
-                try {
-                    const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
-                    
-                    for (const [code, references] of Object.entries(data)) {
-                        for (const ref of references) {
-                            this.addReference(new CodeReference(
-                                code,
-                                ref.section,
-                                ref.content,
-                                ref.subsection || null
-                            ));
-                        }
-                    }
-                    return { success: true, message: "Successfully loaded references" };
-                } catch (e) {
-                    return { success: false, message: `Error loading references: ${e.message}` };
-                }
-            }
-            
-            search(query, codeFilter = null, sectionFilter = null) {
-                // For debugging
-                console.log("Basic search for:", query);
-                console.log("Code filter:", codeFilter);
-                console.log("Section filter:", sectionFilter);
-                
-                const results = [];
-                
-                // Process the query into keywords
-                const keywords = query.toLowerCase()
-                    .replace(/[.,;:!?()"'-]/g, ' ')
-                    .split(/\s+/)
-                    .filter(word => word.length > 2); // Only words with 3+ characters
-                
-                console.log("Simple keywords:", keywords);
-                
-                // Determine which codes to search
-                const codesToSearch = codeFilter ? [codeFilter] : Object.keys(this.references);
-                
-                // Simple search algorithm - just look for exact matches
-                for (const code of codesToSearch) {
-                    if (!this.references[code]) continue;
-                    
-                    for (const ref of this.references[code]) {
-                        // Filter by section if specified
-                        if (sectionFilter && ref.section !== sectionFilter) {
-                            continue;
-                        }
-                        
-                        // Check if content contains ANY of the keywords
-                        let isMatch = false;
-                        if (keywords.length === 0) {
-                            // If no keywords but we have filters, it's a match
-                            isMatch = (codeFilter || sectionFilter);
-                        } else {
-                            const contentLower = ref.content.toLowerCase();
-                            isMatch = keywords.some(keyword => contentLower.includes(keyword));
-                        }
-                        
-                        // Add to results if it matches
-                        if (isMatch) {
-                            results.push({
-                                ...ref,
-                                code: code
-                            });
-                        }
-                    }
-                }
-                
-                console.log(`Found ${results.length} matches`);
-                return results.slice(0, 10); // Limit to top 10 results
-            }
-            
-            _extractCodeFromQuery(query) {
-                const codePattern = /(ASME\s+(?:B31\.3|Section\s+[IVX]+)|API\s+(?:510|570|653|580))/i;
-                const codeMatch = query.match(codePattern);
-                
-                if (!codeMatch) {
-                    return null;
-                }
-                
-                const codeText = codeMatch[1];
-                
-                // Normalize the code text
-                if (/B31\.3/i.test(codeText)) {
-                    return "ASME B31.3";
-                } else if (/Section\s+I/i.test(codeText)) {
-                    return "ASME Section I";
-                } else if (/Section\s+V/i.test(codeText)) {
-                    return "ASME Section V";
-                } else if (/Section\s+VIII/i.test(codeText)) {
-                    return "ASME Section VIII";
-                } else if (/510/i.test(codeText)) {
-                    return "API 510";
-                } else if (/570/i.test(codeText)) {
-                    return "API 570";
-                } else if (/653/i.test(codeText)) {
-                    return "API 653";
-                } else if (/580/i.test(codeText)) {
-                    return "API 580";
-                }
-                
-                return null;
-            }
-            
-            _extractSectionFromQuery(query) {
-                const sectionPattern = /(?:section|para|paragraph)\s+([0-9\.]+)/i;
-                const sectionMatch = query.match(sectionPattern);
-                
-                return sectionMatch ? sectionMatch[1] : null;
-            }
-        }
-        
-        /**
-         * System for answering questions based on code references.
-         */
-        class QuestionAnswerSystem {
-            constructor(database) {
-                this.database = database;
-            }
-            
-            answerQuestion(question, codeFilter = null, sectionFilter = null) {
-                try {
-                    console.log("Question received:", question);
-                    
-                    // Search for relevant references
-                    const results = this.database.search(question, codeFilter, sectionFilter);
-                    console.log("Search results:", results);
-                    
-                    if (!results || results.length === 0) {
-                        console.log("No results found");
-                        return {
-                            message: "I couldn't find a specific reference for your question. Please try different keywords or specify the code section you're interested in.",
-                            results: []
-                        };
-                    }
-                    
-                    // Return the results
-                    return {
-                        message: `Based on the relevant codes, here's what I found (${results.length} results):`,
-                        results: results
-                    };
-                } catch (error) {
-                    console.error("Error in answerQuestion:", error);
-                    return {
-                        message: "An error occurred while searching. Please try again with different keywords.",
-                        results: []
-                    };
-                }
-            }
-        }
-        
-        /**
-         * Initialize the system with sample data.
-         */
-        function initializeWithSampleData() {
-            const db = new CodeDatabase();
-            
-            // Add sample references
-            db.addReference(new CodeReference(
-                "ASME B31.3",
-                "300.1.1",
-                "This Code contains requirements for piping typically found in petroleum refineries; chemical, pharmaceutical, textile, paper, semiconductor, and cryogenic plants; and related processing plants and terminals."
-            ));
-            
-            db.addReference(new CodeReference(
-                "ASME B31.3",
-                "300.2",
-                "The Code is applicable to piping for all fluids including: (1) raw, intermediate, and finished chemicals; (2) petroleum products; (3) gas, steam, air and water; (4) fluidized solids; (5) refrigerants; and (6) cryogenic fluids.",
-                "2"
-            ));
-            
-            db.addReference(new CodeReference(
-                "API 510",
-                "1.1",
-                "API 510 covers the in-service inspection, repair, alteration, and rerating activities for pressure vessels and the pressure-relieving devices protecting these vessels."
-            ));
-            
-            db.addReference(new CodeReference(
-                "API 570",
-                "1.1",
-                "API 570 covers inspection, rating, repair, and alteration procedures for metallic and fiberglass-reinforced plastic (FRP) piping systems and their associated pressure-relieving devices."
-            ));
-            
-            // Add more sample data
-            db.addReference(new CodeReference(
-                "ASME Section VIII",
-                "UG-27",
-                "Thickness of Shells Under Internal Pressure: The minimum required thickness of shells shall be the greater of the thicknesses calculated by the equations in this paragraph."
-            ));
-            
-            db.addReference(new CodeReference(
-                "ASME Section VIII",
-                "UG-99",
-                "Standard Hydrostatic Test: Except as otherwise permitted in this Division, all pressure vessels shall be subjected to a hydrostatic test at a pressure at least equal to 1.3 times the maximum allowable working pressure."
-            ));
-            
-            db.addReference(new CodeReference(
-                "API 653",
-                "4.3",
-                "Inspection Intervals: The interval from initial service until the first internal inspection shall not exceed 10 years.",
-                "1"
-            ));
-            
-            db.addReference(new CodeReference(
-                "API 580",
-                "3.1",
-                "Risk-Based Inspection (RBI) is a risk assessment and management process that is focused on loss of containment of pressurized equipment in processing facilities, due to material deterioration."
-            ));
-            
-            return new QuestionAnswerSystem(db);
-        }
-        
-        /**
-         * Initialize the system by loading code references from external JSON file.
-         * Falls back to sample data if the JSON file cannot be loaded.
-         */
-        async function initializeSystem() {
-            const db = new CodeDatabase();
-            
-            try {
-                // Attempt to load data from external JSON file
-                const response = await fetch('code-references.json');
-                
-                // Check if the response is OK
-                if (!response.ok) {
-                    throw new Error(`Failed to load code references: ${response.status} ${response.statusText}`);
-                }
-                
-                // Parse the JSON data
-                const data = await response.json();
-                
-                // Load the data into the database
-                const result = db.loadFromJSON(data);
-                
-                if (result.success) {
-                    console.log(result.message);
-                    showStatusMessage("Successfully loaded code references from external file", true);
-                    return new QuestionAnswerSystem(db);
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                // Log the error
-                console.error("Error loading external references:", error);
-                
-                // Show a message to the user
-                showStatusMessage("Using built-in reference data", false);
-                
-                // Fall back to sample data
-                return initializeWithSampleData();
-            }
-        }
-
-        // Initialize the system when the page loads
-        let qaSystem;
-        let referenceData = {}; // Global variable to store loaded references
-        
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log("Initializing ASME/API Codes Q&A System...");
-            
-            // Set the loading message
-            const statusElement = document.getElementById('statusMessage');
-            statusElement.textContent = "Loading code references...";
-            statusElement.style.backgroundColor = 'var(--primary-color)';
-            statusElement.style.display = 'block';
-            
-            // Load the built-in sample data first to ensure we have something
-            referenceData = {
-                "ASME B31.3": [
-                    {
-                        "section": "300.1.1",
-                        "content": "This Code contains requirements for piping typically found in petroleum refineries; chemical, pharmaceutical, textile, paper, semiconductor, and cryogenic plants; and related processing plants and terminals."
-                    },
-                    {
-                        "section": "300.2",
-                        "subsection": "2",
-                        "content": "The Code is applicable to piping for all fluids including: (1) raw, intermediate, and finished chemicals; (2) petroleum products; (3) gas, steam, air and water; (4) fluidized solids; (5) refrigerants; and (6) cryogenic fluids."
-                    }
-                ],
-                "API 510": [
-                    {
-                        "section": "1.1",
-                        "content": "API 510 covers the in-service inspection, repair, alteration, and rerating activities for pressure vessels and the pressure-relieving devices protecting these vessels."
-                    }
-                ],
-                "API 570": [
-                    {
-                        "section": "1.1",
-                        "content": "API 570 covers inspection, rating, repair, and alteration procedures for metallic and fiberglass-reinforced plastic (FRP) piping systems and their associated pressure-relieving devices."
-                    }
-                ]
-            };
-            
-            // Try to load additional references from the external file
-            try {
-                const response = await fetch('code-references.json');
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log("External data loaded:", data);
-                    referenceData = data; // Replace with the external data
-                    showStatusMessage("References loaded successfully", true);
-                }
-            } catch (error) {
-                console.error("Error loading external references:", error);
-                showStatusMessage("Using built-in references", false);
-            }
-            
-            console.log("Reference data available:", referenceData);
-            
-            // Initialize the system with the reference data
-            qaSystem = new SimpleQuerySystem(referenceData);
-            console.log("System ready!");
-            
-            // Hide the loading message
-            setTimeout(() => {
-                statusElement.style.display = 'none';
-            }, 2000);
-            
-            // Set up event listeners
-            document.getElementById('searchForm').addEventListener('submit', handleSearch);
-            document.getElementById('quickSearchBtn').addEventListener('click', handleQuickSearch);
-            
-            // Set up tab switching
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // Remove active class from all tabs
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    
-                    // Add active class to clicked tab
-                    tab.classList.add('active');
-                    document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
-                });
-            });
-        });
-
-        /**
-         * Simple query system for code references.
-         */
-        class SimpleQuerySystem {
-            constructor(referenceData) {
-                this.referenceData = referenceData;
-                console.log("SimpleQuerySystem initialized with:", this.referenceData);
-                
-                // Code-specific keywords to identify subject matter
-                this.codeKeywords = {
-                    "ASME B31.3": ["piping", "pipe", "fluid", "chemical", "refinery", "petroleum", "process", "pressure", "temperature", "b31.3", "b31", "steam", "water", "gas", "cryogenic"],
-                    "ASME Section I": ["boiler", "power", "steam", "pressure", "vessel", "section i", "section 1", "heat", "tube", "drum"],
-                    "ASME Section V": ["ndt", "nondestructive", "examination", "testing", "radiographic", "ultrasonic", "magnetic", "section v", "section 5", "inspection", "test"],
-                    "ASME Section VIII": ["pressure", "vessel", "tank", "section viii", "section 8", "division", "thickness", "weld", "fabrication", "hydrostatic"],
-                    "API 510": ["pressure", "vessel", "inspection", "repair", "alteration", "rerating", "510", "integrity", "corrosion", "thickness"],
-                    "API 570": ["piping", "inspection", "repair", "alteration", "rating", "570", "fiberglass", "frp", "metallurgical", "plastic"],
-                    "API 653": ["tank", "storage", "inspection", "repair", "alteration", "653", "bottom", "shell", "foundation", "settlement"],
-                    "API 580": ["risk", "rbi", "inspection", "assessment", "management", "580", "likelihood", "consequence", "failure", "probability"]
-                };
-                
-                // Common question patterns to extract keywords from
-                this.questionPatterns = [
-                    { pattern: /what\s+(?:is|are)\s+(?:the)?\s*(.+?)\??$/i, group: 1 },
-                    { pattern: /how\s+(?:to|do|does|can|should)\s+(?:you|i|we)?\s*(.+?)\??$/i, group: 1 },
-                    { pattern: /(?:tell|explain|describe)\s+(?:me|us)?\s+(?:about)?\s*(.+?)\??$/i, group: 1 },
-                    { pattern: /(?:requirements|regulations|rules)\s+(?:for|about|related\s+to)\s*(.+?)\??$/i, group: 1 }
-                ];
-            }
-            
-            extractKeywordsFromQuestion(query) {
-                console.log("Extracting keywords from question:", query);
-                
-                // Start with basic keyword extraction
-                const baseKeywords = query.toLowerCase()
-                    .replace(/[.,;:!?()"'-]/g, ' ')
-                    .split(/\s+/)
-                    .filter(term => term.length > 2);
-                
-                let extractedKeywords = [...baseKeywords];
-                
-                // Try to extract code references
-                const codePatterns = [
-                    { regex: /asme\s+b31\.3/i, code: "ASME B31.3" },
-                    { regex: /asme\s+section\s+i/i, code: "ASME Section I" },
-                    { regex: /asme\s+section\s+1/i, code: "ASME Section I" },
-                    { regex: /asme\s+section\s+v/i, code: "ASME Section V" },
-                    { regex: /asme\s+section\s+5/i, code: "ASME Section V" },
-                    { regex: /asme\s+section\s+viii/i, code: "ASME Section VIII" },
-                    { regex: /asme\s+section\s+8/i, code: "ASME Section VIII" },
-                    { regex: /api\s+510/i, code: "API 510" },
-                    { regex: /api\s+570/i, code: "API 570" },
-                    { regex: /api\s+653/i, code: "API 653" },
-                    { regex: /api\s+580/i, code: "API 580" }
-                ];
-                
-                let detectedCodes = [];
-                for (const pattern of codePatterns) {
-                    if (pattern.regex.test(query)) {
-                        detectedCodes.push(pattern.code);
-                    }
-                }
-                
-                // Add code-specific keywords for detected codes
-                for (const code of detectedCodes) {
-                    if (this.codeKeywords[code]) {
-                        extractedKeywords = [...extractedKeywords, ...this.codeKeywords[code]];
-                    }
-                }
-                
-                // Try to extract subject from question patterns
-                for (const patternInfo of this.questionPatterns) {
-                    const match = query.match(patternInfo.pattern);
-                    if (match) {
-                        const subject = match[patternInfo.group].trim().toLowerCase();
-                        console.log("Extracted subject from question:", subject);
-                        
-                        // Add the subject terms
-                        const subjectTerms = subject
-                            .replace(/[.,;:!?()"'-]/g, ' ')
-                            .split(/\s+/)
-                            .filter(term => term.length > 2);
-                        
-                        extractedKeywords = [...extractedKeywords, ...subjectTerms];
-                        
-                        // For each detected subject term, add related code-specific keywords
-                        for (const term of subjectTerms) {
-                            for (const [code, keywords] of Object.entries(this.codeKeywords)) {
-                                if (keywords.includes(term)) {
-                                    console.log(`Term '${term}' matched code ${code}`);
-                                    if (!detectedCodes.includes(code)) {
-                                        detectedCodes.push(code);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // Extract section numbers
-                const sectionMatches = query.match(/(?:section|paragraph|para)\s+([0-9]+(?:\.[0-9]+)*)/gi);
-                if (sectionMatches) {
-                    for (const match of sectionMatches) {
-                        const section = match.replace(/(?:section|paragraph|para)\s+/i, '').trim();
-                        extractedKeywords.push(section);
-                    }
-                }
-                
-                // Remove duplicates
-                extractedKeywords = [...new Set(extractedKeywords)];
-                
-                console.log("Extracted keywords:", extractedKeywords);
-                console.log("Detected codes:", detectedCodes);
-                
-                return {
-                    keywords: extractedKeywords,
-                    detectedCodes: detectedCodes
-                };
-            }
-            
-            searchReferences(query, codeFilter = null, sectionFilter = null) {
-                console.log("Searching for:", query);
-                console.log("Filters:", codeFilter, sectionFilter);
-                
-                // Make sure we have data to search
-                if (!this.referenceData || Object.keys(this.referenceData).length === 0) {
-                    console.error("No reference data available for search");
-                    return [];
-                }
-                
-                // Extract keywords and detected codes from the question
-                const { keywords, detectedCodes } = this.extractKeywordsFromQuestion(query);
-                
-                const results = [];
-                
-                // Determine which codes to search
-                let codesToSearch = [];
-                if (codeFilter) {
-                    // If explicit filter is provided, use it
-                    codesToSearch = [codeFilter];
-                } else if (detectedCodes.length > 0) {
-                    // If codes were detected in the question, use them
-                    codesToSearch = detectedCodes;
-                } else {
-                    // Otherwise search all codes
-                    codesToSearch = Object.keys(this.referenceData);
-                }
-                
-                console.log("Searching in codes:", codesToSearch);
-                
-                for (const code of codesToSearch) {
-                    // Skip if this code doesn't exist in our data
-                    if (!this.referenceData[code]) {
-                        console.log(`Code ${code} not found in data`);
-                        continue;
-                    }
-                    
-                    const references = this.referenceData[code];
-                    console.log(`Searching in ${code}, found ${references.length} references`);
-                    
-                    for (const ref of references) {
-                        // Apply section filter if provided
-                        if (sectionFilter && ref.section !== sectionFilter) {
-                            continue;
-                        }
-                        
-                        // Check if this reference matches the keywords
-                        const content = ref.content.toLowerCase();
-                        
-                        let matchCount = 0;
-                        let importantMatchCount = 0;
-                        
-                        for (const term of keywords) {
-                            // Section number exact match is very important
-                            if (ref.section === term || (ref.subsection && ref.section + '.' + ref.subsection === term)) {
-                                importantMatchCount += 3;
-                                continue;
-                            }
-                            
-                            // Content match
-                            if (content.includes(term)) {
-                                matchCount++;
-                                
-                                // If the term is a code-specific keyword, it's more important
-                                if (this.codeKeywords[code] && this.codeKeywords[code].includes(term)) {
-                                    importantMatchCount++;
-                                }
-                            }
-                        }
-                        
-                        // Determine if this reference is a match
-                        const isMatch = (matchCount > 0 || importantMatchCount > 0) || 
-                                       (keywords.length === 0 && (codeFilter || sectionFilter));
-                        
-                        if (isMatch) {
-                            // Calculate a relevance score
-                            const relevanceScore = matchCount + (importantMatchCount * 3);
-                            
-                            results.push({
-                                code: code,
-                                section: ref.section,
-                                subsection: ref.subsection,
-                                content: ref.content,
-                                score: relevanceScore
-                            });
-                        }
-                    }
-                }
-                
-                // Sort results by relevance score
-                results.sort((a, b) => b.score - a.score);
-                
-                // Remove the score property before returning
-                const cleanResults = results.map(({score, ...rest}) => rest);
-                
-                console.log(`Found ${cleanResults.length} matching references`);
-                return cleanResults;
-            }
-            
-            answerQuestion(question, codeFilter = null, sectionFilter = null) {
-                try {
-                    const results = this.searchReferences(question, codeFilter, sectionFilter);
-                    
-                    if (results.length === 0) {
-                        return {
-                            message: "I couldn't find a specific reference for your question. Please try different keywords or specify the code section you're interested in.",
-                            results: []
-                        };
-                    }
-                    
-                    return {
-                        message: `Found ${results.length} references that may answer your question:`,
-                        results: results
-                    };
-                } catch (error) {
-                    console.error("Error answering question:", error);
-                    return {
-                        message: "An error occurred while searching. Please try again.",
-                        results: []
-                    };
-                }
-            }
-        }
-        
-        /**
-         * Handle the quick search button click.
-         */
-        function handleQuickSearch() {
-            const searchInput = document.getElementById('quickSearch');
-            const question = searchInput.value.trim();
-            
-            if (!question) {
-                showStatusMessage("Please enter a question or keywords to search.", false);
-                return;
-            }
-            
-            // Copy the value to the main search field
-            document.getElementById('questionInput').value = question;
-            
-            // Perform the search
-            performSearch(question);
-            
-            // Switch to results tab
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelector('.tab[data-tab="results"]').classList.add('active');
-            document.getElementById('results-tab').classList.add('active');
-        }
-        
-        /**
-         * Handle the search form submission.
-         */
-        function handleSearch(event) {
-            event.preventDefault();
-            
-            const questionInput = document.getElementById('questionInput');
-            const question = questionInput.value.trim();
-            
-            if (!question) {
-                showStatusMessage("Please enter a question or keywords to search.", false);
-                return;
-            }
-            
-            // Copy to quick search
-            document.getElementById('quickSearch').value = question;
-            
-            // Gather filters
-            const codeFilter = document.getElementById('codeFilter').value;
-            const sectionFilter = document.getElementById('sectionFilter').value;
-            
-            // Perform the search
-            performSearch(question, codeFilter, sectionFilter);
-            
-            // Switch to results tab
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelector('.tab[data-tab="results"]').classList.add('active');
-            document.getElementById('results-tab').classList.add('active');
-        }
-        
-        /**
-         * Perform the search and display results.
-         */
-        function performSearch(question, codeFilter = null, sectionFilter = null) {
-            const loadingElement = document.getElementById('loading');
-            const resultsContainer = document.getElementById('resultsContainer');
-            
-            // Show loading indicator
-            loadingElement.style.display = 'block';
-            resultsContainer.innerHTML = '';
-            
-            // Check if qaSystem is initialized
-            if (!qaSystem) {
-                console.error("QA System not initialized yet");
-                loadingElement.style.display = 'none';
-                resultsContainer.innerHTML = `
-                    <div class="error-message">
-                        <p>The search system is not yet initialized. Please try again in a moment.</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            try {
-                // Use setTimeout to allow the UI to update before processing
-                setTimeout(() => {
-                    console.log("Performing search with:", question, codeFilter, sectionFilter);
-                    const answer = qaSystem.answerQuestion(question, codeFilter, sectionFilter);
-                    console.log("Search results:", answer);
-                    
-                    // Hide loading indicator
-                    loadingElement.style.display = 'none';
-                    
-                    // Display results
-                    displayResults(answer, codeFilter, sectionFilter);
-                }, 300); // Short delay for better UX
-            } catch (error) {
-                console.error("Error during search:", error);
-                loadingElement.style.display = 'none';
-                resultsContainer.innerHTML = `
-                    <div class="error-message">
-                        <p>An error occurred while searching. Please try again with different keywords.</p>
-                    </div>
-                `;
-            }
-        }
-        
-        /**
-         * Display the search results.
-         */
-        function displayResults(answer, codeFilter, sectionFilter) {
-            const resultsContainer = document.getElementById('resultsContainer');
-            const activeFiltersContainer = document.getElementById('activeFilters');
-            
-            // Clear active filters
-            activeFiltersContainer.innerHTML = '';
-            
-            // Display active filters if any
-            if (codeFilter || sectionFilter) {
-                activeFiltersContainer.style.display = 'flex';
-                
-                if (codeFilter) {
-                    const filterTag = document.createElement('span');
-                    filterTag.className = 'filter-tag';
-                    filterTag.textContent = codeFilter;
-                    activeFiltersContainer.appendChild(filterTag);
-                }
-                
-                if (sectionFilter) {
-                    const filterTag = document.createElement('span');
-                    filterTag.className = 'filter-tag';
-                    filterTag.textContent = `Section: ${sectionFilter}`;
-                    activeFiltersContainer.appendChild(filterTag);
-                }
+            // Check if the selected component is a head type
+            if (component.includes("head")) {
+                diameterLabel.innerHTML = 'Crown Radius (L) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Crown radius in inches or mm</span></span>';
+                diameterTooltip.innerText = "Crown radius in inches or mm";
             } else {
-                activeFiltersContainer.style.display = 'none';
+                diameterLabel.innerHTML = 'Inside Diameter (D) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Inside diameter in inches or mm</span></span>';
+                diameterTooltip.innerText = "Inside diameter in inches or mm";
+            }
+        });
+        
+        // Tab navigation
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            
+            // Hide all tab content
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
             }
             
-            if (answer.results.length === 0) {
-                resultsContainer.innerHTML = `
-                    <div class="error-message">
-                        <p>${answer.message}</p>
-                    </div>
-                `;
+            // Remove active class from all tab buttons
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            
+            // Show the selected tab and add active class to the button
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        
+        // ASME Section VIII Calculator
+        function calculateASMEVIII() {
+            // Get input values
+            const component = document.getElementById("asmeviii-component").value;
+            const pressure = Number(document.getElementById("asmeviii-pressure").value);
+            const diameter = Number(document.getElementById("asmeviii-diameter").value);
+            const allowableStress = Number(document.getElementById("asmeviii-allowable-stress").value);
+            const jointEfficiency = Number(document.getElementById("asmeviii-joint-efficiency").value);
+            const corrosionAllowance = Number(document.getElementById("asmeviii-corrosion-allowance").value);
+            const units = document.getElementById("asmeviii-units").value;
+            
+            // Validate inputs
+            if (!pressure || !diameter || !allowableStress) {
+                alert("Please enter all required values!");
                 return;
             }
             
-            let resultsHTML = `<p>${answer.message}</p>`;
+            // Calculate minimum thickness based on component type
+            let thickness = 0;
+            let formula = "";
+            const radius = diameter / 2;
             
-            answer.results.forEach((ref, index) => {
-                // Ensure full content display by using the complete reference content
-                resultsHTML += `
-                    <div class="result-card">
-                        <div class="result-title">${index + 1}. ${ref.code} ${ref.section}${ref.subsection ? '.' + ref.subsection : ''}</div>
-                        <div class="result-content">${ref.content}</div>
-                    </div>
-                `;
-            });
+            switch (component) {
+                case "cylindrical-shell":
+                    thickness = (pressure * radius) / (allowableStress * jointEfficiency - 0.6 * pressure) + corrosionAllowance;
+                    formula = `t = (P × R) / (S × E - 0.6 × P) + CA = (${pressure.toFixed(2)} × ${radius.toFixed(2)}) / (${allowableStress.toFixed(2)} × ${jointEfficiency.toFixed(2)} - 0.6 × ${pressure.toFixed(2)}) + ${corrosionAllowance.toFixed(3)}`;
+                    break;
+                    
+                case "spherical-shell":
+                    thickness = (pressure * radius) / (2 * allowableStress * jointEfficiency - 0.2 * pressure) + corrosionAllowance;
+                    formula = `t = (P × R) / (2 × S × E - 0.2 × P) + CA = (${pressure.toFixed(2)} × ${radius.toFixed(2)}) / (2 × ${allowableStress.toFixed(2)} × ${jointEfficiency.toFixed(2)} - 0.2 × ${pressure.toFixed(2)}) + ${corrosionAllowance.toFixed(3)}`;
+                    break;
+                    
+                case "elliptical-head":
+                    // For 2:1 elliptical head, K = 1
+                    const k = 1;
+                    thickness = (pressure * diameter * k) / (2 * allowableStress * jointEfficiency - 0.2 * pressure) + corrosionAllowance;
+                    formula = `t = (P × D × K) / (2 × S × E - 0.2 × P) + CA = (${pressure.toFixed(2)} × ${diameter.toFixed(2)} × ${k.toFixed(2)}) / (2 × ${allowableStress.toFixed(2)} × ${jointEfficiency.toFixed(2)} - 0.2 × ${pressure.toFixed(2)}) + ${corrosionAllowance.toFixed(3)}`;
+                    break;
+                    
+                case "hemispherical-head":
+                    thickness = (pressure * radius) / (2 * allowableStress * jointEfficiency - 0.2 * pressure) + corrosionAllowance;
+                    formula = `t = (P × R) / (2 × S × E - 0.2 × P) + CA = (${pressure.toFixed(2)} × ${radius.toFixed(2)}) / (2 × ${allowableStress.toFixed(2)} × ${jointEfficiency.toFixed(2)} - 0.2 × ${pressure.toFixed(2)}) + ${corrosionAllowance.toFixed(3)}`;
+                    break;
+                    
+                case "torispherical-head":
+                    // For standard ASME F&D head, L = inside diameter
+                    const L = diameter; // Inside crown radius equals inside diameter for standard ASME F&D
+                    thickness = (0.855 * pressure * L) / (allowableStress * jointEfficiency - 0.1 * pressure) + corrosionAllowance;
+                    formula = `t = (0.855 × P × L) / (S × E - 0.1 × P) + CA = (0.855 × ${pressure.toFixed(2)} × ${L.toFixed(2)}) / (${allowableStress.toFixed(2)} × ${jointEfficiency.toFixed(2)} - 0.1 × ${pressure.toFixed(2)}) + ${corrosionAllowance.toFixed(3)}`;
+                    break;
+                    
+                case "nozzle":
+                    // Simplified approach for nozzle reinforcement
+                    thickness = (pressure * radius) / (allowableStress * jointEfficiency - 0.6 * pressure) + corrosionAllowance;
+                    const reinforcementArea = 2 * thickness * Math.sqrt(radius * thickness);
+                    formula = `Shell t = (P × R) / (S × E - 0.6 × P) + CA = (${pressure.toFixed(2)} × ${radius.toFixed(2)}) / (${allowableStress.toFixed(2)} × ${jointEfficiency.toFixed(2)} - 0.6 × ${pressure.toFixed(2)}) + ${corrosionAllowance.toFixed(3)}`;
+                    break;
+            }
             
-            resultsHTML += `
-                <div class="disclaimer">
-                    Note: This information is provided as reference only. 
-                    Always consult the official documentation for definitive answers.
-                </div>
+            // Display results
+            const resultDiv = document.getElementById("asmeviii-result");
+            let unitStr = units === "imperial" ? "inches" : "mm";
+            let pressureUnitStr = units === "imperial" ? "psi" : "MPa";
+            
+            // Determine if we're displaying diameter or crown radius based on component type
+            let dimensionName;
+            if (component.includes("head")) {
+                dimensionName = "Crown Radius (L)";
+            } else {
+                dimensionName = component.includes("shell") ? "Inside Diameter (D)" : "Diameter (D)";
+            }
+            
+            resultDiv.innerHTML = `
+                <h3>Calculation Results</h3>
+                <p><strong>Minimum Required Thickness:</strong> ${thickness.toFixed(3)} ${unitStr}</p>
+                <p><strong>Formula Used:</strong><br>${formula}</p>
+                <p><strong>Input Parameters:</strong><br>
+                Pressure: ${pressure.toFixed(2)} ${pressureUnitStr}<br>
+                ${dimensionName}: ${diameter.toFixed(2)} ${unitStr}<br>
+                Allowable Stress: ${allowableStress.toFixed(2)} ${pressureUnitStr}<br>
+                Joint Efficiency: ${jointEfficiency.toFixed(2)}<br>
+                Corrosion Allowance: ${corrosionAllowance.toFixed(3)} ${unitStr}</p>
             `;
             
-            resultsContainer.innerHTML = resultsHTML;
+            resultDiv.style.display = "block";
         }
         
-        /**
-         * Show a status message to the user.
-         */
-        function showStatusMessage(message, isSuccess) {
-            const statusElement = document.getElementById('statusMessage');
-            statusElement.textContent = message;
-            statusElement.style.backgroundColor = isSuccess ? 'var(--success-color)' : 'var(--error-color)';
-            statusElement.style.display = 'block';
+        // ASME B31.3 Calculator
+        function calculateASMEB31() {
+            // Get input values
+            const pressure = Number(document.getElementById("asmeb31-pressure").value);
+            const diameter = Number(document.getElementById("asmeb31-diameter").value);
+            const allowableStress = Number(document.getElementById("asmeb31-allowable-stress").value);
+            const jointEfficiency = Number(document.getElementById("asmeb31-joint-efficiency").value);
+            const yCoefficient = Number(document.getElementById("asmeb31-y-coefficient").value);
+            const corrosionAllowance = Number(document.getElementById("asmeb31-corrosion-allowance").value);
+            const millTolerance = Number(document.getElementById("asmeb31-mill-tolerance").value) / 100;
+            const units = document.getElementById("asmeb31-units").value;
             
-            // Hide the message after a few seconds
-            setTimeout(() => {
-                statusElement.style.display = 'none';
-            }, 3000);
+            // Validate inputs
+            if (!pressure || !diameter || !allowableStress) {
+                alert("Please enter all required values!");
+                return;
+            }
+            
+            // Calculate minimum thickness
+            const tm = (pressure * diameter) / (2 * (allowableStress * jointEfficiency + pressure * yCoefficient));
+            const t = tm + corrosionAllowance;
+            const tWithTolerance = t / (1 - millTolerance);
+            
+            // Display results
+            const resultDiv = document.getElementById("asmeb31-result");
+            let unitStr = units === "imperial" ? "inches" : "mm";
+            let pressureUnitStr = units === "imperial" ? "psi" : "MPa";
+            
+            resultDiv.innerHTML = `
+                <h3>Calculation Results</h3>
+                <p><strong>Pressure Design Thickness (tm):</strong> ${tm.toFixed(3)} ${unitStr}</p>
+                <p><strong>Required Thickness with CA:</strong> ${t.toFixed(3)} ${unitStr}</p>
+                <p><strong>Minimum Ordered Thickness (with Mill Tolerance):</strong> ${tWithTolerance.toFixed(3)} ${unitStr}</p>
+                <p><strong>Formula Used:</strong><br>
+                tm = (P × D) / (2 × (S × E + P × Y))<br>
+                t = tm + CA</p>
+                <p><strong>Input Parameters:</strong><br>
+                Pressure: ${pressure.toFixed(2)} ${pressureUnitStr}<br>
+                Outside Diameter: ${diameter.toFixed(2)} ${unitStr}<br>
+                Allowable Stress: ${allowableStress.toFixed(2)} ${pressureUnitStr}<br>
+                Weld Joint Factor: ${jointEfficiency.toFixed(2)}<br>
+                Y Coefficient: ${yCoefficient.toFixed(2)}<br>
+                Corrosion Allowance: ${corrosionAllowance.toFixed(3)} ${unitStr}<br>
+                Mill Tolerance: ${(millTolerance * 100).toFixed(1)}%</p>
+            `;
+            
+            resultDiv.style.display = "block";
         }
+        
+        // API 653 Calculator
+        function calculateAPI653() {
+            // Get input values
+            const calcType = document.getElementById("api653-calculation-type").value;
+            const diameter = Number(document.getElementById("api653-diameter").value);
+            const productHeight = Number(document.getElementById("api653-height").value);
+            const specificGravity = Number(document.getElementById("api653-sg").value);
+            const courseHeight = Number(document.getElementById("api653-course-height").value);
+            const allowableStress = Number(document.getElementById("api653-allowable-stress").value);
+            const jointEfficiency = Number(document.getElementById("api653-joint-efficiency").value);
+            const corrosionAllowance = Number(document.getElementById("api653-ca").value);
+            const units = document.getElementById("api653-units").value;
+            
+            // Validate inputs
+            if (!diameter) {
+                alert("Please enter tank diameter!");
+                return;
+            }
+            
+            // Calculate minimum thickness based on calculation type
+            let thickness = 0;
+            let formula = "";
+            
+            if (calcType === "shell") {
+                // Validate additional inputs for shell calculation
+                if (!productHeight || !courseHeight || !allowableStress) {
+                    alert("Please enter all required values for shell calculation!");
+                    return;
+                }
+                
+                if (units === "imperial") {
+                    // 1-foot method for shell course (imperial units)
+                    thickness = (2.6 * productHeight * diameter * specificGravity * (productHeight - courseHeight + 1)) / (allowableStress * jointEfficiency) + corrosionAllowance;
+                    formula = `t = (2.6 × H × D × G × (H - h + 1)) / (S × E) + CA`;
+                } else {
+                    // 1-foot method for shell course (metric units) - converted to equivalent formula
+                    thickness = (0.0098 * productHeight * diameter * specificGravity * (productHeight - courseHeight + 0.3048)) / (allowableStress * jointEfficiency) + corrosionAllowance;
+                    formula = `t = (0.0098 × H × D × G × (H - h + 0.3048)) / (S × E) + CA`;
+                }
+            } else {
+                // Bottom plate calculation
+                if (units === "imperial") {
+                    thickness = 0.039 * diameter * Math.sqrt(specificGravity) + corrosionAllowance;
+                    formula = `t = 0.039 × D × √G + CA`;
+                } else {
+                    // Metric equivalent
+                    thickness = 0.0077 * diameter * Math.sqrt(specificGravity) + corrosionAllowance;
+                    formula = `t = 0.0077 × D × √G + CA`;
+                }
+            }
+            
+            // Display results
+            const resultDiv = document.getElementById("api653-result");
+            let thicknessUnit = units === "imperial" ? "inches" : "mm";
+            let distanceUnit = units === "imperial" ? "feet" : "m";
+            let stressUnit = units === "imperial" ? "psi" : "MPa";
+            
+            resultDiv.innerHTML = `
+                <h3>Calculation Results</h3>
+                <p><strong>Component:</strong> ${calcType === "shell" ? "Tank Shell Course" : "Tank Bottom"}</p>
+                <p><strong>Minimum Required Thickness:</strong> ${thickness.toFixed(3)} ${thicknessUnit}</p>
+                <p><strong>Formula Used:</strong><br>${formula}</p>
+                <p><strong>Input Parameters:</strong><br>
+                Tank Diameter: ${diameter.toFixed(2)} ${distanceUnit}<br>
+                ${calcType === "shell" ? `Product Height: ${productHeight.toFixed(2)} ${distanceUnit}<br>
+                Course Height: ${courseHeight.toFixed(2)} ${distanceUnit}<br>
+                Allowable Stress: ${allowableStress.toFixed(2)} ${stressUnit}<br>
+                Joint Efficiency: ${jointEfficiency.toFixed(2)}<br>` : ""}
+                Specific Gravity: ${specificGravity.toFixed(2)}<br>
+                Corrosion Allowance: ${corrosionAllowance.toFixed(3)} ${thicknessUnit}</p>
+                
+                ${calcType === "shell" ? `<p><strong>Note:</strong> This calculation uses the 1-foot method per API 653. For variable design point method, consult the standard.</p>` : 
+                `<p><strong>Note:</strong> This is a basic calculation for minimum bottom plate thickness. Additional considerations may apply based on specific foundation design.</p>`}
+            `;
+            
+            resultDiv.style.display = "block";
+        }
+        
+        // Filter stress tables based on selection and search criteria
+        function filterStressTables() {
+            const materialFilter = document.getElementById("stress-material-filter").value;
+            const searchText = document.getElementById("stress-search").value.toLowerCase();
+            
+            // Filter tables based on material type
+            document.getElementById("carbon-steels-table").style.display = 
+                (materialFilter === "all" || materialFilter === "carbon") ? "block" : "none";
+            document.getElementById("stainless-steels-table").style.display = 
+                (materialFilter === "all" || materialFilter === "stainless") ? "block" : "none";
+            document.getElementById("alloy-steels-table").style.display = 
+                (materialFilter === "all" || materialFilter === "alloy") ? "block" : "none";
+                
+            // If search text is provided, filter rows
+            if (searchText) {
+                filterTableRows("carbon-steels-table", searchText);
+                filterTableRows("stainless-steels-table", searchText);
+                filterTableRows("alloy-steels-table", searchText);
+            } else {
+                // Show all rows if no search text
+                showAllTableRows("carbon-steels-table");
+                showAllTableRows("stainless-steels-table");
+                showAllTableRows("alloy-steels-table");
+            }
+        }
+        
+        // Filter rows in a specific table
+        function filterTableRows(tableId, searchText) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            
+            const rows = table.getElementsByTagName("tr");
+            
+            // Skip header row (index 0)
+            for (let i = 1; i < rows.length; i++) {
+                const rowContent = rows[i].textContent.toLowerCase();
+                if (rowContent.includes(searchText)) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+        
+        // Show all rows in a specific table
+        function showAllTableRows(tableId) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            
+            const rows = table.getElementsByTagName("tr");
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].style.display = "";
+            }
+        }
+        
+        // Interpolate stress values
+        function interpolateStress() {
+            const temperature = Number(document.getElementById("stress-temp").value);
+            const t1 = Number(document.getElementById("stress-t1").value);
+            const s1 = Number(document.getElementById("stress-s1").value);
+            const t2 = Number(document.getElementById("stress-t2").value);
+            const s2 = Number(document.getElementById("stress-s2").value);
+            
+            // Validate inputs
+            if (!temperature || !t1 || !s1 || !t2 || !s2) {
+                alert("Please enter all required values!");
+                return;
+            }
+            
+            // Check if temperature is in range
+            if (temperature < t1 || temperature > t2) {
+                alert("The temperature must be between the lower and upper temperature points!");
+                return;
+            }
+            
+            // Linear interpolation formula: y = y1 + (x - x1) * (y2 - y1) / (x2 - x1)
+            const interpolatedStress = s1 + (temperature - t1) * (s2 - s1) / (t2 - t1);
+            
+            // Display result
+            const resultDiv = document.getElementById("interpolation-result");
+            resultDiv.innerHTML = `
+                <h3>Interpolation Result</h3>
+                <p><strong>Temperature:</strong> ${temperature} °F</p>
+                <p><strong>Interpolated Allowable Stress:</strong> ${interpolatedStress.toFixed(2)} ksi</p>
+                <p><strong>Formula Used:</strong> Linear Interpolation</p>
+                <p><strong>S = S1 + (T - T1) × (S2 - S1) / (T2 - T1)</strong></p>
+                <p>Where:<br>
+                S = Allowable stress at temperature T<br>
+                S1 = ${s1} ksi at T1 = ${t1} °F<br>
+                S2 = ${s2} ksi at T2 = ${t2} °F</p>
+            `;
+            
+            resultDiv.style.display = "block";
+        }
+        
+        // Update temperature interpolation fields
+        document.getElementById("stress-temp").addEventListener("change", function() {
+            const temp = Number(this.value);
+            let t1, t2;
+            
+            if (temp < 100) {
+                alert("Temperature must be at least 100°F");
+                return;
+            }
+            
+            if (temp < 200) {
+                t1 = 100;
+                t2 = 200;
+            } else if (temp < 300) {
+                t1 = 200;
+                t2 = 300;
+            } else if (temp < 400) {
+                t1 = 300;
+                t2 = 400;
+            } else if (temp < 500) {
+                t1 = 400;
+                t2 = 500;
+            } else if (temp < 600) {
+                t1 = 500;
+                t2 = 600;
+            } else if (temp < 700) {
+                t1 = 600;
+                t2 = 700;
+            } else if (temp < 800) {
+                t1 = 700;
+                t2 = 800;
+            } else if (temp < 900) {
+                t1 = 800;
+                t2 = 900;
+            } else if (temp <= 1000) {
+                t1 = 900;
+                t2 = 1000;
+            } else {
+                alert("Temperature must be at most 1000°F");
+                return;
+            }
+            
+            document.getElementById("stress-t1").value = t1;
+            document.getElementById("stress-t2").value = t2;
+        });
+        
+        // Show the default tab on load
+        document.getElementById("ASME-VIII").style.display = "block";
+        
+        // Initialize the diameter/radius label based on default component selection
+        document.addEventListener("DOMContentLoaded", function() {
+            const component = document.getElementById("asmeviii-component").value;
+            const diameterLabel = document.getElementById("asmeviii-diameter-label");
+            const diameterTooltip = document.getElementById("asmeviii-diameter-tooltip");
+            
+            if (component.includes("head")) {
+                diameterLabel.innerHTML = 'Crown Radius (L) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Crown radius in inches or mm</span></span>';
+                diameterTooltip.innerText = "Crown radius in inches or mm";
+            } else {
+                diameterLabel.innerHTML = 'Inside Diameter (D) <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext">Inside diameter in inches or mm</span></span>';
+                diameterTooltip.innerText = "Inside diameter in inches or mm";
+            }
+        });
     </script>
 </body>
 </html>
