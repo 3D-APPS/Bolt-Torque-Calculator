@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Code Exemption Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .question-section {
+            margin-bottom: 10px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 20px auto;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        #result, #onstream-result, #ffs-result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+        
+        .exempt, .suitable, .continue-service {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .not-exempt, .not-suitable, .repair-required {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .caution, .limited-service {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .info-section {
+            margin-top: 30px;
+            background-color: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .disclaimer {
+            font-size: 12px;
+            margin-top: 20px;
+            color: #777;
+            text-align: center;
+        }
+        
+        /* Tab styling */
+        .tabs {
+            overflow: hidden;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab-button {
+            background-color: #f1f1f1;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 12px 20px;
+            transition: 0.3s;
+            font-size: 16px;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            margin-bottom: -1px;
+        }
+        
+        .tab-button:hover {
+            background-color: #ddd;
+        }
+        
+        .tab-button.active {
+            background-color: #3498db;
+            color: white;
+            border-bottom: 1px solid #3498db;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 10px 0;
+            animation: fadeEffect 1s;
+        }
+        
+        @keyframes fadeEffect {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+        
+        .dynamic-fields {
+            display: none;
+        }
+        
+        .calculator-result {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #e8f4fd;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .transfer-button {
+            background-color: #27ae60;
+            margin-top: 10px;
+        }
+        
+        .transfer-button:hover {
+            background-color: #219653;
+        }
+
+        .interval-summary, .ffs-summary {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4fd;
+            border-radius: 5px;
+            text-align: left;
+            display: none;
+        }
+        
+        .interval-table, .damage-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .interval-table th, .interval-table td, .damage-table th, .damage-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .interval-table th, .damage-table th {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .interval-table tr:nth-child(even), .damage-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        .level-description {
+            display: none;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Code Exemption Checker</h1>
+    
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab(event, 'exemption-tab')">Exemption Checker</button>
+            <button class="tab-button" onclick="openTab(event, 'calculator-tab')">Volume Calculator</button>
+            <button class="tab-button" onclick="openTab(event, 'onstream-tab')">Onstream Inspection</button>
+            <button class="tab-button" onclick="openTab(event, 'ffs-tab')">Fitness For Service</button>
+        </div>
+        
+        <div class="question-section" style="margin-top: 10px;">
+            <label for="api-code">Select API Inspection Code:</label>
+            <select id="api-code" onchange="updateFormForCode()">
+                <option value="api510">API 510 - Pressure Vessel Inspection</option>
+                <option value="api570">API 570 - Piping Inspection</option>
+                <option value="api653">API 653 - Storage Tank Inspection</option>
+            </select>
+        </div>
+        
+        <div id="exemption-tab" class="tab-content" style="display: block;">
+            <div class="question-section">
+                <label for="vessel-type">Vessel Type/Service:</label>
+                <select id="vessel-type">
+                    <option value="">-- Select --</option>
+                    <option value="fired_heater">Fired Heater</option>
+                    <option value="heat_exchanger">Heat Exchanger (Shell & Tube)</option>
+                    <option value="boiler">Boiler</option>
+                    <option value="pressure_vessel">Standard Pressure Vessel</option>
+                    <option value="piping">Piping Component</option>
+                    <option value="storage_tank">Storage Tank</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="question-section">
+                <label for="design-code">Design Code:</label>
+                <select id="design-code">
+                    <option value="">-- Select --</option>
+                    <option value="asme_sec_viii_div_1">ASME Section VIII, Division 1</option>
+                    <option value="asme_sec_viii_div_2">ASME Section VIII, Division 2</option>
+                    <option value="asme_sec_i">ASME Section I (Power Boilers)</option>
+                    <option value="asme_sec_iv">ASME Section IV (Heating Boilers)</option>
+                    <option value="api_650">API 650</option>
+                    <option value="asme_b31">ASME B31 (Piping)</option>
+                    <option value="other_code">Other Code</option>
+                    <option value="no_code">No Code/Unknown</option>
+                </select>
+            </div>
+            
+            <div class="question-section">
+                <label for="internal-pressure">Maximum Allowable Working Pressure (MAWP):</label>
+                <input type="number" id="internal-pressure" placeholder="Enter pressure in psig" min="0" step="0.1">
+            </div>
+            
+            <div class="question-section">
+                <label for="volume">Internal Volume:</label>
+                <input type="number" id="volume" placeholder="Enter volume in cubic feet" min="0" step="0.1">
+            </div>
+            
+            <div class="question-section">
+                <label for="diameter">Inside Diameter:</label>
+                <input type="number" id="diameter" placeholder="Enter diameter in inches" min="0" step="0.1">
+            </div>
+            
+            <div class="question-section">
+                <label for="contents">Vessel Contents:</label>
+                <select id="contents">
+                    <option value="">-- Select --</option>
+                    <option value="air">Air or Non-flammable Gas</option>
+                    <option value="water">Water</option>
+                    <option value="steam">Steam</option>
+                    <option value="toxic">Toxic/Lethal Service</option>
+                    <option value="flammable">Flammable/Combustible</option>
+                    <option value="corrosive">Corrosive Service</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="question-section">
+                <label for="jurisdiction">Jurisdiction Type:</label>
+                <select id="jurisdiction">
+                    <option value="">-- Select --</option>
+                    <option value="federal">Federal/OSHA</option>
+                    <option value="state">State with Pressure Vessel Regulations</option>
+                    <option value="none">No Specific Jurisdiction</option>
+                    <option value="other_country">Non-US Country</option>
+                </select>
+            </div>
+            
+            <button onclick="checkExemption()">Check Exemption Status</button>
+            
+            <div id="result"></div>
+            
+            <div id="api510-info" class="info-section">
+                <h3>Common API 510 Exemptions</h3>
+                <p>The following are common exemptions from API 510 pressure vessel inspection requirements:</p>
+                <ul>
+                    <li>Vessels with design pressure less than 15 psig (1.03 bar)</li>
+                    <li>Vessels with inside diameter less than 6 inches (152 mm)</li>
+                    <li>Vessels with volume less than 5 cubic feet (0.14 m³)</li>
+                    <li>Fired heaters, boilers, and heat exchangers (which are covered by other inspection codes)</li>
+                    <li>Storage tanks built to API 620 or API 650</li>
+                    <li>Piping components governed by ASME B31 codes</li>
+                    <li>Pressure vessels covered by DOT regulations</li>
+                </ul>
+            </div>
+            
+            <div id="api570-info" class="info-section" style="display: none;">
+                <h3>Common API 570 Exemptions</h3>
+                <p>The following are common exemptions from API 570 piping inspection requirements:</p>
+                <ul>
+                    <li>Piping systems with design pressure less than 15 psig (1.03 bar)</li>
+                    <li>Piping with nominal pipe size (NPS) less than 2 inches</li>
+                    <li>Plumbing and utility piping systems</li>
+                    <li>Fire protection piping systems</li>
+                    <li>HVAC piping systems</li>
+                    <li>Tubing systems</li>
+                    <li>Piping systems covered by DOT regulations</li>
+                    <li>Underground pipelines covered by other regulations</li>
+                </ul>
+            </div>
+            
+            <div id="api653-info" class="info-section" style="display: none;">
+                <h3>Common API 653 Exemptions</h3>
+                <p>The following are common exemptions from API 653 storage tank inspection requirements:</p>
+                <ul>
+                    <li>Pressure vessels (covered by API 510)</li>
+                    <li>Tanks with design pressure greater than 2.5 psig (0.17 bar)</li>
+                    <li>Underground storage tanks</li>
+                    <li>Tanks with capacity less than 50 barrels (2,100 gallons or 7.95 m³)</li>
+                    <li>Non-metallic tanks</li>
+                    <li>Cryogenic storage tanks</li>
+                    <li>Spherical storage tanks (LPG/NGL spheres)</li>
+                    <li>Special application tanks covered by other standards</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div id="calculator-tab" class="tab-content">
+            <div class="question-section">
+                <label for="vessel-shape">Vessel Shape:</label>
+                <select id="vessel-shape" onchange="showDimensionFields()">
+                    <option value="">-- Select Shape --</option>
+                    <option value="cylindrical">Cylindrical</option>
+                    <option value="rectangular">Rectangular</option>
+                    <option value="spherical">Spherical</option>
+                    <option value="horizontal-cap">Horizontal Cylindrical with Hemispherical Caps</option>
+                    <option value="vertical-cap">Vertical Cylindrical with Hemispherical Caps</option>
+                </select>
+            </div>
+            
+            <!-- Cylindrical vessel fields -->
+            <div id="cylindrical-fields" class="dynamic-fields">
+                <div class="question-section">
+                    <label for="cylinder-diameter">Inside Diameter:</label>
+                    <input type="number" id="cylinder-diameter" placeholder="Enter diameter" min="0" step="0.1">
+                    <select id="cylinder-diameter-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+                
+                <div class="question-section">
+                    <label for="cylinder-length">Length/Height:</label>
+                    <input type="number" id="cylinder-length" placeholder="Enter length" min="0" step="0.1">
+                    <select id="cylinder-length-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Rectangular vessel fields -->
+            <div id="rectangular-fields" class="dynamic-fields">
+                <div class="question-section">
+                    <label for="rect-length">Length:</label>
+                    <input type="number" id="rect-length" placeholder="Enter length" min="0" step="0.1">
+                    <select id="rect-length-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+                
+                <div class="question-section">
+                    <label for="rect-width">Width:</label>
+                    <input type="number" id="rect-width" placeholder="Enter width" min="0" step="0.1">
+                    <select id="rect-width-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+                
+                <div class="question-section">
+                    <label for="rect-height">Height:</label>
+                    <input type="number" id="rect-height" placeholder="Enter height" min="0" step="0.1">
+                    <select id="rect-height-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Spherical vessel fields -->
+            <div id="spherical-fields" class="dynamic-fields">
+                <div class="question-section">
+                    <label for="sphere-diameter">Inside Diameter:</label>
+                    <input type="number" id="sphere-diameter" placeholder="Enter diameter" min="0" step="0.1">
+                    <select id="sphere-diameter-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Horizontal cylindrical with caps fields -->
+            <div id="horizontal-cap-fields" class="dynamic-fields">
+                <div class="question-section">
+                    <label for="hcap-diameter">Inside Diameter:</label>
+                    <input type="number" id="hcap-diameter" placeholder="Enter diameter" min="0" step="0.1">
+                    <select id="hcap-diameter-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+                
+                <div class="question-section">
+                    <label for="hcap-length">Cylindrical Section Length:</label>
+                    <input type="number" id="hcap-length" placeholder="Enter cylindrical section length" min="0" step="0.1">
+                    <select id="hcap-length-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Vertical cylindrical with caps fields -->
+            <div id="vertical-cap-fields" class="dynamic-fields">
+                <div class="question-section">
+                    <label for="vcap-diameter">Inside Diameter:</label>
+                    <input type="number" id="vcap-diameter" placeholder="Enter diameter" min="0" step="0.1">
+                    <select id="vcap-diameter-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+                
+                <div class="question-section">
+                    <label for="vcap-height">Cylindrical Section Height:</label>
+                    <input type="number" id="vcap-height" placeholder="Enter cylindrical section height" min="0" step="0.1">
+                    <select id="vcap-height-unit">
+                        <option value="inches">inches</option>
+                        <option value="feet">feet</option>
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button onclick="calculateVolume()">Calculate Volume</button>
+            
+            <div id="calculator-result" class="calculator-result"></div>
+            
+            <button id="transfer-button" class="transfer-button" onclick="transferVolume()" style="display: none;">Use in Exemption Checker</button>
+            
+            <div class="info-section">
+                <h3>Volume Calculator Information</h3>
+                <p>This calculator helps determine the internal volume of vessels with common shapes. The result is in cubic feet, which can be used directly in the exemption checker.</p>
+                <p>For pressure vessel exemption purposes, the internal volume of 5 cubic feet (0.14 m³) is an important threshold in API 510.</p>
+            </div>
+        </div>
+        
+        <!-- Onstream Inspection Tab Content -->
+        <div id="onstream-tab" class="tab-content">
+            <div class="info-section" style="margin-bottom: 20px;">
+                <h3>Onstream Inspection Eligibility</h3>
+                <p>This tool helps determine if a pressure vessel is suitable for onstream inspection according to API 510 criteria. Onstream inspection refers to inspections performed while the equipment remains in service, as opposed to internal inspections that require shutdown.</p>
+            </div>
+            
+            <div class="question-section">
+                <label for="vessel-service">Vessel Service:</label>
+                <select id="vessel-service">
+                    <option value="">-- Select --</option>
+                    <option value="clean">Clean Service (non-fouling)</option>
+                    <option value="fouling">Fouling Service</option>
+                    <option value="corrosive">Highly Corrosive Service</option>
+                    <option value="erosive">Erosive Service</option>
+                    <option value="cyclic">Cyclic Service</option>
+                    <option value="lethal">Lethal Service</option>
+                    <option value="other_service">Other Service</option>
+                </select>
+            </div>
+            
+            <div class="question-section">
+                <label for="corrosion-rate">Known Corrosion Rate:</label>
+                <input type="number" id="corrosion-rate" placeholder="Enter rate in mils per year" min="0" step="0.1">
+            </div>
+            
+            <div class="question-section">
+                <label for="remaining-life">Calculated Remaining Life:</label>
+                <input type="number" id="remaining-life" placeholder="Enter remaining life in years" min="0" step="0.1">
+            </div>
+            
+            <div class="question-section">
+                <label for="damage-mechanisms">Known Damage Mechanisms:</label>
+                <select id="damage-mechanisms" multiple size="5">
+                    <option value="general">General Corrosion</option>
+                    <option value="localized">Localized Corrosion</option>
+                    <option value="cracking">Cracking</option>
+                    <option value="embrittlement">Embrittlement</option>
+                    <option value="creep">Creep</option>
+                    <option value="fatigue">Fatigue</option>
+                    <option value="erosion">Erosion</option>
+                    <option value="none">None</option>
+                </select>
+                <span style="font-size: 0.8em; color: #777;">Hold Ctrl/Cmd key to select multiple options</span>
+            </div>
+            
+            <div class="question-section">
+                <label for="inspection-history">Inspection History:</label>
+                <select id="inspection-history">
+                    <option value="">-- Select --</option>
+                    <option value="complete">Complete baseline inspection with thickness data</option>
+                    <option value="partial">Partial baseline inspection</option>
+                    <option value="minimal">Minimal inspection history</option>
+                    <option value="none">No previous inspection</option>
+                </select>
+            </div>
+            
+            <div class="question-section">
+                <label for="design-margin">Current Design Margin:</label>
+                <select id="design-margin">
+                    <option value="">-- Select --</option>
+                    <option value="high">High (>50% above required)</option>
+                    <option value="medium">Medium (20-50% above required)</option>
+                    <option value="low">Low (<20% above required)</option>
+                    <option value="unknown">Unknown</option>
+                </select>
+            </div>
+            
+            <div class="question-section">
+                <label for="nde-coverage">Achievable NDE Coverage During Onstream Inspection:</label>
+                <select id="nde-coverage">
+                    <option value="">-- Select --</option>
+                    <option value="excellent">Excellent (>80%)</option>
+                    <option value="good">Good (60-80%)</option>
+                    <option value="fair">Fair (40-60%)</option>
+                    <option value="poor">Poor (<40%)</option>
+                </select>
+            </div>
+            
+            <div class="question-section">
+                <label for="rbi-assessment">Risk-Based Inspection (RBI) Assessment:</label>
+                <select id="rbi-assessment">
+                    <option value="">-- Select --</option>
+                    <option value="performed">RBI Assessment Performed</option>
+                    <option value="not-performed">No RBI Assessment</option>
+                </select>
+            </div>
+            
+            <button onclick="checkOnstreamSuitability()">Check Onstream Inspection Suitability</button>
+            
+            <div id="onstream-result"></div>
+            
+            <div class="interval-summary" id="interval-summary">
+                <h3>Inspection Interval Summary</h3>
+                <p>Based on API 510 criteria, the following inspection intervals apply:</p>
+                <table class="interval-table">
+                    <thead>
+                        <tr>
+                            <th>Inspection Type</th>
+                            <th>Maximum Interval</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>External Visual Inspection</td>
+                            <td id="external-interval">5 years</td>
+                            <td>Maximum interval regardless of service</td>
+                        </tr>
+                        <tr>
+                            <td>Internal Inspection</td>
+                            <td id="internal-interval">10 years or half remaining life</td>
+                            <td>Whichever is less</td>
+                        </tr>
+                        <tr>
+                            <td>Onstream Inspection</td>
+                            <td id="onstream-interval">To be determined</td>
+                            <td id="onstream-notes">Based on suitability assessment</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="api510-onstream-info" class="info-section">
+                <h3>API 510 Onstream Inspection Information</h3>
+                <p>Onstream inspection is an alternative to internal inspection that allows vessels to remain in service during inspection. API 510 specifies criteria for determining when onstream inspection is appropriate:</p>
+                <ul>
+                    <li>Vessel construction and design must be suitable for onstream inspection</li>
+                    <li>Corrosion rates must be well-established and predictable</li>
+                    <li>Damage mechanisms must be well-understood and accessible for monitoring</li>
+                    <li>Adequate inspection techniques must be available to detect potential damage</li>
+                    <li>Risk assessment should support the use of onstream inspection</li>
+                </ul>
+                <p>Common onstream inspection methods include:</p>
+                <ul>
+                    <li>Ultrasonic thickness measurements (UTT)</li>
+                    <li>Radiographic testing (RT)</li>
+                    <li>External visual inspection</li>
+                    <li>Infrared thermography</li>
+                    <li>Acoustic emission testing</li>
+                </ul>
+                <p>If onstream inspection is deemed suitable, it may be used in place of internal inspections provided that the inspection is comprehensive enough to determine the vessel condition.</p>
+            </div>
+        </div>
+        
+        <!-- Fitness-For-Service Tab Content -->
+        <div id="ffs-tab" class="tab-content">
+            <div class="info-section" style="margin-bottom: 20px;">
+                <h3>API 579-1/ASME FFS-1 Fitness-For-Service Assessment</h3>
+                <p>This tool helps determine if equipment with damage or deterioration can continue in service, requires repair, or should be replaced. Fitness-For-Service (FFS) assessments are quantitative engineering evaluations performed to demonstrate the structural integrity of equipment that may contain flaws or damage.</p>
+            </div>
+            
+            <div class="question-section">
+                <label for="ffs-damage-type">Damage Mechanism:</label>
+                <select id="ffs-damage-type" onchange="updateFfsFields()">
+                    <option value="">-- Select Damage Type --</option>
+                    <option value="general_metal_loss">General Metal Loss (Uniform Corrosion)</option>
+                    <option value="local_metal_loss">Local Metal Loss (Localized Corrosion)</option>
+                    <option value="pitting">Pitting Corrosion</option>
+                    <option value="crack">Crack-Like Flaw</option>
+                    <option value="blister">Blisters or Hydrogen Damage</option>
+                    <option value="weld_misalignment">Weld Misalignment/Shell Distortion</option>
+                    <option value="fire_damage">Fire Damage</option>
+                    <option value="dent_gouge">Dent or Gouge</option>
+                    <option value="creep">Creep Damage</option>
+                    <option value="brittle_fracture">Brittle Fracture</option>
+                </select>
+            </div>
+            
+            <div class="question-section">
+                <label for="ffs-assessment-level">Assessment Level:</label>
+                <select id="ffs-assessment-level" onchange="showLevelDescription()">
+                    <option value="">-- Select Assessment Level --</option>
+                    <option value="level_1">Level 1 - Basic</option>
+                    <option value="level_2">Level 2 - Detailed</option>
+                    <option value="level_3">Level 3 - Advanced</option>
+                </select>
+            </div>
+            
+            <div class="level-description" id="level1-description">
+                <strong>Level 1 Assessment:</strong> Provides conservative screening criteria that can be performed by inspectors or engineers with a basic understanding of the equipment. Requires minimal inspection data and uses simplified assessment methods. Most conservative approach.
+            </div>
+            
+            <div class="level-description" id="level2-description">
+                <strong>Level 2 Assessment:</strong> More detailed evaluation that requires more inspection data and engineering calculations. Less conservative than Level 1 but still includes safety factors. Must be performed by engineers experienced with FFS assessments.
+            </div>
+            
+            <div class="level-description" id="level3-description">
+                <strong>Level 3 Assessment:</strong> Advanced assessment requiring detailed inspection data and specialized engineering analysis (e.g., finite element analysis). Least conservative approach requiring expertise in damage mechanisms and numerical analysis.
+            </div>
+            
+            <!-- Fields for General Metal Loss -->
+            <div id="general-metal-loss-fields" class="dynamic-fields">
+                <div class="question-section">
+                    <label for="gml-nominal-thickness">Nominal Wall Thickness:</label>
+                    <input type="number" id="gml-nominal-thickness" placeholder="Enter thickness in inches" min="0" step="0.001">
+                </div>
+                
+                <div class="question-section">
+                    <label for="gml-minimum-thickness">Minimum Measured Thickness:</label>
+                    <input type="number" id="gml-minimum-thickness" placeholder="Enter thickness in inches" min="0" step="0.001">
+                </div>
+                
+                <div class="question-section">
+                    <label for="gml-required-thickness">Required Thickness (per design code):</label>
+                    <input type="number" id="gml-required-thickness" placeholder="Enter thickness in inches" min="0" step="0.001">
+                </div>
+                
+                <div class="question-section">
+                    <label for="gml-future-corrosion">Future Corrosion Allowance:</label>
+                    <input type="number" id="gml-future-corrosion" placeholder="Enter thickness in inches" min="0" step="0.001" value="0">
+                </div>
+            </div>
+            
+            <!-- Fields for Local Metal Loss -->
+            <div id="local-metal-loss-fields" class="dynamic-fields">
+                <div class="question-section">
+                    <label for="lml-nominal-thickness">Nominal Wall Thickness:</label>
+                    <input type="number" id="lml-nominal-thickness" placeholder="Enter thickness in inches" min="0" step="0.001">
+                </div>
+                
+                <div class="question-section">
+                    <label for="lml-minimum-thickness">Minimum Measured Thickness:</label>
+                    <input type="number" id="lml-minimum-thickness" placeholder="Enter thickness in inches" min="0" step="0.001">
+                </div>
+                
+                <div class="question-section">
+                    <label for="lml-required-thickness">Required Thickness (per design code):</label>
+                    <input type="number" id="lml-required-thickness" placeholder="Enter thickness in inches" min="0" step="0.001">
+                </div>
+                
+                <div class="question-section">
+                    <label for="lml-defect-length">Defect Longitudinal Length:</label>
+                    <input type="number" id="lml-defect-length" placeholder="Enter length in inches" min="0" step="0.1">
+                </div>
+                
+                <div class="question-section">
+                    <label for="lml-defect-width">Defect Circumferential Width:</label>
+                    <input type="number" id="lml-defect-width" placeholder="Enter width in inches" min="0" step="0.1">
+                </div>
+            </div>
+            
+            <!-- Fields for Pitting Corrosion -->
+            <div id="pitting-fields" class="dynamic-fields">
+                <div class="question-section">
+                    <label for="pit-nominal-thickness">Nominal Wall Thickness:</label>
+                    <input type="number" id="pit-nominal-thickness" placeholder="Enter thickness in inches" min="0" step="0.001">
+                </div>
+                
+                <div class="question-section">
+                    <label for="pit-depth">Maximum Pit Depth:</label>
+                    <input type="number" id="pit-depth" placeholder="Enter depth in inches" min="0" step="0.001">
+                </div>
+                
+                <div class="question-section">
+                    <label for="pit-diameter">Average Pit Diameter:</label>
+                    <input type="number" id="pit-diameter" placeholder="Enter diameter in inches" min="0" step="0.001">
+                </div>
+                
+                <div class="question-section">
+                    <label for="pit-spacing">Average Pit Spacing:</label>
+                    <input type="number" id="pit-spacing" placeholder="Enter spacing in inches" min="0" step="0.1">
+                </div>
+                
+                <div class="question-section">
+                    <label for="pit-coverage">Pit Area Coverage:</label>
+                    <select id="pit-coverage">
+                        <option value="">-- Select --</option>
+                        <option value="isolated">Isolated Pits (< 5% area)</option>
+                        <option value="scattered">Scattered Pits (5-25% area)</option>
+                        <option value="widespread">Widespread Pits (> 25% area)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Fields for Crack-Like Flaws -->
+            <div id="crack-fields" class="dynamic-fields">
+                <div class="question-section">
+                    <label for="crack-length">Crack Length:</label>
+                    <input type="number" id="crack-length" placeholder="Enter length in inches" min="0" step="0.01">
+                </div>
+                
+                <div class="question-section">
+                    <label for="crack-depth">Crack Depth:</label>
+                    <input type="number" id="crack-depth" placeholder="Enter depth in inches" min="0" step="0.001">
+                </div>
+                
+                <div class="question-section">
+                    <label for="crack-wall-thickness">Wall Thickness:</label>
+                    <input type="number" id="crack-wall-thickness" placeholder="Enter thickness in inches" min="0" step="0.001">
+                </div>
+                
+                <div class="question-section">
+                    <label for="crack-orientation">Crack Orientation:</label>
+                    <select id="crack-orientation">
+                        <option value="">-- Select --</option>
+                        <option value="longitudinal">Longitudinal (Parallel to Axis)</option>
+                        <option value="circumferential">Circumferential (Perpendicular to Axis)</option>
+                        <option value="other_orientation">Other Orientation</option>
+                    </select>
+                </div>
+                
+                <div class="question-section">
+                    <label for="crack-location">Crack Location:</label>
+                    <select id="crack-location">
+                        <option value="">-- Select --</option>
+                        <option value="base_metal">Base Metal</option>
+                        <option value="weld">Weld</option>
+                        <option value="heat_affected_zone">Heat Affected Zone (HAZ)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button onclick="performFfsAssessment()">Perform FFS Assessment</button>
+            
+            <div id="ffs-result"></div>
+            
+            <div class="ffs-summary" id="ffs-summary">
+                <h3>Fitness-For-Service Assessment Summary</h3>
+                <table class="damage-table" id="ffs-details-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                            <th>Acceptance Criteria</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Will be filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="api579-ffs-info" class="info-section">
+                <h3>API 579-1/ASME FFS-1 Information</h3>
+                <p>API 579-1/ASME FFS-1 is a standard developed and published jointly by the American Petroleum Institute (API) and the American Society of Mechanical Engineers (ASME). It provides procedures for performing proper fitness-for-service assessments for pressurized equipment used in refineries and chemical plants.</p>
+                
+                <p>Key features of API 579-1/ASME FFS-1:</p>
+                <ul>
+                    <li>Three assessment levels (from conservative screening to detailed analysis)</li>
+                    <li>Procedures for common damage mechanisms (corrosion, cracking, fire damage, etc.)</li>
+                    <li>Methods to determine remaining strength and remaining life of equipment</li>
+                    <li>Guidelines for evaluation, rerating, or repair of damaged equipment</li>
+                </ul>
+                
+                <p>Benefits of FFS assessments:</p>
+                <ul>
+                    <li>Avoid unnecessary repairs or replacements of equipment</li>
+                    <li>Extend the service life of aging equipment</li>
+                    <li>Evaluate the impact of design code changes on equipment integrity</li>
+                    <li>Support risk-based inspection planning</li>
+                    <li>Provide engineering basis for continued operation decisions</li>
+                </ul>
+                
+                <p><strong>Note:</strong> This tool provides a simplified assessment based on API 579-1/ASME FFS-1 principles. Actual FFS assessments require detailed engineering analysis and should be performed by qualified personnel.</p>
+            </div>
+        </div>
+        
+        <div class="disclaimer">
+            <p>Disclaimer: This tool provides general guidance and should not replace professional engineering judgment or consultation with qualified inspectors. Always verify exemption status with the relevant jurisdiction and authorities.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize the form when the page loads
+        window.onload = function() {
+            updateFormForCode();
+        };
+        
+        // Tab functionality
+        function openTab(evt, tabName) {
+            var i, tabContent, tabButtons;
+            
+            // Hide all tab content
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].style.display = "none";
+            }
+            
+            // Remove "active" class from all tab buttons
+            tabButtons = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].className = tabButtons[i].className.replace(" active", "");
+            }
+            
+            // Show the current tab and add "active" class to the button
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+            
+            // If onstream tab is active, restrict API code dropdown to only show API 510
+            const apiCodeSelect = document.getElementById("api-code");
+            const currentApiCode = apiCodeSelect.value;
+            
+            if (tabName === "onstream-tab" || tabName === "ffs-tab") {
+                // Store the original options if not already stored
+                if (!window.originalApiOptions) {
+                    window.originalApiOptions = Array.from(apiCodeSelect.options).map(opt => {
+                        return { value: opt.value, text: opt.text };
+                    });
+                }
+                
+                // Clear existing options
+                apiCodeSelect.innerHTML = "";
+                
+                // Add only API 510
+                const option = document.createElement("option");
+                option.value = "api510";
+                option.textContent = "API 510 - Pressure Vessel Inspection";
+                apiCodeSelect.appendChild(option);
+                
+                // Set to API 510 if it wasn't already
+                if (currentApiCode !== "api510") {
+                    apiCodeSelect.value = "api510";
+                    updateFormForCode();
+                }
+                
+                // Disable the dropdown since there's only one option
+                apiCodeSelect.disabled = true;
+            } else if (window.originalApiOptions) {
+                // Restore original options if we're not on the onstream tab
+                apiCodeSelect.disabled = false;
+                apiCodeSelect.innerHTML = "";
+                
+                window.originalApiOptions.forEach(opt => {
+                    const option = document.createElement("option");
+                    option.value = opt.value;
+                    option.textContent = opt.text;
+                    apiCodeSelect.appendChild(option);
+                });
+                
+                // Restore the previous selection
+                apiCodeSelect.value = currentApiCode;
+            }
+        }
+        
+        // Show appropriate dimension fields based on vessel shape
+        function showDimensionFields() {
+            const vesselShape = document.getElementById("vessel-shape").value;
+            const fields = ["cylindrical-fields", "rectangular-fields", "spherical-fields", "horizontal-cap-fields", "vertical-cap-fields"];
+            
+            // Hide all fields first
+            fields.forEach(field => {
+                document.getElementById(field).style.display = "none";
+            });
+            
+            // Show the appropriate fields based on selection
+            if (vesselShape === "cylindrical") {
+                document.getElementById("cylindrical-fields").style.display = "block";
+            } else if (vesselShape === "rectangular") {
+                document.getElementById("rectangular-fields").style.display = "block";
+            } else if (vesselShape === "spherical") {
+                document.getElementById("spherical-fields").style.display = "block";
+            } else if (vesselShape === "horizontal-cap") {
+                document.getElementById("horizontal-cap-fields").style.display = "block";
+            } else if (vesselShape === "vertical-cap") {
+                document.getElementById("vertical-cap-fields").style.display = "block";
+            }
+        }
+        
+        // Update FFS fields based on damage type selection
+        function updateFfsFields() {
+            const damageType = document.getElementById("ffs-damage-type").value;
+            const fieldsMap = {
+                "general_metal_loss": "general-metal-loss-fields",
+                "local_metal_loss": "local-metal-loss-fields",
+                "pitting": "pitting-fields",
+                "crack": "crack-fields"
+            };
+            
+            // Hide all fields first
+            Object.values(fieldsMap).forEach(field => {
+                document.getElementById(field).style.display = "none";
+            });
+            
+            // Show the appropriate fields based on selection
+            if (damageType in fieldsMap) {
+                document.getElementById(fieldsMap[damageType]).style.display = "block";
+            }
+        }
+        
+        // Show level description based on assessment level selection
+        function showLevelDescription() {
+            const level = document.getElementById("ffs-assessment-level").value;
+            
+            // Hide all descriptions first
+            document.getElementById("level1-description").style.display = "none";
+            document.getElementById("level2-description").style.display = "none";
+            document.getElementById("level3-description").style.display = "none";
+            
+            // Show the appropriate description based on selection
+            if (level === "level_1") {
+                document.getElementById("level1-description").style.display = "block";
+            } else if (level === "level_2") {
+                document.getElementById("level2-description").style.display = "block";
+            } else if (level === "level_3") {
+                document.getElementById("level3-description").style.display = "block";
+            }
+        }
+        
+        // Convert dimensions to feet for calculation
+        function convertToFeet(value, unit) {
+            if (unit === "inches") {
+                return value / 12;
+            } else if (unit === "mm") {
+                return value / 304.8;
+            } else if (unit === "cm") {
+                return value / 30.48;
+            } else if (unit === "m") {
+                return value * 3.28084;
+            } else {
+                return value; // Already in feet
+            }
+        }
+        
+        // Calculate vessel volume
+        function calculateVolume() {
+            const vesselShape = document.getElementById("vessel-shape").value;
+            let volume = 0;
+            
+            if (vesselShape === "cylindrical") {
+                const diameter = document.getElementById("cylinder-diameter").value;
+                const diameterUnit = document.getElementById("cylinder-diameter-unit").value;
+                const length = document.getElementById("cylinder-length").value;
+                const lengthUnit = document.getElementById("cylinder-length-unit").value;
+                
+                if (!diameter || !length) {
+                    alert("Please enter all dimensions");
+                    return;
+                }
+                
+                const diameterFeet = convertToFeet(parseFloat(diameter), diameterUnit);
+                const lengthFeet = convertToFeet(parseFloat(length), lengthUnit);
+                
+                // Volume = π * (d/2)² * length
+                volume = Math.PI * Math.pow(diameterFeet / 2, 2) * lengthFeet;
+            } 
+            else if (vesselShape === "rectangular") {
+                const length = document.getElementById("rect-length").value;
+                const lengthUnit = document.getElementById("rect-length-unit").value;
+                const width = document.getElementById("rect-width").value;
+                const widthUnit = document.getElementById("rect-width-unit").value;
+                const height = document.getElementById("rect-height").value;
+                const heightUnit = document.getElementById("rect-height-unit").value;
+                
+                if (!length || !width || !height) {
+                    alert("Please enter all dimensions");
+                    return;
+                }
+                
+                const lengthFeet = convertToFeet(parseFloat(length), lengthUnit);
+                const widthFeet = convertToFeet(parseFloat(width), widthUnit);
+                const heightFeet = convertToFeet(parseFloat(height), heightUnit);
+                
+                // Volume = length * width * height
+                volume = lengthFeet * widthFeet * heightFeet;
+            } 
+            else if (vesselShape === "spherical") {
+                const diameter = document.getElementById("sphere-diameter").value;
+                const diameterUnit = document.getElementById("sphere-diameter-unit").value;
+                
+                if (!diameter) {
+                    alert("Please enter the diameter");
+                    return;
+                }
+                
+                const diameterFeet = convertToFeet(parseFloat(diameter), diameterUnit);
+                
+                // Volume = (4/3) * π * (d/2)³
+                volume = (4/3) * Math.PI * Math.pow(diameterFeet / 2, 3);
+            } 
+            else if (vesselShape === "horizontal-cap" || vesselShape === "vertical-cap") {
+                const fieldPrefix = vesselShape === "horizontal-cap" ? "hcap" : "vcap";
+                const diameter = document.getElementById(`${fieldPrefix}-diameter`).value;
+                const diameterUnit = document.getElementById(`${fieldPrefix}-diameter-unit`).value;
+                const lengthOrHeight = document.getElementById(
+                    vesselShape === "horizontal-cap" ? "hcap-length" : "vcap-height"
+                ).value;
+                const lengthOrHeightUnit = document.getElementById(
+                    vesselShape === "horizontal-cap" ? "hcap-length-unit" : "vcap-height-unit"
+                ).value;
+                
+                if (!diameter || !lengthOrHeight) {
+                    alert("Please enter all dimensions");
+                    return;
+                }
+                
+                const diameterFeet = convertToFeet(parseFloat(diameter), diameterUnit);
+                const lengthOrHeightFeet = convertToFeet(parseFloat(lengthOrHeight), lengthOrHeightUnit);
+                
+                // Volume of cylinder = π * (d/2)² * length
+                const cylinderVolume = Math.PI * Math.pow(diameterFeet / 2, 2) * lengthOrHeightFeet;
+                
+                // Volume of two hemispheres = (4/3) * π * (d/2)³
+                const hemisphereVolume = (4/3) * Math.PI * Math.pow(diameterFeet / 2, 3) / 2 * 2;
+                
+                // Total volume
+                volume = cylinderVolume + hemisphereVolume;
+            }
+            else {
+                alert("Please select a vessel shape");
+                return;
+            }
+            
+            // Display the result
+            const resultDiv = document.getElementById("calculator-result");
+            resultDiv.style.display = "block";
+            resultDiv.innerHTML = `Internal Volume: ${volume.toFixed(2)} cubic feet (${(volume * 0.0283168).toFixed(4)} m³)`;
+            
+            // Show the transfer button
+            document.getElementById("transfer-button").style.display = "block";
+            
+            // Store the volume for transfer
+            window.calculatedVolume = volume.toFixed(2);
+        }
+        
+        // Transfer volume to exemption checker
+        function transferVolume() {
+            if (window.calculatedVolume) {
+                document.getElementById("volume").value = window.calculatedVolume;
+                
+                // Switch to exemption checker tab
+                const event = new Event('click');
+                document.querySelector('.tab-button[onclick*="exemption-tab"]').dispatchEvent(event);
+                
+                // Highlight the volume field
+                const volumeField = document.getElementById("volume");
+                volumeField.style.backgroundColor = "#e8f4fd";
+                setTimeout(() => {
+                    volumeField.style.backgroundColor = "";
+                }, 2000);
+            }
+        }
+        
+        // Set the default API code on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFormForCode();
+        });
+        
+        // Update form fields based on selected API code
+        function updateFormForCode() {
+            const apiCode = document.getElementById("api-code").value;
+            
+            // Show/hide specific information sections
+            document.getElementById("api510-info").style.display = apiCode === "api510" ? "block" : "none";
+            document.getElementById("api570-info").style.display = apiCode === "api570" ? "block" : "none";
+            document.getElementById("api653-info").style.display = apiCode === "api653" ? "block" : "none";
+            
+            // Update vessel type options based on selected code
+            const vesselTypeSelect = document.getElementById("vessel-type");
+            vesselTypeSelect.innerHTML = ""; // Clear existing options
+            
+            if (apiCode === "api510") {
+                // Options for API 510
+                addOption(vesselTypeSelect, "", "-- Select --");
+                addOption(vesselTypeSelect, "fired_heater", "Fired Heater");
+                addOption(vesselTypeSelect, "heat_exchanger", "Heat Exchanger (Shell & Tube)");
+                addOption(vesselTypeSelect, "boiler", "Boiler");
+                addOption(vesselTypeSelect, "pressure_vessel", "Standard Pressure Vessel");
+                addOption(vesselTypeSelect, "piping", "Piping Component");
+                addOption(vesselTypeSelect, "storage_tank", "Storage Tank");
+                addOption(vesselTypeSelect, "other", "Other");
+            } 
+            else if (apiCode === "api570") {
+                // Options for API 570
+                addOption(vesselTypeSelect, "", "-- Select --");
+                addOption(vesselTypeSelect, "process_piping", "Process Piping");
+                addOption(vesselTypeSelect, "utility_piping", "Utility Piping");
+                addOption(vesselTypeSelect, "plumbing", "Plumbing Systems");
+                addOption(vesselTypeSelect, "fire_protection", "Fire Protection Piping");
+                addOption(vesselTypeSelect, "hvac", "HVAC Piping");
+                addOption(vesselTypeSelect, "underground", "Underground Piping");
+                addOption(vesselTypeSelect, "tubing", "Tubing Systems");
+                addOption(vesselTypeSelect, "other_piping", "Other Piping");
+            } 
+            else if (apiCode === "api653") {
+                // Options for API 653
+                addOption(vesselTypeSelect, "", "-- Select --");
+                addOption(vesselTypeSelect, "api650_tank", "API 650 Storage Tank");
+                addOption(vesselTypeSelect, "api620_tank", "API 620 Low-Pressure Tank");
+                addOption(vesselTypeSelect, "underground_tank", "Underground Storage Tank");
+                addOption(vesselTypeSelect, "sphere", "Spherical Storage Tank");
+                addOption(vesselTypeSelect, "nonmetallic", "Non-Metallic Tank");
+                addOption(vesselTypeSelect, "cryogenic", "Cryogenic Storage Tank");
+                addOption(vesselTypeSelect, "small_tank", "Small Capacity Tank");
+                addOption(vesselTypeSelect, "other_tank", "Other Tank Type");
+            }
+            
+            // Also update design code options
+            const designCodeSelect = document.getElementById("design-code");
+            designCodeSelect.innerHTML = ""; // Clear existing options
+            
+            addOption(designCodeSelect, "", "-- Select --");
+            
+            if (apiCode === "api510") {
+                addOption(designCodeSelect, "asme_sec_viii_div_1", "ASME Section VIII, Division 1");
+                addOption(designCodeSelect, "asme_sec_viii_div_2", "ASME Section VIII, Division 2");
+                addOption(designCodeSelect, "asme_sec_i", "ASME Section I (Power Boilers)");
+                addOption(designCodeSelect, "asme_sec_iv", "ASME Section IV (Heating Boilers)");
+                addOption(designCodeSelect, "api_650", "API 650");
+                addOption(designCodeSelect, "asme_b31", "ASME B31 (Piping)");
+                addOption(designCodeSelect, "other_code", "Other Code");
+                addOption(designCodeSelect, "no_code", "No Code/Unknown");
+            } 
+            else if (apiCode === "api570") {
+                addOption(designCodeSelect, "asme_b31_1", "ASME B31.1 (Power Piping)");
+                addOption(designCodeSelect, "asme_b31_3", "ASME B31.3 (Process Piping)");
+                addOption(designCodeSelect, "asme_b31_4", "ASME B31.4 (Pipeline Transportation)");
+                addOption(designCodeSelect, "asme_b31_5", "ASME B31.5 (Refrigeration Piping)");
+                addOption(designCodeSelect, "asme_b31_8", "ASME B31.8 (Gas Transmission)");
+                addOption(designCodeSelect, "asme_b31_9", "ASME B31.9 (Building Services)");
+                addOption(designCodeSelect, "other_pipe_code", "Other Piping Code");
+                addOption(designCodeSelect, "no_code", "No Code/Unknown");
+            } 
+            else if (apiCode === "api653") {
+                addOption(designCodeSelect, "api_650", "API 650");
+                addOption(designCodeSelect, "api_620", "API 620");
+                addOption(designCodeSelect, "ul_142", "UL 142");
+                addOption(designCodeSelect, "ul_58", "UL 58 (Underground)");
+                addOption(designCodeSelect, "awwa_d100", "AWWA D100");
+                addOption(designCodeSelect, "nfpa_30", "NFPA 30");
+                addOption(designCodeSelect, "other_tank_code", "Other Tank Code");
+                addOption(designCodeSelect, "no_code", "No Code/Unknown");
+            }
+            
+            // Update field labels if needed
+            if (apiCode === "api570") {
+                document.querySelector('label[for="diameter"]').textContent = "Nominal Pipe Size (NPS):";
+                document.querySelector('label[for="volume"]').textContent = "System Volume (if known):";
+            } else if (apiCode === "api653") {
+                document.querySelector('label[for="diameter"]').textContent = "Tank Diameter:";
+                document.querySelector('label[for="volume"]').textContent = "Tank Capacity (barrels):";
+            } else {
+                document.querySelector('label[for="diameter"]').textContent = "Inside Diameter:";
+                document.querySelector('label[for="volume"]').textContent = "Internal Volume:";
+            }
+            
+            // Only show the specialized tabs if API 510 is selected
+            const tabButtons = document.getElementsByClassName("tab-button");
+            if (apiCode === "api510") {
+                // Show the onstream inspection and ffs tab buttons (3rd and 4th)
+                tabButtons[2].style.display = "block";
+                tabButtons[3].style.display = "block";
+            } else {
+                // Hide the onstream inspection and ffs tab buttons
+                tabButtons[2].style.display = "none";
+                tabButtons[3].style.display = "none";
+                
+                // If we're currently on a specialized tab and we switched to a non-API 510 code,
+                // switch to the exemption checker tab
+                if (document.getElementById("onstream-tab").style.display === "block" || 
+                    document.getElementById("ffs-tab").style.display === "block") {
+                    openTab({ currentTarget: tabButtons[0] }, "exemption-tab");
+                }
+            }
+        }
+        
+        // Helper function to add options to select element
+        function addOption(selectElement, value, text) {
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = text;
+            selectElement.appendChild(option);
+        }
+        
+        function checkExemption() {
+            const apiCode = document.getElementById("api-code").value;
+            const vesselType = document.getElementById("vessel-type").value;
+            const designCode = document.getElementById("design-code").value;
+            const internalPressure = parseFloat(document.getElementById("internal-pressure").value) || 0;
+            const volume = parseFloat(document.getElementById("volume").value) || 0;
+            const diameter = parseFloat(document.getElementById("diameter").value) || 0;
+            const contents = document.getElementById("contents").value;
+            const jurisdiction = document.getElementById("jurisdiction").value;
+            
+            const resultDiv = document.getElementById("result");
+            let isExempt = false;
+            let exemptReason = "";
+            let codeDisplayName = apiCode.toUpperCase();
+            
+            // Check based on the selected API code
+            if (apiCode === "api510") {
+                // API 510 PRESSURE VESSEL CHECKS
+                
+                // Check based on vessel type first
+                if (vesselType === "fired_heater") {
+                    isExempt = true;
+                    exemptReason = "Fired heaters are typically covered by API 573, not API 510.";
+                } else if (vesselType === "boiler") {
+                    isExempt = true;
+                    exemptReason = "Boilers are typically covered by ASME BPVC Section I and NB-23, not API 510.";
+                } else if (vesselType === "heat_exchanger") {
+                    isExempt = false;
+                    exemptReason = "Heat exchangers can be covered by API 510 if they meet the definition of a pressure vessel.";
+                } else if (vesselType === "piping") {
+                    isExempt = true;
+                    exemptReason = "Piping components are typically covered by API 570, not API 510.";
+                } else if (vesselType === "storage_tank") {
+                    isExempt = true;
+                    exemptReason = "Storage tanks are typically covered by API 653, not API 510.";
+                }
+                
+                // Check based on pressure
+                if (internalPressure < 15 && vesselType !== "piping" && vesselType !== "storage_tank") {
+                    isExempt = true;
+                    exemptReason = "Vessels with internal pressure less than 15 psig are typically exempt from API 510.";
+                }
+                
+                // Check based on diameter
+                if (diameter < 6 && vesselType !== "piping" && vesselType !== "storage_tank") {
+                    isExempt = true;
+                    exemptReason = "Vessels with inside diameter less than 6 inches are typically exempt from API 510.";
+                }
+                
+                // Check based on volume
+                if (volume < 5 && vesselType !== "piping" && vesselType !== "storage_tank") {
+                    isExempt = true;
+                    exemptReason = "Vessels with volume less than 5 cubic feet are typically exempt from API 510.";
+                }
+                
+                // Check based on design code
+                if (designCode === "asme_sec_i" || designCode === "asme_sec_iv") {
+                    isExempt = true;
+                    exemptReason = "Vessels built to ASME Section I or IV (boilers) are typically not covered by API 510.";
+                } else if (designCode === "api_650") {
+                    isExempt = true;
+                    exemptReason = "Tanks built to API 650 are typically covered by API 653, not API 510.";
+                } else if (designCode === "asme_b31") {
+                    isExempt = true;
+                    exemptReason = "Piping components built to ASME B31 are typically covered by API 570, not API 510.";
+                }
+            } 
+            else if (apiCode === "api570") {
+                // API 570 PIPING CHECKS
+                
+                // Check based on piping type first
+                if (vesselType === "plumbing") {
+                    isExempt = true;
+                    exemptReason = "Plumbing systems are typically exempt from API 570.";
+                } else if (vesselType === "fire_protection") {
+                    isExempt = true;
+                    exemptReason = "Fire protection piping systems are typically exempt from API 570.";
+                } else if (vesselType === "hvac") {
+                    isExempt = true;
+                    exemptReason = "HVAC piping systems are typically exempt from API 570.";
+                } else if (vesselType === "tubing") {
+                    isExempt = true;
+                    exemptReason = "Tubing systems are typically exempt from API 570.";
+                } else if (vesselType === "underground") {
+                    // Underground pipelines are complex - depends on jurisdiction and other factors
+                    isExempt = false;
+                    exemptReason = "Underground piping may be covered by API 570 or other regulations. Consult with a qualified inspector.";
+                }
+                
+                // Check based on pressure
+                if (internalPressure < 15) {
+                    isExempt = true;
+                    exemptReason = "Piping systems with design pressure less than 15 psig are typically exempt from API 570.";
+                }
+                
+                // Check based on size (NPS)
+                if (diameter < 2) {
+                    isExempt = true;
+                    exemptReason = "Piping with nominal pipe size (NPS) less than 2 inches is typically exempt from API 570.";
+                }
+                
+                // Check based on design code
+                if (designCode === "asme_b31_9") {
+                    isExempt = true;
+                    exemptReason = "Building services piping (B31.9) is typically exempt from API 570.";
+                }
+            } 
+            else if (apiCode === "api653") {
+                // API 653 STORAGE TANK CHECKS
+                
+                // Check based on tank type first
+                if (vesselType === "underground_tank") {
+                    isExempt = true;
+                    exemptReason = "Underground storage tanks are typically exempt from API 653.";
+                } else if (vesselType === "nonmetallic") {
+                    isExempt = true;
+                    exemptReason = "Non-metallic tanks are typically exempt from API 653.";
+                } else if (vesselType === "cryogenic") {
+                    isExempt = true;
+                    exemptReason = "Cryogenic storage tanks are typically exempt from API 653.";
+                } else if (vesselType === "sphere") {
+                    isExempt = true;
+                    exemptReason = "Spherical storage tanks (LPG/NGL spheres) are typically exempt from API 653.";
+                } else if (vesselType === "small_tank") {
+                    if (volume < 50) {
+                        isExempt = true;
+                        exemptReason = "Tanks with capacity less than 50 barrels (2,100 gallons) are typically exempt from API 653.";
+                    }
+                }
+                
+                // Check based on pressure
+                if (internalPressure > 2.5) {
+                    isExempt = true;
+                    exemptReason = "Tanks with design pressure greater than 2.5 psig are typically covered by API 510, not API 653.";
+                }
+                
+                // Check based on design code
+                if (designCode === "ul_142" || designCode === "ul_58") {
+                    // UL tanks are complex - depends on jurisdiction and service
+                    isExempt = false;
+                    exemptReason = "Some UL tanks may be exempt from API 653 depending on jurisdiction and service.";
+                }
+            }
+            
+            // Display the result
+            resultDiv.style.display = "block";
+            
+            if (isExempt) {
+                resultDiv.className = "exempt";
+                resultDiv.innerHTML = `LIKELY EXEMPT FROM ${codeDisplayName}<br><span style='font-weight:normal'>${exemptReason}</span>`;
+            } else {
+                resultDiv.className = "not-exempt";
+                resultDiv.innerHTML = `LIKELY SUBJECT TO ${codeDisplayName}<br><span style='font-weight:normal'>Based on the information provided, this ${apiCode === "api510" ? "vessel" : apiCode === "api570" ? "piping system" : "tank"} appears to be subject to ${codeDisplayName} inspection requirements.</span>`;
+            }
+            
+            // Add caution for toxic or lethal service
+            if (contents === "toxic" && isExempt) {
+                resultDiv.innerHTML += `<br><br><span style='font-weight:normal; color:#856404; background-color:#fff3cd; padding:5px; display:block; margin-top:10px; border-radius:3px; border:1px solid #ffeeba;'>CAUTION: While this ${apiCode === "api510" ? "vessel" : apiCode === "api570" ? "piping system" : "tank"} may be technically exempt from ${codeDisplayName}, systems in toxic or lethal service often require special consideration. Consult with a qualified inspector.</span>`;
+            }
+            
+            // Add jurisdiction notes
+            if (jurisdiction === "state" && isExempt) {
+                resultDiv.innerHTML += `<br><span style='font-weight:normal; font-style:italic; display:block; margin-top:10px;'>Note: State jurisdictions may have additional requirements even for ${apiCode === "api510" ? "vessels" : apiCode === "api570" ? "piping systems" : "tanks"} exempt from ${codeDisplayName}.</span>`;
+            } else if (jurisdiction === "other_country") {
+                resultDiv.innerHTML += `<br><span style='font-weight:normal; font-style:italic; display:block; margin-top:10px;'>Note: Non-US jurisdictions may have different requirements and may not follow ${codeDisplayName} directly.</span>`;
+            }
+        }
+        
+        // Function for onstream inspection suitability check
+        function checkOnstreamSuitability() {
+            const vesselService = document.getElementById("vessel-service").value;
+            const corrosionRate = parseFloat(document.getElementById("corrosion-rate").value) || 0;
+            const remainingLife = parseFloat(document.getElementById("remaining-life").value) || 0;
+            const damageElements = document.getElementById("damage-mechanisms");
+            const inspectionHistory = document.getElementById("inspection-history").value;
+            const designMargin = document.getElementById("design-margin").value;
+            const ndeCoverage = document.getElementById("nde-coverage").value;
+            const rbiAssessment = document.getElementById("rbi-assessment").value;
+            
+            // Get selected damage mechanisms
+            const selectedDamage = Array.from(damageElements.selectedOptions).map(option => option.value);
+            
+            // Initialize suitability variables
+            let isSuitable = true;
+            let suitabilityReason = "";
+            let cautionNotes = [];
+            
+            // Check service type
+            if (vesselService === "fouling" || vesselService === "lethal") {
+                isSuitable = false;
+                suitabilityReason = vesselService === "fouling" 
+                    ? "Vessels in fouling service typically require internal inspection to assess deposit formation."
+                    : "Vessels in lethal service typically require more rigorous inspection protocols than onstream methods.";
+            }
+            
+            // Check damage mechanisms
+            const criticalDamageMechanisms = ["cracking", "embrittlement", "creep", "fatigue"];
+            const hasCriticalDamage = selectedDamage.some(damage => criticalDamageMechanisms.includes(damage));
+            
+            if (hasCriticalDamage) {
+                isSuitable = false;
+                suitabilityReason = "Vessels with cracking, embrittlement, creep, or fatigue damage mechanisms typically require internal inspection for thorough assessment.";
+            }
+            
+            // Check corrosion rate
+            if (corrosionRate > 20) {
+                isSuitable = false;
+                suitabilityReason = "Vessels with high corrosion rates (>20 mpy) typically require more frequent internal inspections.";
+            } else if (corrosionRate > 10) {
+                cautionNotes.push("Moderate to high corrosion rate detected. Consider more frequent thickness monitoring.");
+            }
+            
+            // Check remaining life
+            if (remainingLife < 4) {
+                isSuitable = false;
+                suitabilityReason = "Vessels with less than 4 years of remaining life require more frequent monitoring and potentially internal inspection.";
+            }
+            
+            // Check inspection history
+            if (inspectionHistory === "none" || inspectionHistory === "minimal") {
+                isSuitable = false;
+                suitabilityReason = "Vessels without adequate baseline inspection history require internal inspection to establish condition.";
+            }
+            
+            // Check design margin
+            if (designMargin === "low") {
+                cautionNotes.push("Low design margin. Consider supplementing onstream inspection with additional methods.");
+            }
+            
+            // Check NDE coverage
+            if (ndeCoverage === "poor") {
+                isSuitable = false;
+                suitabilityReason = "Poor NDE coverage during onstream inspection is insufficient to properly assess vessel condition.";
+            } else if (ndeCoverage === "fair") {
+                cautionNotes.push("Limited NDE coverage. Consider additional inspection techniques to compensate.");
+            }
+            
+            // Calculate recommended intervals based on remaining life
+            let externalInterval = 5; // Maximum 5 years per API 510
+            let internalInterval = Math.min(10, Math.ceil(remainingLife / 2)); // Half remaining life or 10 years, whichever is less
+            let onstreamInterval = "N/A"; // Default if not suitable
+            
+            if (isSuitable) {
+                // If suitable for onstream, calculate onstream interval
+                onstreamInterval = Math.min(internalInterval, 5); // Usually same as internal but max 5 years
+                
+                // Add note about RBI assessment
+                if (rbiAssessment === "performed") {
+                    onstreamInterval = "Per RBI assessment";
+                }
+            }
+            
+            // Update the interval table
+            document.getElementById("external-interval").textContent = `${externalInterval} years`;
+            document.getElementById("internal-interval").textContent = `${internalInterval} years`;
+            document.getElementById("onstream-interval").textContent = `${onstreamInterval}`;
+            
+            // Add notes for onstream interval
+            let onstreamNotes = "Based on suitability assessment";
+            if (rbiAssessment === "performed" && isSuitable) {
+                onstreamNotes = "RBI assessment can modify this interval";
+            } else if (!isSuitable) {
+                onstreamNotes = "Not recommended - internal inspection required";
+            }
+            document.getElementById("onstream-notes").textContent = onstreamNotes;
+            
+            // Display interval summary
+            document.getElementById("interval-summary").style.display = "block";
+            
+            // Display the result
+            const resultDiv = document.getElementById("onstream-result");
+            resultDiv.style.display = "block";
+            
+            if (isSuitable) {
+                resultDiv.className = "suitable";
+                resultDiv.innerHTML = `LIKELY SUITABLE FOR ONSTREAM INSPECTION<br><span style='font-weight:normal'>Based on the information provided, this vessel appears to be a suitable candidate for onstream inspection in accordance with API 510.</span>`;
+                
+                // Add caution notes if any
+                if (cautionNotes.length > 0) {
+                    resultDiv.innerHTML += `<br><br><span style='font-weight:normal; color:#856404; background-color:#fff3cd; padding:5px; display:block; margin-top:10px; border-radius:3px; border:1px solid #ffeeba;'>CAUTION: ${cautionNotes.join(" ")}</span>`;
+                }
+            } else {
+                resultDiv.className = "not-suitable";
+                resultDiv.innerHTML = `NOT RECOMMENDED FOR ONSTREAM INSPECTION<br><span style='font-weight:normal'>${suitabilityReason} Internal inspection is recommended.</span>`;
+            }
+        }
+        
+        // Function to perform FFS assessment
+        function performFfsAssessment() {
+            const damageType = document.getElementById("ffs-damage-type").value;
+            const assessmentLevel = document.getElementById("ffs-assessment-level").value;
+            const resultDiv = document.getElementById("ffs-result");
+            const ffsDetailsTable = document.getElementById("ffs-details-table").querySelector("tbody");
+            
+            // Clear previous results
+            ffsDetailsTable.innerHTML = "";
+            
+            // Check for required fields
+            if (!damageType || !assessmentLevel) {
+                alert("Please select a damage mechanism and assessment level");
+                return;
+            }
+            
+            // Initialize assessment variables
+            let canContinueService = false;
+            let assessmentSummary = "";
+            let cautionNotes = [];
+            
+            // Perform assessment based on damage type and level
+            if (damageType === "general_metal_loss") {
+                const nominalThickness = parseFloat(document.getElementById("gml-nominal-thickness").value) || 0;
+                const minThickness = parseFloat(document.getElementById("gml-minimum-thickness").value) || 0;
+                const requiredThickness = parseFloat(document.getElementById("gml-required-thickness").value) || 0;
+                const futureCorrosion = parseFloat(document.getElementById("gml-future-corrosion").value) || 0;
+                
+                if (!nominalThickness || !minThickness || !requiredThickness) {
+                    alert("Please enter all required thickness values");
+                    return;
+                }
+                
+                // Calculate Remaining Strength Factor (RSF)
+                const rsf = minThickness / requiredThickness;
+                
+                // Set acceptance criteria based on assessment level
+                let acceptableRsf = 0;
+                if (assessmentLevel === "level_1") {
+                    acceptableRsf = 0.9; // More conservative for Level 1
+                } else if (assessmentLevel === "level_2") {
+                    acceptableRsf = 0.8; // Less conservative for Level 2
+                } else {
+                    acceptableRsf = 0.7; // Least conservative for Level 3
+                }
+                
+                // Check if RSF meets criteria
+                if (rsf >= acceptableRsf) {
+                    canContinueService = true;
+                    assessmentSummary = `The calculated Remaining Strength Factor (RSF) of ${rsf.toFixed(2)} is above the acceptable minimum of ${acceptableRsf} for a Level ${assessmentLevel.split('_')[1]} assessment.`;
+                } else {
+                    canContinueService = false;
+                    assessmentSummary = `The calculated Remaining Strength Factor (RSF) of ${rsf.toFixed(2)} is below the acceptable minimum of ${acceptableRsf} for a Level ${assessmentLevel.split('_')[1]} assessment.`;
+                }
+                
+                // Check for future corrosion allowance
+                if (futureCorrosion > 0) {
+                    const projectedRsf = (minThickness - futureCorrosion) / requiredThickness;
+                    if (projectedRsf < acceptableRsf) {
+                        cautionNotes.push(`With future corrosion allowance of ${futureCorrosion} inch(es), the projected RSF will be ${projectedRsf.toFixed(2)}, which is below the acceptance criteria. Monitor wall thickness.`);
+                    }
+                }
+                
+                // Add rows to the details table
+                addFfsTableRow(ffsDetailsTable, "Nominal Thickness", `${nominalThickness.toFixed(3)} inches`, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Minimum Measured Thickness", `${minThickness.toFixed(3)} inches`, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Required Thickness", `${requiredThickness.toFixed(3)} inches`, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Remaining Strength Factor (RSF)", rsf.toFixed(2), `≥ ${acceptableRsf}`, rsf >= acceptableRsf ? "Pass" : "Fail");
+                
+                if (futureCorrosion > 0) {
+                    const projectedRsf = (minThickness - futureCorrosion) / requiredThickness;
+                    addFfsTableRow(ffsDetailsTable, "Projected RSF with Future Corrosion", projectedRsf.toFixed(2), `≥ ${acceptableRsf}`, projectedRsf >= acceptableRsf ? "Pass" : "Fail");
+                }
+            }
+            else if (damageType === "local_metal_loss") {
+                const nominalThickness = parseFloat(document.getElementById("lml-nominal-thickness").value) || 0;
+                const minThickness = parseFloat(document.getElementById("lml-minimum-thickness").value) || 0;
+                const requiredThickness = parseFloat(document.getElementById("lml-required-thickness").value) || 0;
+                const defectLength = parseFloat(document.getElementById("lml-defect-length").value) || 0;
+                const defectWidth = parseFloat(document.getElementById("lml-defect-width").value) || 0;
+                
+                if (!nominalThickness || !minThickness || !requiredThickness || !defectLength || !defectWidth) {
+                    alert("Please enter all required values");
+                    return;
+                }
+                
+                // Calculate remaining thickness ratio
+                const remainingThicknessRatio = minThickness / nominalThickness;
+                
+                // Calculate length ratio (simplified approximation for this tool)
+                const lengthRatio = Math.max(defectLength, defectWidth) / (Math.sqrt(nominalThickness * 100)); // Simplified approximation
+                
+                // Set acceptance criteria based on assessment level
+                let acceptableThicknessRatio = 0;
+                if (assessmentLevel === "level_1") {
+                    acceptableThicknessRatio = 0.8;
+                } else if (assessmentLevel === "level_2") {
+                    acceptableThicknessRatio = 0.7;
+                } else {
+                    acceptableThicknessRatio = 0.6;
+                }
+                
+                let acceptableLengthRatio = 0;
+                if (assessmentLevel === "level_1") {
+                    acceptableLengthRatio = 2.0;
+                } else if (assessmentLevel === "level_2") {
+                    acceptableLengthRatio = 4.0;
+                } else {
+                    acceptableLengthRatio = 6.0;
+                }
+                
+                // Check if criteria are met
+                const thicknessCheck = remainingThicknessRatio >= acceptableThicknessRatio;
+                const lengthCheck = lengthRatio <= acceptableLengthRatio;
+                
+                if (thicknessCheck && lengthCheck) {
+                    canContinueService = true;
+                    assessmentSummary = `The local metal loss meets the Level ${assessmentLevel.split('_')[1]} assessment criteria for both thickness and length/width.`;
+                } else {
+                    canContinueService = false;
+                    assessmentSummary = `The local metal loss does not meet the Level ${assessmentLevel.split('_')[1]} assessment criteria for ${!thicknessCheck ? "thickness" : "length/width"}.`;
+                }
+                
+                // Add rows to the details table
+                addFfsTableRow(ffsDetailsTable, "Nominal Thickness", `${nominalThickness.toFixed(3)} inches`, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Minimum Measured Thickness", `${minThickness.toFixed(3)} inches`, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Required Thickness", `${requiredThickness.toFixed(3)} inches`, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Remaining Thickness Ratio", remainingThicknessRatio.toFixed(2), `≥ ${acceptableThicknessRatio}`, thicknessCheck ? "Pass" : "Fail");
+                addFfsTableRow(ffsDetailsTable, "Defect Length", `${defectLength.toFixed(2)} inches`, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Defect Width", `${defectWidth.toFixed(2)} inches`, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Length Ratio", lengthRatio.toFixed(2), `≤ ${acceptableLengthRatio}`, lengthCheck ? "Pass" : "Fail");
+            }
+            else if (damageType === "pitting") {
+                const nominalThickness = parseFloat(document.getElementById("pit-nominal-thickness").value) || 0;
+                const pitDepth = parseFloat(document.getElementById("pit-depth").value) || 0;
+                const pitDiameter = parseFloat(document.getElementById("pit-diameter").value) || 0;
+                const pitSpacing = parseFloat(document.getElementById("pit-spacing").value) || 0;
+                const pitCoverage = document.getElementById("pit-coverage").value;
+                
+                if (!nominalThickness || !pitDepth || !pitDiameter || !pitSpacing || !pitCoverage) {
+                    alert("Please enter all required values");
+                    return;
+                }
+                
+                // Calculate depth ratio
+                const depthRatio = pitDepth / nominalThickness;
+                
+                // Calculate density ratio (simplified approximation)
+                const densityRatio = pitDiameter / pitSpacing;
+                
+                // Set acceptance criteria based on assessment level and pit coverage
+                let acceptableDepthRatio = 0;
+                let acceptableDensityRatio = 0;
+                
+                if (pitCoverage === "isolated") {
+                    // Isolated pits have less strict criteria
+                    if (assessmentLevel === "level_1") {
+                        acceptableDepthRatio = 0.8;
+                        acceptableDensityRatio = 0.3;
+                    } else if (assessmentLevel === "level_2") {
+                        acceptableDepthRatio = 0.9;
+                        acceptableDensityRatio = 0.5;
+                    } else {
+                        acceptableDepthRatio = 0.95;
+                        acceptableDensityRatio = 0.7;
+                    }
+                } else if (pitCoverage === "scattered") {
+                    // Scattered pits have moderate criteria
+                    if (assessmentLevel === "level_1") {
+                        acceptableDepthRatio = 0.7;
+                        acceptableDensityRatio = 0.2;
+                    } else if (assessmentLevel === "level_2") {
+                        acceptableDepthRatio = 0.8;
+                        acceptableDensityRatio = 0.4;
+                    } else {
+                        acceptableDepthRatio = 0.9;
+                        acceptableDensityRatio = 0.6;
+                    }
+                } else {
+                    // Widespread pits have strict criteria
+                    if (assessmentLevel === "level_1") {
+                        acceptableDepthRatio = 0.6;
+                        acceptableDensityRatio = 0.15;
+                    } else if (assessmentLevel === "level_2") {
+                        acceptableDepthRatio = 0.7;
+                        acceptableDensityRatio = 0.3;
+                    } else {
+                        acceptableDepthRatio = 0.8;
+                        acceptableDensityRatio = 0.5;
+                    }
+                }
+                
+                // Check if criteria are met
+                const depthCheck = depthRatio <= acceptableDepthRatio;
+                const densityCheck = densityRatio <= acceptableDensityRatio;
+                
+                if (depthCheck && densityCheck) {
+                    canContinueService = true;
+                    assessmentSummary = `The pitting corrosion meets the Level ${assessmentLevel.split('_')[1]} assessment criteria for both depth and density.`;
+                } else {
+                    canContinueService = false;
+                    assessmentSummary = `The pitting corrosion does not meet the Level ${assessmentLevel.split('_')[1]} assessment criteria for ${!depthCheck ? "depth" : "density"}.`;
+                }
+                
+                // Add rows to the details table
+                addFfsTableRow(ffsDetailsTable, "Nominal Thickness", `${nominalThickness.toFixed(3)} inches`, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Maximum Pit Depth", `${pitDepth.toFixed(3)} inches`, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Depth Ratio", depthRatio.toFixed(2), `≤ ${acceptableDepthRatio}`, depthCheck ? "Pass" : "Fail");
+                addFfsTableRow(ffsDetailsTable, "Pit Diameter", `${pitDiameter.toFixed(3)} inches`, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Pit Spacing", `${pitSpacing.toFixed(2)} inches`, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Density Ratio", densityRatio.toFixed(2), `≤ ${acceptableDensityRatio}`, densityCheck ? "Pass" : "Fail");
+                addFfsTableRow(ffsDetailsTable, "Pit Coverage", pitCoverage, "N/A", "N/A");
+            }
+            else if (damageType === "crack") {
+                const crackLength = parseFloat(document.getElementById("crack-length").value) || 0;
+                const crackDepth = parseFloat(document.getElementById("crack-depth").value) || 0;
+                const wallThickness = parseFloat(document.getElementById("crack-wall-thickness").value) || 0;
+                const crackOrientation = document.getElementById("crack-orientation").value;
+                const crackLocation = document.getElementById("crack-location").value;
+                
+                if (!crackLength || !crackDepth || !wallThickness || !crackOrientation || !crackLocation) {
+                    alert("Please enter all required values");
+                    return;
+                }
+                
+                // Calculate depth ratio
+                const depthRatio = crackDepth / wallThickness;
+                
+                // Calculate a simplified assessment - this is a very simplified approach for this tool
+                // Advanced calculations would use stress intensity factors and fracture mechanics
+                
+                // Set acceptance criteria based on assessment level and crack location
+                let acceptableDepthRatio = 0;
+                
+                if (crackLocation === "base_metal") {
+                    if (assessmentLevel === "level_1") {
+                        acceptableDepthRatio = 0.2;
+                    } else if (assessmentLevel === "level_2") {
+                        acceptableDepthRatio = 0.3;
+                    } else {
+                        acceptableDepthRatio = 0.4;
+                    }
+                } else if (crackLocation === "weld") {
+                    if (assessmentLevel === "level_1") {
+                        acceptableDepthRatio = 0.1;
+                    } else if (assessmentLevel === "level_2") {
+                        acceptableDepthRatio = 0.2;
+                    } else {
+                        acceptableDepthRatio = 0.3;
+                    }
+                } else {
+                    // Heat affected zone
+                    if (assessmentLevel === "level_1") {
+                        acceptableDepthRatio = 0.15;
+                    } else if (assessmentLevel === "level_2") {
+                        acceptableDepthRatio = 0.25;
+                    } else {
+                        acceptableDepthRatio = 0.35;
+                    }
+                }
+                
+                // Adjust criteria based on orientation (longitudinal cracks are more critical)
+                if (crackOrientation === "longitudinal") {
+                    acceptableDepthRatio *= 0.8; // More restrictive for longitudinal cracks
+                }
+                
+                // Check if criteria are met
+                const depthCheck = depthRatio <= acceptableDepthRatio;
+                
+                if (depthCheck) {
+                    if (depthRatio > acceptableDepthRatio * 0.8) {
+                        // If close to the limit, mark as limited service
+                        canContinueService = true;
+                        assessmentSummary = `The crack-like flaw meets the Level ${assessmentLevel.split('_')[1]} assessment criteria, but is close to the limit. Limited service with monitoring is recommended.`;
+                        cautionNotes.push("Crack is close to acceptance limits. Implement more frequent inspection and monitoring.");
+                    } else {
+                        canContinueService = true;
+                        assessmentSummary = `The crack-like flaw meets the Level ${assessmentLevel.split('_')[1]} assessment criteria.`;
+                    }
+                } else {
+                    canContinueService = false;
+                    assessmentSummary = `The crack-like flaw exceeds the Level ${assessmentLevel.split('_')[1]} assessment criteria.`;
+                }
+                
+                // Add rows to the details table
+                addFfsTableRow(ffsDetailsTable, "Crack Length", `${crackLength.toFixed(2)} inches`, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Crack Depth", `${crackDepth.toFixed(3)} inches`, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Wall Thickness", `${wallThickness.toFixed(3)} inches`, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Depth Ratio", depthRatio.toFixed(2), `≤ ${acceptableDepthRatio.toFixed(2)}`, depthCheck ? "Pass" : "Fail");
+                addFfsTableRow(ffsDetailsTable, "Crack Orientation", crackOrientation, "N/A", "N/A");
+                addFfsTableRow(ffsDetailsTable, "Crack Location", crackLocation, "N/A", "N/A");
+            }
