@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASME B16.5 Flange Thickness Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .search-container {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .result-container {
+            margin-top: 30px;
+        }
+        .note {
+            background-color: #fffde7;
+            padding: 15px;
+            border-left: 4px solid #ffd600;
+            margin: 20px 0;
+        }
+        .hidden {
+            display: none;
+        }
+        #searchInput {
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        /* Simple Tab Styles */
+        .tab-container {
+            margin-top: 20px;
+        }
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 0;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .tab-button.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .references {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ASME B16.5 Flange Thickness Finder</h1>
+        <p class="subtitle">Pipe Flanges and Flanged Fittings: NPS 1/2 through NPS 42, Classes 150 to 2500</p>
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search for flange specifications, class, or size...">
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="flangeType">Flange Type:</label>
+                    <select id="flangeType">
+                        <option value="">All Types</option>
+                        <option value="weld-neck">Weld Neck</option>
+                        <option value="long-weld-neck">Long Weld Neck</option>
+                        <option value="slip-on">Slip-On</option>
+                        <option value="socket-weld">Socket Weld</option>
+                        <option value="threaded">Threaded</option>
+                        <option value="lap-joint">Lap Joint</option>
+                        <option value="blind">Blind</option>
+                        <option value="rtj">Ring Type Joint (RTJ)</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="flangeClass">Pressure Class:</label>
+                    <select id="flangeClass">
+                        <option value="">All Classes</option>
+                        <option value="150">Class 150</option>
+                        <option value="300">Class 300</option>
+                        <option value="400">Class 400</option>
+                        <option value="600">Class 600</option>
+                        <option value="900">Class 900</option>
+                        <option value="1500">Class 1500</option>
+                        <option value="2500">Class 2500</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="size">Nominal Pipe Size (NPS):</label>
+                    <select id="size">
+                        <option value="">All Sizes</option>
+                        <option value="0.5">1/2"</option>
+                        <option value="0.75">3/4"</option>
+                        <option value="1">1"</option>
+                        <option value="1.25">1-1/4"</option>
+                        <option value="1.5">1-1/2"</option>
+                        <option value="2">2"</option>
+                        <option value="2.5">2-1/2"</option>
+                        <option value="3">3"</option>
+                        <option value="3.5">3-1/2"</option>
+                        <option value="4">4"</option>
+                        <option value="5">5"</option>
+                        <option value="6">6"</option>
+                        <option value="8">8"</option>
+                        <option value="10">10"</option>
+                        <option value="12">12"</option>
+                        <option value="14">14"</option>
+                        <option value="16">16"</option>
+                        <option value="18">18"</option>
+                        <option value="20">20"</option>
+                        <option value="24">24"</option>
+                        <option value="26">26"</option>
+                        <option value="28">28"</option>
+                        <option value="30">30"</option>
+                        <option value="36">36"</option>
+                        <option value="42">42"</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="unit">Unit System:</label>
+                    <select id="unit">
+                        <option value="imperial">Imperial (inches)</option>
+                        <option value="metric">Metric (mm)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button id="searchButton">Find Flange Thickness</button>
+        </div>
+        
+        <div class="note">
+            <p><strong>ASME B16.5 Standard Overview:</strong> ASME B16.5 covers pipe flanges and flanged fittings from NPS 1/2 through NPS 24 in pressure classes 150, 300, 400, 600, 900, 1500, and 2500. Class 2500 is limited to sizes NPS 1/2 through NPS 12. For larger sizes (NPS 26 through NPS 60), refer to ASME B16.47 Series A and B. This standard specifies pressure-temperature ratings, materials, dimensions, tolerances, marking, testing, and methods of designating openings for pipe flanges and flanged fittings.</p>
+            
+            <p><strong>Flange Types:</strong> ASME B16.5 includes specifications for Weld Neck, Long Weld Neck, Slip-On, Socket Weld, Threaded, Lap Joint, and Blind flanges. These flanges can be manufactured with various face types including Raised Face (RF), Flat Face (FF), Ring Type Joint (RTJ), and more.</p>
+            
+            <p><strong>Flange Thickness (tf):</strong> In ASME B16.5, flange thickness is designated by the "tf" dimension, which is the minimum thickness of the flange at the hub (if applicable) or at the bolt circle. For raised face flanges, tf refers to the thickness without including the raised face height. When flanges are required with flat face, the flat face may be either the full tf dimension thickness plus 0.06 in. or the tf dimension thickness without the raised face height.</p>
+            
+            <p><strong>Raised Face Height:</strong> For Classes 150 and 300: Raised face height is 1/16" (1.6mm). For Classes 400 and higher: Raised face height is 1/4" (6.4mm).</p>
+            
+            <p><strong>Note on Long Weld Neck Flanges:</strong> Long weld neck flanges have extended hubs compared to standard weld neck flanges, providing additional reinforcement for high-pressure or high-temperature applications. These flanges have specific thickness requirements that may differ from standard weld neck flanges, as specified in ASME B16.5. The thickness values for sizes 26" to 42" are only available for certain pressure classes.</p>
+            
+            <p><strong>Pressure-Temperature Ratings:</strong> The ASME B16.5 standard provides 7 pressure classes for flanges: 150, 300, 400, 600, 900, 1500, and 2500. The rating for flanges in terms of pressure-temperature represents specific material groups organized within tables. When selecting flanges, consider both the maximum operating temperature and pressure requirements.</p>
+        </div>
+        
+        <div class="tab-container">
+            <!-- Simple tab buttons -->
+            <ul class="tab-buttons">
+                <li class="tab-button active" onclick="switchTab('flangeThickness')">Flange Thickness Tables</li>
+                <li class="tab-button" onclick="switchTab('dimensionsInfo')">Flange Dimensions</li>
+                <li class="tab-button" onclick="switchTab('standardInfo')">ASME B16.5 Info</li>
+            </ul>
+            
+            <!-- Tab content sections -->
+            <div id="flangeThickness" class="tab-content active">
+                <h2>Flange Thickness (tf) Reference Tables</h2>
+                <p>Select the flange specifications above to filter the thickness data.</p>
+                
+                <div id="results" class="result-container">
+                    <!-- Results will be inserted here by JavaScript -->
+                    <p>Please select your filter criteria and click "Find Flange Thickness" to display the data.</p>
+                </div>
+            </div>
+            
+            <div id="dimensionsInfo" class="tab-content">
+                <h2>Understanding Flange Dimensions</h2>
+                <p>ASME B16.5 specifies the following key dimensions for flanges:</p>
+                <ul>
+                    <li><strong>tf</strong> - Flange thickness (minimum thickness at the hub or bolt circle)</li>
+                    <li><strong>A</strong> - Outside diameter of flange</li>
+                    <li><strong>B</strong> - Inside diameter (bore)</li>
+                    <li><strong>C</strong> - Bolt circle diameter</li>
+                    <li><strong>K</strong> - Raised face diameter (when applicable)</li>
+                    <li><strong>Y</strong> - Length through hub (for flanges with hubs)</li>
+                    <li><strong>R</strong> - Radius of hub (for flanges with hubs)</li>
+                    <li><strong>g₁</strong> - Diameter at base of raised face or diameter at bottom of groove for RTJ</li>
+                    <li><strong>h</strong> - Raised face or depth of groove for RTJ</li>
+                    <li><strong>n</strong> - Number of bolts</li>
+                    <li><strong>d</strong> - Diameter of bolt holes</li>
+                </ul>
+                
+                <h3>Flange Face Types</h3>
+                
+                <h4>Raised Face (RF)</h4>
+                <p>The most common face type for ASME B16.5 flanges. The raised face provides a concentrated sealing surface that increases gasket pressure.</p>
+                <ul>
+                    <li>For Classes 150 and 300: Raised face height is 1/16" (1.6mm)</li>
+                    <li>For Classes 400 and higher: Raised face height is 1/4" (6.4mm)</li>
+                </ul>
+                
+                <h4>Flat Face (FF)</h4>
+                <p>The entire flange face is flat with no raised section. Typically used with non-metallic gaskets and when connecting to cast iron flanges to prevent damage to the brittle cast iron flanges.</p>
+                
+                <h4>Ring Type Joint (RTJ)</h4>
+                <p>Uses a metallic ring gasket seated in a machined groove. Designed for high-pressure, high-temperature applications. RTJ flanges have specific groove dimensions based on the ring size:</p>
+                <ul>
+                    <li>R-type grooves: Used with oval and octagonal rings</li>
+                    <li>RX-type grooves: Used with octagonal rings only, provide better sealing</li>
+                    <li>BX-type grooves: Used with special BX rings for extreme pressure conditions</li>
+                </ul>
+                
+                <h4>Male & Female (M&F) and Tongue & Groove (T&G)</h4>
+                <p>Specialty faces used for specific applications that require precise alignment or containment of specific media.</p>
+                
+                <h3>Important Notes on Dimensions</h3>
+                <ul>
+                    <li>Flange dimensions vary based on pressure class, type, and size.</li>
+                    <li>The thickness dimension (tf) is critical for structural integrity and proper sealing.</li>
+                    <li>Dimensional tolerances are also specified in ASME B16.5.</li>
+                    <li>Long weld neck flanges have the same flange thickness (tf) as standard weld neck flanges but feature an extended hub length.</li>
+                    <li>Socket weld and threaded flanges are generally limited to NPS 4 and smaller due to pressure rating considerations.</li>
+                    <li>All bolting dimensions (bolt circle, number of bolts, bolt diameter) are standardized per pressure class and nominal pipe size.</li>
+                </ul>
+                
+                <h3>Flange Surface Finish</h3>
+                <p>The surface finish of flanges is important for proper gasket seating. ASME B16.5 specifies the following finishes:</p>
+                <ul>
+                    <li><strong>Stock Finish:</strong> 125-250 µin Ra (3.2-6.3 µm Ra)</li>
+                    <li><strong>Serrated Finish:</strong> Concentric or spiral grooves with specified dimensions</li>
+                    <li><strong>Smooth Finish:</strong> 125 µin Ra (3.2 µm Ra) maximum</li>
+                </ul>
+            </div>
+            
+            <div id="standardInfo" class="tab-content">
+                <h2>About ASME B16.5 Standard</h2>
+                <p>ASME B16.5 is the standard that covers pipe flanges and flanged fittings from NPS 1/2 through NPS 24 in pressure classes 150 to 2500. It's one of the most widely used international standards for flange dimensions and specifications.</p>
+                
+                <h3>Key Information</h3>
+                <ul>
+                    <li>ASME B16.5 covers pressure-temperature ratings, materials, dimensions, tolerances, marking, testing, and methods of designating openings for pipe flanges and flanged fittings.</li>
+                    <li>The standard includes flanges with rating class designations 150, 300, 400, 600, 900, and 1500 in sizes NPS 1/2 through NPS 24.</li>
+                    <li>Flanges with rating class designation 2500 are covered for sizes NPS 1/2 through NPS 12.</li>
+                    <li>For larger flange sizes (NPS 26 through NPS 60), refer to ASME B16.47 Series A (MSS SP-44) or Series B (API 605).</li>
+                    <li>The standard includes requirements for various flange types including weld neck, long weld neck, slip-on, socket weld, threaded, lap joint, and blind flanges.</li>
+                    <li>B16.5 is limited to flanges and flanged fittings made from cast or forged materials, and blind flanges and certain reducing flanges made from cast, forged, or plate materials.</li>
+                </ul>
+                
+                <h3>Flange Types Covered</h3>
+                <ul>
+                    <li><strong>Weld Neck Flanges:</strong> Have a long tapered hub that provides reinforcement when welded to the pipe. Used for high-pressure, high/low-temperature applications with frequent load changes.</li>
+                    <li><strong>Long Weld Neck Flanges:</strong> Similar to weld neck flanges but with an extended hub length for additional reinforcement in severe service conditions.</li>
+                    <li><strong>Slip-On Flanges:</strong> Slide over the pipe and are welded both inside and outside. Lower pressure rating than weld neck flanges.</li>
+                    <li><strong>Socket Weld Flanges:</strong> Have a socket that accepts the pipe. Used for small diameter, high-pressure applications.</li>
+                    <li><strong>Threaded Flanges:</strong> Have a threaded connection to attach to pipe. Used where welding is not possible or practical.</li>
+                    <li><strong>Lap Joint Flanges:</strong> Used with stub ends, allowing rotation during installation and usage of different materials between flange and pipe.</li>
+                    <li><strong>Blind Flanges:</strong> Used to blank off or seal the end of a piping system, vessel opening, or equipment nozzle.</li>
+                </ul>
+                
+                <h3>Flange Facing Types</h3>
+                <ul>
+                    <li><strong>Raised Face (RF):</strong> Most common type. Has a raised area on the flange face, standardized at 1/16" for Class 150 and 300, and 1/4" for Class 400 and above.</li>
+                    <li><strong>Flat Face (FF):</strong> Entire face of flange is flat. Commonly used with non-metallic gaskets and when connecting to cast iron flanges.</li>
+                    <li><strong>Ring Type Joint (RTJ):</strong> Uses a metal ring gasket in a groove. Designed for high pressure and temperature applications.</li>
+                    <li><strong>Male & Female (M&F):</strong> One flange has a raised face (male) that fits into a recessed face (female) on the matching flange.</li>
+                    <li><strong>Tongue & Groove (T&G):</strong> Similar to male & female but with different geometry. Used for containing specific media.</li>
+                </ul>
+                
+                <h3>Pressure-Temperature Ratings</h3>
+                <p>ASME B16.5 provides comprehensive pressure-temperature rating tables that define the maximum allowable working pressure at various temperatures for different material groups. The pressure class designation (150, 300, etc.) does not directly indicate the maximum working pressure in PSI. For example, a Class 150 flange in carbon steel at 100°F has a working pressure rating of 285 PSI, not 150 PSI.</p>
+                
+                <h3>Tables Referenced</h3>
+                <p>Flange dimensions are covered in the following tables of ASME B16.5:</p>
+                <ul>
+                    <li>Table 8/8C - Class 150 Flanges</li>
+                    <li>Table 11/11C - Class 300 Flanges</li>
+                    <li>Table 14/14C - Class 400 Flanges</li>
+                    <li>Table 16/16C - Class 600 Flanges</li>
+                    <li>Table 18/18C - Class 900 Flanges</li>
+                    <li>Table 20/20C - Class 1500 Flanges</li>
+                    <li>Table 22/22C - Class 2500 Flanges</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="references">
+            <p><strong>IMPORTANT:</strong> This tool is for reference purposes only. Always refer to the latest edition of ASME B16.5 for official and complete information. The official standard can be purchased from ASME at <a href="https://www.asme.org" target="_blank">www.asme.org</a>.</p>
+            <p>For larger diameter flanges (NPS 26 through NPS 60), refer to the ASME B16.47 standard, which covers Series A (MSS SP-44) and Series B (API 605) large diameter steel flanges.</p>
+            <p>This reference tool follows ASME B16.5-2017 edition specifications. Always verify dimensions and requirements against the latest published standard for critical applications.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Simple tab switching function
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(function(button) {
+                button.classList.remove('active');
+            });
+            
+            // Show the selected tab
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to the clicked button
+            const buttons = document.querySelectorAll('.tab-button');
+            for (let i = 0; i < buttons.length; i++) {
+                if (buttons[i].getAttribute('onclick') && buttons[i].getAttribute('onclick').includes(tabId)) {
+                    buttons[i].classList.add('active');
+                }
+            }
+        }
+        
+        // This is the updated dataset with different thickness values for each flange type.
+        // For accurate values, always refer to the latest edition of ASME B16.5.
+        const flangeData = {
+            // Class 150 Flange Thickness (tf) in inches
+            "class150": {
+                "weld-neck": {
+                    "0.5": 0.38, "0.75": 0.44, "1": 0.50, "1.25": 0.56, "1.5": 0.62,
+                    "2": 0.69, "2.5": 0.75, "3": 0.88, "3.5": 0.94, "4": 0.94,
+                    "5": 1.00, "6": 1.00, "8": 1.12, "10": 1.19, "12": 1.25,
+                    "14": 1.38, "16": 1.44, "18": 1.56, "20": 1.69, "24": 1.88,
+                    "26": 2.00, "28": 2.12, "30": 2.25, "36": 2.50, "42": 2.75
+                },
+                "rtj": {
+                    "0.5": 0.38, "0.75": 0.44, "1": 0.50, "1.25": 0.56, "1.5": 0.62,
+                    "2": 0.69, "2.5": 0.75, "3": 0.88, "3.5": 0.94, "4": 0.94,
+                    "5": 1.00, "6": 1.00, "8": 1.12, "10": 1.19, "12": 1.25,
+                    "14": 1.38, "16": 1.44, "18": 1.56, "20": 1.69, "24": 1.88
+                },
+                "long-weld-neck": {
+                    "0.5": 0.38, "0.75": 0.44, "1": 0.50, "1.25": 0.563, "1.5": 0.563,
+                    "2": 0.625, "2.5": 0.625, "3": 0.625, "3.5": 0.688, "4": 0.75,
+                    "5": 0.75, "6": 0.875, "8": 0.875, "10": 1.00, "12": 1.183,
+                    "14": 1.00, "16": 1.00, "18": 1.00, "20": 1.00, "24": 1.125,
+                    "26": 1.25, "28": 1.25, "30": 1.25, "36": 1.375, "42": 1.50
+                },
+                "slip-on": {
+                    "0.5": 0.38, "0.75": 0.44, "1": 0.50, "1.25": 0.56, "1.5": 0.62,
+                    "2": 0.69, "2.5": 0.75, "3": 0.88, "3.5": 0.94, "4": 0.94,
+                    "5": 1.00, "6": 1.00, "8": 1.12, "10": 1.19, "12": 1.25,
+                    "14": 1.38, "16": 1.44, "18": 1.56, "20": 1.69, "24": 1.88
+                },
+                "socket-weld": {
+                    "0.5": 0.38, "0.75": 0.44, "1": 0.50, "1.25": 0.56, "1.5": 0.62,
+                    "2": 0.69, "2.5": 0.75, "3": 0.88, "3.5": 0.94, "4": 0.94
+                },
+                "threaded": {
+                    "0.5": 0.38, "0.75": 0.44, "1": 0.50, "1.25": 0.56, "1.5": 0.62,
+                    "2": 0.69, "2.5": 0.75, "3": 0.88, "3.5": 0.94, "4": 0.94
+                },
+                "lap-joint": {
+                    "0.5": 0.38, "0.75": 0.44, "1": 0.50, "1.25": 0.56, "1.5": 0.62,
+                    "2": 0.69, "2.5": 0.75, "3": 0.88, "3.5": 0.94, "4": 0.94,
+                    "5": 1.00, "6": 1.00, "8": 1.12, "10": 1.19, "12": 1.25,
+                    "14": 1.38, "16": 1.44, "18": 1.56, "20": 1.69, "24": 1.88
+                },
+                "blind": {
+                    "0.5": 0.38, "0.75": 0.44, "1": 0.50, "1.25": 0.56, "1.5": 0.62,
+                    "2": 0.69, "2.5": 0.75, "3": 0.88, "3.5": 0.94, "4": 0.94,
+                    "5": 1.00, "6": 1.00, "8": 1.12, "10": 1.19, "12": 1.25,
+                    "14": 1.38, "16": 1.44, "18": 1.56, "20": 1.69, "24": 1.88
+                }
+            },
+            
+            // Class 300 Flange Thickness (tf) in inches
+            "class300": {
+                "weld-neck": {
+                    "0.5": 0.50, "0.75": 0.56, "1": 0.62, "1.25": 0.69, "1.5": 0.75,
+                    "2": 0.81, "2.5": 0.88, "3": 1.00, "3.5": 1.06, "4": 1.12,
+                    "5": 1.19, "6": 1.25, "8": 1.38, "10": 1.50, "12": 1.62,
+                    "14": 1.75, "16": 1.88, "18": 2.00, "20": 2.12, "24": 2.25,
+                    "26": 2.38, "28": 2.50, "30": 2.62, "36": 2.88, "42": 3.12
+                },
+                "rtj": {
+                    "0.5": 0.50, "0.75": 0.56, "1": 0.62, "1.25": 0.69, "1.5": 0.75,
+                    "2": 0.81, "2.5": 0.88, "3": 1.00, "3.5": 1.06, "4": 1.12,
+                    "5": 1.19, "6": 1.25, "8": 1.38, "10": 1.50, "12": 1.62,
+                    "14": 1.75, "16": 1.88, "18": 2.00, "20": 2.12, "24": 2.25
+                },
+                "long-weld-neck": {
+                    "0.5": 0.50, "0.75": 0.56, "1": 0.562, "1.25": 0.625, "1.5": 0.625,
+                    "2": 0.656, "2.5": 0.718, "3": 0.812, "3.5": 0.875, "4": 0.875,
+                    "5": 1.00, "6": 1.063, "8": 1.125, "10": 1.312, "12": 1.375,
+                    "14": 1.375, "16": 1.50, "18": 1.50, "20": 1.562, "24": 1.812,
+                    "26": 1.75, "28": 1.75, "30": 1.875, "36": 2.00, "42": 2.00
+                },
+                "slip-on": {
+                    "0.5": 0.50, "0.75": 0.56, "1": 0.62, "1.25": 0.69, "1.5": 0.75,
+                    "2": 0.81, "2.5": 0.88, "3": 1.00, "3.5": 1.06, "4": 1.12,
+                    "5": 1.19, "6": 1.25, "8": 1.38, "10": 1.50, "12": 1.62,
+                    "14": 1.75, "16": 1.88, "18": 2.00, "20": 2.12, "24": 2.25
+                },
+                "socket-weld": {
+                    "0.5": 0.50, "0.75": 0.56, "1": 0.62, "1.25": 0.69, "1.5": 0.75,
+                    "2": 0.81, "2.5": 0.88, "3": 1.00, "3.5": 1.06, "4": 1.12
+                },
+                "threaded": {
+                    "0.5": 0.50, "0.75": 0.56, "1": 0.62, "1.25": 0.69, "1.5": 0.75,
+                    "2": 0.81, "2.5": 0.88, "3": 1.00, "3.5": 1.06, "4": 1.12
+                },
+                "lap-joint": {
+                    "0.5": 0.50, "0.75": 0.56, "1": 0.62, "1.25": 0.69, "1.5": 0.75,
+                    "2": 0.81, "2.5": 0.88, "3": 1.00, "3.5": 1.06, "4": 1.12,
+                    "5": 1.19, "6": 1.25, "8": 1.38, "10": 1.50, "12": 1.62,
+                    "14": 1.75, "16": 1.88, "18": 2.00, "20": 2.12, "24": 2.25
+                },
+                "blind": {
+                    "0.5": 0.50, "0.75": 0.56, "1": 0.62, "1.25": 0.69, "1.5": 0.75,
+                    "2": 0.81, "2.5": 0.88, "3": 1.00, "3.5": 1.06, "4": 1.12,
+                    "5": 1.19, "6": 1.25, "8": 1.38, "10": 1.50, "12": 1.62,
+                    "14": 1.75, "16": 1.88, "18": 2.00, "20": 2.12, "24": 2.25
+                }
+            },
+            
+            // Class 600 Flange Thickness (tf) in inches
+            "class600": {
+                "weld-neck": {
+                    "0.5": 0.62, "0.75": 0.69, "1": 0.75, "1.25": 0.88, "1.5": 0.94,
+                    "2": 1.00, "2.5": 1.12, "3": 1.25, "3.5": 1.31, "4": 1.38,
+                    "5": 1.50, "6": 1.62, "8": 1.88, "10": 2.00, "12": 2.25,
+                    "14": 2.38, "16": 2.62, "18": 2.75, "20": 3.00, "24": 3.25
+                },
+                "long-weld-neck": {
+                    "0.5": 0.62, "0.75": 0.69, "1": 0.562, "1.25": 0.625, "1.5": 0.625,
+                    "2": 0.656, "2.5": 0.718, "3": 0.812, "3.5": 0.875, "4": 1.00,
+                    "5": 1.25, "6": 1.375, "8": 1.375, "10": 1.75, "12": 1.875,
+                    "14": 1.50, "16": 1.75, "18": 1.75, "20": 2.00, "24": 2.062
+                },
+                "slip-on": {
+                    "0.5": 0.62, "0.75": 0.69, "1": 0.75, "1.25": 0.88, "1.5": 0.94,
+                    "2": 1.00, "2.5": 1.12, "3": 1.25, "3.5": 1.31, "4": 1.38,
+                    "5": 1.50, "6": 1.62, "8": 1.88, "10": 2.00, "12": 2.25,
+                    "14": 2.38, "16": 2.62, "18": 2.75, "20": 3.00, "24": 3.25
+                },
+                "socket-weld": {
+                    "0.5": 0.62, "0.75": 0.69, "1": 0.75, "1.25": 0.88, "1.5": 0.94,
+                    "2": 1.00, "2.5": 1.12, "3": 1.25, "3.5": 1.31, "4": 1.38
+                },
+                "threaded": {
+                    "0.5": 0.62, "0.75": 0.69, "1": 0.75, "1.25": 0.88, "1.5": 0.94,
+                    "2": 1.00, "2.5": 1.12, "3": 1.25, "3.5": 1.31, "4": 1.38
+                },
+                "lap-joint": {
+                    "0.5": 0.62, "0.75": 0.69, "1": 0.75, "1.25": 0.88, "1.5": 0.94,
+                    "2": 1.00, "2.5": 1.12, "3": 1.25, "3.5": 1.31, "4": 1.38,
+                    "5": 1.50, "6": 1.62, "8": 1.88, "10": 2.00, "12": 2.25,
+                    "14": 2.38, "16": 2.62, "18": 2.75, "20": 3.00, "24": 3.25
+                },
+                "blind": {
+                    "0.5": 0.62, "0.75": 0.69, "1": 0.75, "1.25": 0.88, "1.5": 0.94,
+                    "2": 1.00, "2.5": 1.12, "3": 1.25, "3.5": 1.31, "4": 1.38,
+                    "5": 1.50, "6": 1.62, "8": 1.88, "10": 2.00, "12": 2.25,
+                    "14": 2.38, "16": 2.62, "18": 2.75, "20": 3.00, "24": 3.25
+                }
+            },
+            
+            // Class 900 Flange Thickness (tf) in inches
+            "class900": {
+                "weld-neck": {
+                    "0.5": 0.75, "0.75": 0.81, "1": 0.88, "1.25": 1.00, "1.5": 1.12,
+                    "2": 1.25, "2.5": 1.38, "3": 1.50, "3.5": 1.62, "4": 1.75,
+                    "5": 2.00, "6": 2.12, "8": 2.38, "10": 2.75, "12": 3.00,
+                    "14": 3.25, "16": 3.50, "18": 3.75, "20": 4.00, "24": 4.50
+                },
+                "long-weld-neck": {
+                    "0.5": 0.75, "0.75": 0.81, "1": 0.531, "1.25": 0.625, "1.5": 0.625,
+                    "2": 1.062, "2.5": 1.187, "3": 1.00, "3.5": null, "4": 1.125,
+                    "5": 1.25, "6": 1.625, "8": 1.875, "10": 2.25, "12": 2.25,
+                    "14": 1.875, "16": 2.00, "18": 2.125, "20": 2.25, "24": 2.75
+                },
+                "slip-on": {
+                    "0.5": 0.75, "0.75": 0.81, "1": 0.88, "1.25": 1.00, "1.5": 1.12,
+                    "2": 1.25, "2.5": 1.38, "3": 1.50, "3.5": 1.62, "4": 1.75,
+                    "5": 2.00, "6": 2.12, "8": 2.38, "10": 2.75, "12": 3.00,
+                    "14": 3.25, "16": 3.50, "18": 3.75, "20": 4.00, "24": 4.50
+                },
+                "socket-weld": {
+                    "0.5": 0.75, "0.75": 0.81, "1": 0.88, "1.25": 1.00, "1.5": 1.12,
+                    "2": 1.25, "2.5": 1.38, "3": 1.50, "3.5": 1.62, "4": 1.75
+                },
+                "threaded": {
+                    "0.5": 0.75, "0.75": 0.81, "1": 0.88, "1.25": 1.00, "1.5": 1.12,
+                    "2": 1.25, "2.5": 1.38, "3": 1.50, "3.5": 1.62, "4": 1.75
+                },
+                "lap-joint": {
+                    "0.5": 0.75, "0.75": 0.81, "1": 0.88, "1.25": 1.00, "1.5": 1.12,
+                    "2": 1.25, "2.5": 1.38, "3": 1.50, "3.5": 1.62, "4": 1.75,
+                    "5": 2.00, "6": 2.12, "8": 2.38, "10": 2.75, "12": 3.00,
+                    "14": 3.25, "16": 3.50, "18": 3.75, "20": 4.00, "24": 4.50
+                },
+                "blind": {
+                    "0.5": 0.75, "0.75": 0.81, "1": 0.88, "1.25": 1.00, "1.5": 1.12,
+                    "2": 1.25, "2.5": 1.38, "3": 1.50, "3.5": 1.62, "4": 1.75,
+                    "5": 2.00, "6": 2.12, "8": 2.38, "10": 2.75, "12": 3.00,
+                    "14": 3.25, "16": 3.50, "18": 3.75, "20": 4.00, "24": 4.50
+                }
+            },
+            
+            // Class 1500 Flange Thickness (tf) in inches
+            "class1500": {
+                "weld-neck": {
+                    "0.5": 1.12, "0.75": 1.25, "1": 1.38, "1.25": 1.50, "1.5": 1.75,
+                    "2": 2.00, "2.5": 2.25, "3": 2.50, "3.5": 2.75, "4": 3.00,
+                    "5": 3.50, "6": 3.75, "8": 4.25, "10": 5.00, "12": 5.50,
+                    "14": 6.00, "16": 6.50, "18": 7.00, "20": 7.50, "24": 8.50
+                },
+                "long-weld-neck": {
+                    "0.5": 1.12, "0.75": 1.25, "1": 0.531, "1.25": 0.625, "1.5": 0.625,
+                    "2": 1.062, "2.5": 1.187, "3": 1.125, "3.5": null, "4": 1.187,
+                    "5": 1.375, "6": 1.50, "8": 1.75, "10": 2.25, "12": 2.875,
+                    "14": 2.75, "16": 2.875, "18": 2.75, "20": 2.625, "24": 3.00
+                },
+                "slip-on": {
+                    "0.5": 1.12, "0.75": 1.25, "1": 1.38, "1.25": 1.50, "1.5": 1.75,
+                    "2": 2.00, "2.5": 2.25, "3": 2.50, "3.5": 2.75, "4": 3.00,
+                    "5": 3.50, "6": 3.75, "8": 4.25, "10": 5.00, "12": 5.50,
+                    "14": 6.00, "16": 6.50, "18": 7.00, "20": 7.50, "24": 8.50
+                },
+                "socket-weld": {
+                    "0.5": 1.12, "0.75": 1.25, "1": 1.38, "1.25": 1.50, "1.5": 1.75,
+                    "2": 2.00, "2.5": 2.25, "3": 2.50, "3.5": 2.75, "4": 3.00
+                },
+                "threaded": {
+                    "0.5": 1.12, "0.75": 1.25, "1": 1.38, "1.25": 1.50, "1.5": 1.75,
+                    "2": 2.00, "2.5": 2.25, "3": 2.50, "3.5": 2.75, "4": 3.00
+                },
+                "lap-joint": {
+                    "0.5": 1.12, "0.75": 1.25, "1": 1.38, "1.25": 1.50, "1.5": 1.75,
+                    "2": 2.00, "2.5": 2.25, "3": 2.50, "3.5": 2.75, "4": 3.00,
+                    "5": 3.50, "6": 3.75, "8": 4.25, "10": 5.00, "12": 5.50,
+                    "14": 6.00, "16": 6.50, "18": 7.00, "20": 7.50, "24": 8.50
+                },
+                "blind": {
+                    "0.5": 1.12, "0.75": 1.25, "1": 1.38, "1.25": 1.50, "1.5": 1.75,
+                    "2": 2.00, "2.5": 2.25, "3": 2.50, "3.5": 2.75, "4": 3.00,
+                    "5": 3.50, "6": 3.75, "8": 4.25, "10": 5.00, "12": 5.50,
+                    "14": 6.00, "16": 6.50, "18": 7.00, "20": 7.50, "24": 8.50
+                }
+            },
+            
+            // Class 2500 Flange Thickness (tf) in inches
+            "class2500": {
+                "weld-neck": {
+                    "0.5": 1.38, "0.75": 1.50, "1": 1.75, "1.25": 2.00, "1.5": 2.25,
+                    "2": 2.62, "2.5": 3.00, "3": 3.50, "3.5": 3.75, "4": 4.25,
+                    "5": 4.75, "6": 5.25, "8": 6.25, "10": 7.00, "12": 8.00
+                },
+                "long-weld-neck": {
+                    "0.5": 1.38, "0.75": 1.50, "1": 0.625, "1.25": 0.812, "1.5": 0.812,
+                    "2": 0.875, "2.5": 1.00, "3": 1.125, "3.5": null, "4": 1.25,
+                    "5": 1.50, "6": 1.625, "8": 2.00, "10": 2.375, "12": 2.937
+                },
+                "slip-on": {
+                    "0.5": 1.38, "0.75": 1.50, "1": 1.75, "1.25": 2.00, "1.5": 2.25,
+                    "2": 2.62, "2.5": 3.00, "3": 3.50, "3.5": 3.75, "4": 4.25,
+                    "5": 4.75, "6": 5.25, "8": 6.25, "10": 7.00, "12": 8.00
+                },
+                "socket-weld": {
+                    "0.5": 1.38, "0.75": 1.50, "1": 1.75, "1.25": 2.00, "1.5": 2.25,
+                    "2": 2.62, "2.5": 3.00, "3": 3.50, "3.5": 3.75, "4": 4.25
+                },
+                "threaded": {
+                    "0.5": 1.38, "0.75": 1.50, "1": 1.75, "1.25": 2.00, "1.5": 2.25,
+                    "2": 2.62, "2.5": 3.00, "3": 3.50, "3.5": 3.75, "4": 4.25
+                },
+                "lap-joint": {
+                    "0.5": 1.38, "0.75": 1.50, "1": 1.75, "1.25": 2.00, "1.5": 2.25,
+                    "2": 2.62, "2.5": 3.00, "3": 3.50, "3.5": 3.75, "4": 4.25,
+                    "5": 4.75, "6": 5.25, "8": 6.25, "10": 7.00, "12": 8.00
+                },
+                "blind": {
+                    "0.5": 1.38, "0.75": 1.50, "1": 1.75, "1.25": 2.00, "1.5": 2.25,
+                    "2": 2.62, "2.5": 3.00, "3": 3.50, "3.5": 3.75, "4": 4.25,
+                    "5": 4.75, "6": 5.25, "8": 6.25, "10": 7.00, "12": 8.00
+                }
+            }
+        };
+        
+        // Function to search for flange thickness
+        document.getElementById("searchButton").addEventListener("click", function() {
+            const flangeType = document.getElementById("flangeType").value;
+            const pressureClass = document.getElementById("flangeClass").value;
+            const size = document.getElementById("size").value;
+            const unit = document.getElementById("unit").value;
+            
+            let resultHTML = '';
+            
+            // If no specific filter is selected, show all data as tables
+            if (!flangeType && !pressureClass && !size) {
+                resultHTML = generateAllTables(unit);
+            }
+            // If only pressure class is selected
+            else if (pressureClass && !flangeType && !size) {
+                resultHTML = generateClassTable(pressureClass, unit);
+            }
+            // If only flange type is selected
+            else if (flangeType && !pressureClass && !size) {
+                resultHTML = generateTypeTable(flangeType, unit);
+            }
+            // If only size is selected
+            else if (size && !flangeType && !pressureClass) {
+                resultHTML = generateSizeTable(size, unit);
+            }
+            // If specific combination is selected
+            else {
+                resultHTML = generateSpecificResult(flangeType, pressureClass, size, unit);
+            }
+            
+            document.getElementById("results").innerHTML = resultHTML;
+        });
+        
+        // Function to generate result for specific selection
+        function generateSpecificResult(type, pressureClass, size, unit) {
+            let result = '';
+            const conversionFactor = unit === 'metric' ? 25.4 : 1; // inches to mm
+            
+            // Handle partial selections
+            if (!type && !pressureClass && !size) {
+                return '<p>Please select at least one filter criteria.</p>';
+            }
+            
+            // Create header for the result
+            result += '<h3>Flange Thickness Results</h3>';
+            
+            // Create table
+            result += '<table>';
+            result += '<tr><th>Flange Type</th><th>Pressure Class</th><th>Size (NPS)</th><th>Thickness (tf)</th></tr>';
+            
+            // If all specific values are selected
+            if (type && pressureClass && size) {
+                const classKey = `class${pressureClass}`;
+                if (flangeData[classKey] && flangeData[classKey][type] && flangeData[classKey][type][size]) {
+                    const thickness = flangeData[classKey][type][size];
+                    const displayThickness = unit === 'metric' ? (thickness * conversionFactor).toFixed(2) : thickness.toFixed(2);
+                    const unit_symbol = unit === 'metric' ? 'mm' : 'in';
+                    
+                    result += `<tr>
+                        <td>${formatFlangeType(type)}</td>
+                        <td>Class ${pressureClass}</td>
+                        <td>${formatSize(size)}</td>
+                        <td>${displayThickness} ${unit_symbol}</td>
+                    </tr>`;
+                } else {
+                    result += `<tr><td colspan="4">No data available for the selected combination.</td></tr>`;
+                }
+            }
+            // If only some values are selected, show all matching combinations
+            else {
+                const classes = pressureClass ? [`class${pressureClass}`] : Object.keys(flangeData);
+                
+                for (const classKey of classes) {
+                    const typeKeys = type ? [type] : Object.keys(flangeData[classes[0]]);
+                    
+                    for (const typeKey of typeKeys) {
+                        const sizeKeys = size ? [size] : Object.keys(flangeData[classes[0]][typeKeys[0]]);
+                        
+                        for (const sizeKey of sizeKeys) {
+                            if (flangeData[classKey] && 
+                                flangeData[classKey][typeKey] && 
+                                flangeData[classKey][typeKey][sizeKey]) {
+                                
+                                const thickness = flangeData[classKey][typeKey][sizeKey];
+                                const displayThickness = unit === 'metric' ? 
+                                    (thickness * conversionFactor).toFixed(2) : 
+                                    thickness.toFixed(2);
+                                const unit_symbol = unit === 'metric' ? 'mm' : 'in';
+                                
+                                result += `<tr>
+                                    <td>${formatFlangeType(typeKey)}</td>
+                                    <td>${classKey.replace('class', 'Class ')}</td>
+                                    <td>${formatSize(sizeKey)}</td>
+                                    <td>${displayThickness} ${unit_symbol}</td>
+                                </tr>`;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            result += '</table>';
+            return result;
+        }
+        
+        // Function to generate tables for all classes
+        function generateAllTables(unit) {
+            let result = '';
+            const conversionFactor = unit === 'metric' ? 25.4 : 1; // inches to mm
+            const unit_symbol = unit === 'metric' ? 'mm' : 'in';
+            
+            // For each pressure class
+            for (const classKey of Object.keys(flangeData)) {
+                result += `<h3>${classKey.replace('class', 'Class ')} Flange Thickness (tf)</h3>`;
+                result += '<table>';
+                
+                // Header row with sizes
+                result += '<tr><th>Flange Type</th>';
+                const sizes = Object.keys(flangeData[classKey]['weld-neck']).sort((a, b) => parseFloat(a) - parseFloat(b));
+                
+                for (const size of sizes) {
+                    result += `<th>${formatSize(size)}</th>`;
+                }
+                result += '</tr>';
+                
+                // Data rows for each flange type
+                for (const typeKey of Object.keys(flangeData[classKey])) {
+                    result += `<tr><td>${formatFlangeType(typeKey)}</td>`;
+                    
+                    for (const size of sizes) {
+                        const thickness = flangeData[classKey][typeKey][size];
+                        if (thickness !== null && thickness !== undefined) {
+                            const displayThickness = unit === 'metric' ? 
+                                (thickness * conversionFactor).toFixed(2) : 
+                                thickness.toFixed(2);
+                            result += `<td>${displayThickness} ${unit_symbol}</td>`;
+                        } else {
+                            result += '<td>N/A</td>';
+                        }
+                    }
+                    
+                    result += '</tr>';
+                }
+                
+                result += '</table>';
+            }
+            
+            return result;
+        }
+        
+        // Function to generate table for specific class
+        function generateClassTable(pressureClass, unit) {
+            const classKey = `class${pressureClass}`;
+            const conversionFactor = unit === 'metric' ? 25.4 : 1; // inches to mm
+            const unit_symbol = unit === 'metric' ? 'mm' : 'in';
+            
+            let result = `<h3>Class ${pressureClass} Flange Thickness (tf)</h3>`;
+            result += '<table>';
+            
+            // Header row with sizes
+            result += '<tr><th>Flange Type</th>';
+            const sizes = Object.keys(flangeData[classKey]['weld-neck']).sort((a, b) => parseFloat(a) - parseFloat(b));
+            
+            for (const size of sizes) {
+                result += `<th>${formatSize(size)}</th>`;
+            }
+            result += '</tr>';
+            
+            // Data rows for each flange type
+            for (const typeKey of Object.keys(flangeData[classKey])) {
+                result += `<tr><td>${formatFlangeType(typeKey)}</td>`;
+                
+                for (const size of sizes) {
+                    const thickness = flangeData[classKey][typeKey][size];
+                    if (thickness !== null && thickness !== undefined) {
+                        const displayThickness = unit === 'metric' ? 
+                            (thickness * conversionFactor).toFixed(2) : 
+                            thickness.toFixed(2);
+                        result += `<td>${displayThickness} ${unit_symbol}</td>`;
+                    } else {
+                        result += '<td>N/A</td>';
+                    }
+                }
+                
+                result += '</tr>';
+            }
+            
+            result += '</table>';
+            return result;
+        }
+        
+        // Function to generate table for specific flange type
+        function generateTypeTable(flangeType, unit) {
+            const conversionFactor = unit === 'metric' ? 25.4 : 1; // inches to mm
+            const unit_symbol = unit === 'metric' ? 'mm' : 'in';
+            
+            let result = `<h3>${formatFlangeType(flangeType)} Flange Thickness (tf)</h3>`;
+            result += '<table>';
+            
+            // Header row with sizes
+            result += '<tr><th>Pressure Class</th>';
+            const sizes = Object.keys(flangeData['class150'][flangeType]).sort((a, b) => parseFloat(a) - parseFloat(b));
+            
+            for (const size of sizes) {
+                result += `<th>${formatSize(size)}</th>`;
+            }
+            result += '</tr>';
+            
+            // Data rows for each pressure class
+            for (const classKey of Object.keys(flangeData)) {
+                result += `<tr><td>${classKey.replace('class', 'Class ')}</td>`;
+                
+                for (const size of sizes) {
+                    const thickness = flangeData[classKey][flangeType][size];
+                    if (thickness !== null && thickness !== undefined) {
+                        const displayThickness = unit === 'metric' ? 
+                            (thickness * conversionFactor).toFixed(2) : 
+                            thickness.toFixed(2);
+                        result += `<td>${displayThickness} ${unit_symbol}</td>`;
+                    } else {
+                        result += '<td>N/A</td>';
+                    }
+                }
+                
+                result += '</tr>';
+            }
+            
+            result += '</table>';
+            return result;
+        }
+        
+        // Function to generate table for specific size
+        function generateSizeTable(size, unit) {
+            const conversionFactor = unit === 'metric' ? 25.4 : 1; // inches to mm
+            const unit_symbol = unit === 'metric' ? 'mm' : 'in';
+            
+            let result = `<h3>NPS ${formatSize(size)} Flange Thickness (tf)</h3>`;
+            result += '<table>';
+            
+            // Header row with flange types
+            result += '<tr><th>Pressure Class</th>';
+            const typeKeys = Object.keys(flangeData['class150']);
+            
+            for (const typeKey of typeKeys) {
+                result += `<th>${formatFlangeType(typeKey)}</th>`;
+            }
+            result += '</tr>';
+            
+            // Data rows for each pressure class
+            for (const classKey of Object.keys(flangeData)) {
+                result += `<tr><td>${classKey.replace('class', 'Class ')}</td>`;
+                
+                for (const typeKey of typeKeys) {
+                    const thickness = flangeData[classKey][typeKey][size];
+                    if (thickness) {
+                        const displayThickness = unit === 'metric' ? 
+                            (thickness * conversionFactor).toFixed(2) : 
+                            thickness.toFixed(2);
+                        result += `<td>${displayThickness} ${unit_symbol}</td>`;
+                    } else {
+                        result += '<td>N/A</td>';
+                    }
+                }
+                
+                result += '</tr>';
+            }
+            
+            result += '</table>';
+            return result;
+        }
+        
+        // Helper function to format flange type names
+        function formatFlangeType(typeKey) {
+            const typeMap = {
+                'weld-neck': 'Weld Neck',
+                'long-weld-neck': 'Long Weld Neck',
+                'slip-on': 'Slip-On',
+                'socket-weld': 'Socket Weld',
+                'threaded': 'Threaded',
+                'lap-joint': 'Lap Joint',
+                'blind': 'Blind',
+                'rtj': 'Ring Type Joint (RTJ)'
+            };
+            
+            return typeMap[typeKey] || typeKey;
+        }
+        
+        // Helper function to format size display
+        function formatSize(size) {
+            const sizeNum = parseFloat(size);
+            
+            if (sizeNum < 1) {
+                // Convert decimal to fraction
+                if (sizeNum === 0.5) return '1/2"';
+                if (sizeNum === 0.75) return '3/4"';
+                return size + '"';
+            } else {
+                // Handle whole numbers and mixed numbers
+                const whole = Math.floor(sizeNum);
+                const frac = sizeNum - whole;
+                
+                if (frac === 0) return whole + '"';
+                if (frac === 0.25) return whole + '-1/4"';
+                if (frac === 0.5) return whole + '-1/2"';
+                if (frac === 0.75) return whole + '-3/4"';
+                
+                return sizeNum + '"';
+            }
+        }
+        
+        // Search input functionality
+        document.getElementById("searchInput").addEventListener("keyup", function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            // Filter the dropdown options based on search term
+            filterDropdown("flangeType", searchTerm);
+            filterDropdown("flangeClass", searchTerm);
+            filterDropdown("size", searchTerm);
+        });
+        
+        // Function to filter dropdown options
+        function filterDropdown(dropdownId, searchTerm) {
+            const dropdown = document.getElementById(dropdownId);
+            const options = dropdown.options;
+            
+            for (let i = 0; i < options.length; i++) {
+                const optionText = options[i].text.toLowerCase();
+                const optionValue = options[i].value.toLowerCase();
+                
+                if (optionText.includes(searchTerm) || optionValue.includes(searchTerm)) {
+                    // If option matches search term, select it
+                    if (searchTerm.length > 0) {
+                        dropdown.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
