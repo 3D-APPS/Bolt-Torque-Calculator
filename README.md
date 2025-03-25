@@ -1,152 +1,97 @@
-# ASME/API Code Reference System
-
-A sophisticated browser-based application for searching and referencing engineering codes and standards from ASME and API. This system allows engineers and technical professionals to find relevant code references using natural language questions or keyword searches.
+# Pressure Equipment Thickness Calculator
 
 ## Overview
+This web application provides engineering tools for calculating minimum required thickness for various pressure equipment components according to industry standards. The calculator includes modules for three major standards and a reference section for material allowable stress values.
 
-The ASME/API Code Reference System provides an intelligent interface for accessing important engineering standards information. The application operates entirely in the browser, with no server-side processing required, making it ideal for deployment on static hosting platforms like GitHub Pages.
+## Main Modules
 
-## Features
+### 1. ASME Section VIII Calculator
+Calculates minimum thickness for pressure vessel components according to ASME Boiler and Pressure Vessel Code, Section VIII, Division 1.
 
-- **Natural Language Question Processing**: Ask questions in plain English like "What are the requirements for pressure vessel inspection?" and receive relevant references
-- **Code Reference Search**: Query across multiple ASME and API standards simultaneously
-- **Intelligent Code Detection**: Automatically identifies relevant codes based on question content and terminology
-- **Subject Matter Recognition**: Understands industry-specific terminology and maps it to appropriate standards
-- **Relevance-Based Results**: Prioritizes search results based on question context and technical relevance
-- **Filtering Options**: Narrow results by specific code (e.g., ASME B31.3, API 510) or section numbers
-- **Quick Search**: Rapid access to code references via the top search bar
-- **Advanced Search**: Detailed filtering options for precise queries
-- **Responsive Design**: Functions well on both desktop and mobile devices
-- **Dark Theme**: Eye-friendly interface for extended use
-- **No External Dependencies**: Completely self-contained HTML/CSS/JavaScript application
+**Supported Components:**
+- Cylindrical Shells
+- Spherical Shells
+- Elliptical Heads (2:1)
+- Hemispherical Heads
+- Torispherical Heads (ASME Flanged & Dished)
+- Nozzles/Openings
 
-## Supported Standards
+**Key Formulas:**
+- Cylindrical Shell: t = (P × R) / (S × E - 0.6 × P) + CA
+- Spherical Shell: t = (P × R) / (2 × S × E - 0.2 × P) + CA
+- Elliptical Head: t = (P × D × K) / (2 × S × E - 0.2 × P) + CA
+- Torispherical Head: t = (0.855 × P × L) / (S × E - 0.1 × P) + CA
 
-The system currently includes reference data for:
+### 2. ASME B31.3 Calculator
+Calculates minimum thickness for process piping according to ASME B31.3 standard.
 
-- ASME B31.3 (Process Piping)
-- ASME Section I (Power Boilers)
-- ASME Section V (Nondestructive Examination)
-- ASME Section VIII (Pressure Vessels)
-- API 510 (Pressure Vessel Inspection)
-- API 570 (Piping Inspection)
-- API 653 (Tank Inspection)
-- API 580 (Risk-Based Inspection)
+**Key Formula:**
+t = (P × D) / (2 × (S × E + P × Y)) + CA
 
-## Deployment
+Where:
+- P = internal design pressure
+- D = outside diameter
+- S = allowable stress
+- E = longitudinal weld joint factor
+- Y = temperature coefficient (0.4 for ≤900°F, 0.7 for >900°F)
+- CA = corrosion allowance
 
-This application is designed for deployment on GitHub Pages:
+### 3. API 653 Calculator
+Calculates minimum thickness for storage tank components according to API 653 standard.
 
-1. Fork or clone this repository
-2. Navigate to the repository Settings
-3. Select the Pages section
-4. Choose your main branch as the source
-5. Save the configuration
-6. Your site will be published at `https://[username].github.io/[repository-name]/`
+**Supported Calculations:**
+- Shell Course (1-Foot Method)
+- Tank Bottom
 
-## Local Development
+**Key Formulas:**
+- Shell Course: t = (2.6 × H × D × G × (H - h + 1)) / (S × E) + CA
+- Tank Bottom: t = 0.039 × D × √G + CA
 
-To run the application locally:
+Where:
+- H = height from bottom to maximum fluid height
+- D = nominal tank diameter
+- G = specific gravity of fluid
+- h = height from bottom to center of shell course
+- S = allowable stress
+- E = joint efficiency
+- CA = corrosion allowance
 
-1. Clone this repository to your local machine
-2. Open the `index.html` file in any modern web browser
-3. The application will load with sample data ready for testing
+### 4. Allowable Stress Values
+Provides reference tables of allowable stress values for various materials according to ASME Section II Part D.
 
-## Customizing Reference Data
+**Material Categories:**
+- Carbon Steels
+- Stainless Steels
+- Nickel Alloys
 
-The system uses two approaches for reference data:
+**Features:**
+- Filterable by material type
+- Searchable by keyword
+- Temperature interpolation tool
 
-### 1. External JSON File (Recommended)
+## Input Parameters
 
-Create a file named `code-references.json` in your repository with this structure:
+### Common Inputs:
+- Design pressure (P)
+- Diameter (D) or radius (R)
+- Allowable stress (S)
+- Joint efficiency/factor (E)
+- Corrosion allowance (CA)
 
-```json
-{
-  "ASME B31.3": [
-    {
-      "section": "300.1.1",
-      "content": "This Code contains requirements for piping typically found in petroleum refineries..."
-    },
-    {
-      "section": "300.2",
-      "subsection": "2",
-      "content": "The Code is applicable to piping for all fluids including..."
-    }
-  ],
-  "API 510": [
-    {
-      "section": "1.1",
-      "content": "API 510 covers the in-service inspection, repair, alteration..."
-    }
-  ]
-}
-```
+### Special Inputs:
+- Temperature coefficient (Y) for B31.3
+- Specific gravity (G) for API 653
+- Mill tolerance (%) for B31.3
 
-The system will automatically load this file when available.
+## Units
+The calculator supports both US Customary and Metric units:
+- US Customary: psi, inches, feet
+- Metric: MPa, mm, meters
 
-### 2. Built-in Sample Data
-
-The application includes some built-in sample data that serves as a fallback if the external JSON file cannot be loaded.
-
-## Technical Details
-
-### Architecture
-
-The application is built using:
-- HTML5 for structure
-- CSS3 for styling and layout
-- Vanilla JavaScript for functionality
-- Object-oriented programming patterns for code organization
-
-### Search Functionality
-
-The search system uses several advanced techniques:
-
-1. **Code-Specific Keyword Dictionary**: The system maintains a comprehensive dictionary mapping technical terms to specific codes. For example, terms like "piping," "fluid," and "chemical" are associated with ASME B31.3.
-
-2. **Question Pattern Recognition**: The system identifies common question patterns (e.g., "What is...", "How to...", "Requirements for...") and extracts subject matter for searching.
-
-3. **Relevance Scoring Algorithm**: Search results are ranked using a scoring algorithm that considers:
-   - Match with important technical terminology
-   - Presence of terms in section titles vs. content
-   - How specifically the term relates to a particular code
-   - Explicit mentions of code or section numbers
-
-4. **Reference Data Management**: The system loads data from an external JSON file when available, with a fallback to built-in sample data.
-
-## Enhancing the System
-
-### Adding More Code-Specific Keywords
-
-To improve natural language understanding, you can enhance the code keyword dictionary in the HTML file:
-
-```javascript
-this.codeKeywords = {
-    "ASME B31.3": ["piping", "pipe", "fluid", "chemical", "refinery", ...],
-    "API 510": ["pressure", "vessel", "inspection", "repair", ...],
-    // Add more keywords for each code
-};
-```
-
-### Expanding Reference Data
-
-Add more comprehensive reference data to your JSON file to improve search results.
-
-## Future Enhancements
-
-Potential improvements for future versions:
-
-- Expanded reference database with more comprehensive code coverage
-- Advanced filtering by topics and categories
-- User accounts for saving favorite references
-- Export functionality for reports
-- Incorporation of code images and diagrams
-- Full-text search with fuzzy matching
-
-## License
-
-This project is available under the MIT License. See the LICENSE file for details.
-
-## Disclaimer
-
-This tool is provided for reference purposes only. Always consult the official documentation for definitive answers regarding engineering codes and standards. The creators of this application are not responsible for any decisions made based on the information provided.
+## Technical Implementation
+The web application is built using HTML, CSS, and JavaScript. It features:
+- Tabbed interface for different standards
+- Interactive form validation
+- Calculation result display with formula breakdown
+- Responsive design for different screen sizes
+- Tooltips for parameter explanations
